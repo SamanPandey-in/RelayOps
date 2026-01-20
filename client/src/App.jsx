@@ -7,7 +7,7 @@ import ThemeProvider from './components/theme/ThemeProvider.jsx'
 import Layout from './components/layout/Layout';
 
 // Pages
-import {Landing, Login, Signup, Home } from './pages/index'
+import {Landing, AuthPage, ForgotPassword, ResetPassword, Home } from './pages/index'
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -45,18 +45,26 @@ function AppRoutes() {
       {/* Public Routes */}
       <Route path="/" element={<Landing />} />
       <Route
-        path="/login"
+        path="/auth"
         element={
           <PublicRoute>
-            <Login />
+            <AuthPage />
           </PublicRoute>
         }
       />
       <Route
-        path="/signup"
+        path="/forgot-password"
         element={
           <PublicRoute>
-            <Signup />
+            <ForgotPassword />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/reset-password"
+        element={
+          <PublicRoute>
+            <ResetPassword />
           </PublicRoute>
         }
       />

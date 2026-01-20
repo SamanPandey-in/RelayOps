@@ -1,6 +1,7 @@
 import Landing from './Landing'
-import Login from './Login';
-import Signup from './Signup';
+import AuthPage from './Auth/AuthPage'
+import ForgotPassword from './Auth/ForgotPassword';
+import ResetPassword from './Auth/ResetPassword'
 import Home from './Home'
 
-export { Landing, Login, Signup, Home };
+export { Landing, AuthPage, ForgotPassword, ResetPassword, Home };
