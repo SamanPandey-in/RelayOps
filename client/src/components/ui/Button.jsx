@@ -1,4 +1,4 @@
-import { Button as MuiButton } from "@mui/material";
+import { Button as MuiButton, CircularProgress } from "@mui/material";
 import clsx from "clsx";
 
 const variants = {
@@ -33,18 +33,27 @@ export function Button({
       type={type}
       disabled={disabled || loading}
       disableRipple
+      aria-busy={loading}
       className={clsx(
         "normal-case font-medium rounded-md transition",
-        "px-4 py-2",
+        "px-4 py-2 min-h-[40px]",
 
-        // disabled styles now work
+        // disabled styles
         "disabled:opacity-50 disabled:cursor-not-allowed",
 
         variants[variant],
         className
       )}
     >
-      {loading ? "Please wait..." : children}
+      {loading ? (
+        <CircularProgress
+          size={18}
+          thickness={5}
+          className="text-current"
+        />
+      ) : (
+        children
+      )}
     </MuiButton>
   );
 }
