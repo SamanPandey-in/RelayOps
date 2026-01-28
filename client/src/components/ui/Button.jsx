@@ -1,59 +1,45 @@
 import { Button as MuiButton, CircularProgress } from '@mui/material';
-import clsx from 'clsx';
 
-const variants = {
-  primary: `
-    bg-[var(--color-btn-bg)]
-    text-[var(--color-btn-text)]
-    hover:bg-[var(--color-btn-bg-hover)]
-  `,
-  outline: `
-    border border-[var(--color-border)]
-    text-[var(--color-text)]
-    hover:bg-[var(--color-surface-variant)]
-  `,
-  ghost: `
-    text-[var(--color-text)]
-    hover:bg-[var(--color-surface-variant)]
-  `,
-};
-
+/**
+ * Button component wrapper around MUI Button with support for variants
+ * @param {string} variant - 'contained', 'outlined', 'text' (default: 'contained')
+ * @param {boolean} loading - Shows loading spinner when true
+ * @param {string} color - 'primary', 'error', 'warning', 'success', 'info' (default: 'primary')
+ * @param {string} size - 'small', 'medium', 'large' (default: 'medium')
+ */
 export function Button({
   children,
   loading = false,
-  variant = "primary",
-  className,
+  variant = 'contained',
+  color = 'primary',
+  size = 'medium',
   disabled,
-  type = "button",
+  type = 'button',
+  className,
+  startIcon,
+  endIcon,
+  fullWidth = false,
   ...props
 }) {
   return (
     <MuiButton
       {...props}
+      variant={variant}
+      color={color}
+      size={size}
       type={type}
       disabled={disabled || loading}
-      disableRipple
-      aria-busy={loading}
-      className={clsx(
-        "normal-case font-medium rounded-md transition",
-        "px-4 py-2 min-h-[40px]",
-
-        // disabled styles
-        "disabled:opacity-50 disabled:cursor-not-allowed",
-
-        variants[variant],
-        className
-      )}
+      fullWidth={fullWidth}
+      startIcon={loading ? <CircularProgress size={20} /> : startIcon}
+      endIcon={!loading ? endIcon : undefined}
+      className={className}
+      sx={{
+        position: 'relative',
+        opacity: loading ? 0.7 : 1,
+        pointerEvents: loading ? 'none' : 'auto',
+      }}
     >
-      {loading ? (
-        <CircularProgress
-          size={18}
-          thickness={5}
-          className="text-current"
-        />
-      ) : (
-        children
-      )}
+      {children}
     </MuiButton>
   );
 }

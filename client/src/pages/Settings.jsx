@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { Bell, Lock, Settings as SettingsIcon, Check } from 'lucide-react';
 
 import { updateUserSettings } from '../store';
+import { Button } from '../components';
 
 const Settings = () => {
   const dispatch = useDispatch();
@@ -259,18 +260,21 @@ const Settings = () => {
 
         {/* Action Buttons */}
         <div className="flex gap-4 justify-end pt-4">
-          <button
+          <Button
+            variant='outlined'
+            color='primary'
             onClick={handleResetSettings}
-            className="px-5 py-2 text-sm border border-gray-300 dark:border-zinc-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-50 dark:hover:bg-zinc-700 font-medium transition-colors"
           >
             Reset to Defaults
-          </button>
-          <button
+          </Button>
+          <Button
+            variant='contained'
+            color='primary'
+            startIcon={<Check size={16} />}
             onClick={handleSaveSettings}
-            className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:opacity-90 transition font-medium"
           >
             Save Settings
-          </button>
+          </Button>
         </div>
       </div>
     </div>

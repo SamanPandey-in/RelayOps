@@ -106,7 +106,9 @@ export default function AuthPage() {
 
               <Button
                 type="button"
-                variant="outline"
+                variant="outlined"
+                color="primary"
+                fullWidth
                 onClick={async () => {
                   setError("");
                   setLoading(true);
@@ -119,9 +121,8 @@ export default function AuthPage() {
                     setLoading(false);
                   }
                 }}
-                className="w-full flex items-center justify-center gap-2"
               >
-                <svg className="w-5 h-5 my-2" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path
                     fill="currentColor"
                     d="M12 10.8v3.6h5.1c-.2 1.3-1.5 3.8-5.1 3.8A6 6 0 1 1 12 6c1.7 0 2.9.7 3.6 1.3l2.4-2.3C16.5 3.6 14.4 2.5 12 2.5A9.5 9.5 0 1 0 21.5 12c0-.6-.1-1.1-.2-1.7H12z"
@@ -158,13 +159,15 @@ export default function AuthPage() {
                 />
 
                 <div className="flex justify-end">
-                  <button
+                  <Button
                     type="button"
+                    variant="text"
+                    color="primary"
+                    size="small"
                     onClick={() => navigate("/forgot-password")}
-                    className="text-sm text-[var(--color-link)] hover:text-[var(--color-link-hover)] transition-colors"
                   >
                     Forgot your password?
-                  </button>
+                  </Button>
                 </div>
 
 
@@ -199,7 +202,9 @@ export default function AuthPage() {
 
               <Button
                 type="button"
-                variant="outline"
+                variant="outlined"
+                color="primary"
+                fullWidth
                 onClick={async () => {
                   setError("");
                   setLoading(true);
@@ -212,9 +217,8 @@ export default function AuthPage() {
                     setLoading(false);
                   }
                 }}
-                className="w-full flex items-center justify-center gap-2"
               >
-                <svg className="w-5 h-5 my-2" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path
                     fill="currentColor"
                     d="M12 10.8v3.6h5.1c-.2 1.3-1.5 3.8-5.1 3.8A6 6 0 1 1 12 6c1.7 0 2.9.7 3.6 1.3l2.4-2.3C16.5 3.6 14.4 2.5 12 2.5A9.5 9.5 0 1 0 21.5 12c0-.6-.1-1.1-.2-1.7H12z"

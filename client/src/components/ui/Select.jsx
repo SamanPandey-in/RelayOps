@@ -1,19 +1,25 @@
 import { FormControl, InputLabel, MenuItem, Select as MuiSelect } from '@mui/material';
 
-export function Select({ label, options, ...props }) {
+/**
+ * Select component wrapper around MUI Select
+ * @param {string} label - Label for the select
+ * @param {Array} options - Array of {value, label} objects
+ */
+export function Select({ label, options, fullWidth = true, size = 'small', ...props }) {
   return (
-    <FormControl fullWidth>
-      <InputLabel>{label}</InputLabel>
+    <FormControl fullWidth={fullWidth} size={size}>
+      {label && <InputLabel>{label}</InputLabel>}
       <MuiSelect
         {...props}
-        className="bg-[var(--color-input-bg)] rounded-md"
+        label={label}
         sx={{
-          "& fieldset": {
-            borderColor: "var(--color-input-border)",
+          borderRadius: '8px',
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '8px',
           },
         }}
       >
-        {options.map((opt) => (
+        {options && options.map((opt) => (
           <MenuItem key={opt.value} value={opt.value}>
             {opt.label}
           </MenuItem>

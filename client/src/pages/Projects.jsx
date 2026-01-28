@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Plus, Search, FolderOpen } from 'lucide-react';
 
-import { ProjectCard, CreateProjectDialog } from '../components';
+import { ProjectCard, CreateProjectDialog, Button } from '../components';
 
 export default function Projects() {
     
@@ -54,9 +54,14 @@ export default function Projects() {
                     <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mb-1"> Projects </h1>
                     <p className="text-gray-500 dark:text-zinc-400 text-sm"> Manage and track your projects </p>
                 </div>
-                <button onClick={() => setIsDialogOpen(true)} className="flex items-center px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:opacity-90 transition" >
-                    <Plus className="size-4 mr-2" /> New Project
-                </button>
+                <Button 
+                  variant='contained' 
+                  color='primary'
+                  startIcon={<Plus size={16} />}
+                  onClick={() => setIsDialogOpen(true)}
+                >
+                  New Project
+                </Button>
                 <CreateProjectDialog isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} />
             </div>
 
