@@ -40,42 +40,14 @@ function AppRoutes() {
   return (
     <Routes>
       {/* Public Routes */}
-      <Route path="/" element={<Landing />} />
-      <Route
-        path="/auth"
-        element={
-          <PublicRoute>
-            <AuthPage />
-          </PublicRoute>
-        }
-      />
-      <Route
-        path="/forgot-password"
-        element={
-          <PublicRoute>
-            <ForgotPassword />
-          </PublicRoute>
-        }
-      />
-      <Route
-        path="/reset-password"
-        element={
-          <PublicRoute>
-            <ResetPassword />
-          </PublicRoute>
-        }
-      />
-
-      {/* Protected Routes */}
+      
       <Route
         path="/*"
         element={
-          <ProtectedRoute>
             <Layout />
-          </ProtectedRoute>
         }
       >
-        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="" element={<Dashboard />} />
         <Route path="projects" element={<Projects />} />
         <Route path="projectsDetail" element={<ProjectDetails />} />
         <Route path="team" element={<Team />} />
