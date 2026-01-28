@@ -21,3 +21,15 @@ export {
   deleteTask
 } from "./slices/workspaceSlice.js";
 export { default as workspaceReducer } from "./slices/workspaceSlice.js";
+
+// Settings Slice
+export {
+  updateUserSettings,
+  updateNotifications,
+  updatePrivacy,
+  updatePreferences,
+  resetToDefaults,
+  setLoading as setSettingsLoading,
+  setError as setSettingsError
+} from "./slices/settingsSlice.js";
+export { default as settingsReducer } from "./slices/settingsSlice.js";
