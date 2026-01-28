@@ -4,7 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider, Layout } from './components';
 
 // Pages
-import { Landing, AuthPage, ForgotPassword, ResetPassword, Dashboard, Projects, ProjectDetails } from './pages/index'
+import { Landing, AuthPage, ForgotPassword, ResetPassword, Dashboard, Projects, ProjectDetails, Team } from './pages/index'
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -70,12 +70,15 @@ function AppRoutes() {
       <Route
         path="/*"
         element={
+          <ProtectedRoute>
             <Layout />
+          </ProtectedRoute>
         }
       >
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="projects" element={<Projects />} />
         <Route path="projectsDetail" element={<ProjectDetails />} />
+        <Route path="team" element={<Team />} />
         {/* Add more routes */}
       </Route>
 

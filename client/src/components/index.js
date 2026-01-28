@@ -25,6 +25,9 @@ export { default as ProjectCard } from './projects/ProjectCard';
 export { default as ProjectSettings } from './projects/ProjectSettings';
 export { default as ProjectTasks } from './projects/ProjectTasks';
 
+// Team Components
+export { default as InviteMemberDialog } from './team/InviteMemberDialog';
+
 // Theme Components
 export { default as ThemeProvider } from './theme/ThemeProvider';
 export { default as ThemeToggle } from './theme/ThemeToggle';
