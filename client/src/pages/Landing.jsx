@@ -14,8 +14,7 @@ import {
   Award
 } from 'lucide-react';
 import Button from '@mui/material/Button';
-import Logo from '../components/Logo';
-import ThemeToggle from '../components/theme/ThemeToggle';
+import { Logo, ThemeToggle } from '../components';
 
 const Landing = () => {
   const [isScrolled, setIsScrolled] = useState(false);

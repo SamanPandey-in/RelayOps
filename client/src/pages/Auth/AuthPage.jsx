@@ -2,8 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, User } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
-import Logo from "../../components/Logo";
-import { Input, Button } from "../../components/ui";
+import { Logo, Input, Button } from "../../components";
 
 export default function AuthPage() {
   const navigate = useNavigate();

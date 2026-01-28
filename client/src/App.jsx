@@ -1,10 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import ThemeProvider from './components/theme/ThemeProvider.jsx'
-
-// Layout
-import Layout from './components/layout/Layout';
+import { ThemeProvider, Layout } from './components';
 
 // Pages
 import { Landing, AuthPage, ForgotPassword, ResetPassword, Dashboard, Projects, ProjectDetails } from './pages/index'
@@ -73,9 +70,7 @@ function AppRoutes() {
       <Route
         path="/*"
         element={
-          <ProtectedRoute>
             <Layout />
-          </ProtectedRoute>
         }
       >
         <Route path="dashboard" element={<Dashboard />} />
