@@ -4,7 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ThemeProvider, Layout } from './components';
 
 // Pages
-import { Landing, AuthPage, ForgotPassword, ResetPassword, Dashboard, Projects, ProjectDetails, Team, TaskDetails, Settings } from './pages/index'
+import { Landing, AuthPage, ForgotPassword, ResetPassword, Dashboard, Projects, ProjectDetails, Team, TaskDetails, Settings, Profile } from './pages/index'
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -81,6 +81,7 @@ function AppRoutes() {
         <Route path="team" element={<Team />} />
         <Route path="taskDetails" element={<TaskDetails />} />
         <Route path="settings" element={<Settings />} />
+        <Route path="profile" element={<Profile />} />
         {/* Add more routes */}
       </Route>
 
