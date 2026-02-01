@@ -1,329 +1,229 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef } from 'react';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
-  CheckCircle2,
-  Wrench,
-  Calendar,
-  Users,
-  BarChart3,
-  ArrowRight,
-  Shield,
+  LayoutDashboard,
+  MessageSquare,
   Zap,
-  TrendingUp,
   Clock,
-  Award
+  Layers,
+  ChevronRight,
+  Smartphone,
+  Shield,
+  Link as LinkIcon
 } from 'lucide-react';
-import Button from '@mui/material/Button';
-import { Logo, ThemeToggle } from '../components';
 
-const Landing = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
+/**
+ * RELAYOPS LANDING PAGE
+ * Vision: The central nervous system for team collaboration.
+ * Concept: The "Baton Pass" - seamless transitions and proactive orchestration.
+ */
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+const Navbar = () => (
+  <nav className="fixed top-0 w-full z-50 border-b border-white/10 bg-black/60 backdrop-blur-xl">
+    <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(6,182,212,0.4)]">
+          <Zap size={18} className="text-white fill-current" />
+        </div>
+        <span className="text-xl font-bold tracking-tighter text-white">RelayOps</span>
+      </div>
 
-  const features = [
-    {
-      icon: <Wrench size={24} />,
-      title: 'One-Click Asset Intelligence',
-      description: "Never hunt for data again. Our 'Smart Button' technology provides an instant, filtered history of every repair.",
-    },
-    {
-      icon: <Users size={24} />,
-      title: 'Team Management',
-      description: 'Organize specialized teams and assign maintenance tasks efficiently.',
-    },
-    {
-      icon: <Calendar size={24} />,
-      title: 'Smart Scheduling',
-      description: 'Schedule preventive maintenance and never miss critical service dates.',
-    },
-    {
-      icon: <BarChart3 size={24} />,
-      title: 'Insights & Reports',
-      description: 'Get actionable insights with comprehensive maintenance analytics.',
-    },
-    {
-      icon: <Shield size={24} />,
-      title: 'Warranty Management',
-      description: 'Track warranty information and ensure timely claims.',
-    },
-    {
-      icon: <Zap size={24} />,
-      title: 'Real-time Updates',
-      description: 'Stay informed with instant notifications and status updates.',
-    },
-  ];
+      <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
+        <a href="#features" className="hover:text-cyan-400 transition-colors">Platform</a>
+        <a href="#vision" className="hover:text-cyan-400 transition-colors">Our Vision</a>
+        <a href="#mobile" className="hover:text-cyan-400 transition-colors">Mobile</a>
+      </div>
 
-  const stats = [
-    { value: '40%', label: 'Reduction in Downtime', icon: <TrendingUp size={24} /> },
-    { value: '500+', label: 'Companies Trust Us', icon: <Users size={24} /> },
-    { value: '99.9%', label: 'System Uptime', icon: <Clock size={24} /> },
-    { value: '4.9/5', label: 'Customer Rating', icon: <Award size={24} /> },
-  ];
+      <div className="flex items-center gap-4">
+        <Link to="/auth" className="text-sm font-medium text-white hover:text-cyan-400 transition-colors">
+          <button> Login </button>
+        </Link>
+        <Link to="/auth" className="px-5 py-2.5 rounded-full bg-white text-black text-sm font-bold hover:bg-cyan-400 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+          <button> Get Started </button>
+        </Link>
+      </div>
+    </div>
+  </nav>
+);
+
+const Hero = () => (
+  <section className="relative pt-32 pb-20 overflow-hidden">
+    <div className="max-w-7xl mx-auto px-6 relative z-10">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        className="text-center"
+      >
+        <span className="px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 text-xs font-bold tracking-widest uppercase mb-6 inline-block">
+          The Future of Team Flow
+        </span>
+        <h1 className="text-6xl md:text-8xl font-black text-white tracking-tight mb-8">
+          The Seamless <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600">Handover.</span>
+        </h1>
+        <p className="max-w-2xl mx-auto text-lg md:text-xl text-zinc-400 leading-relaxed mb-10">
+          RelayOps is the intelligent backbone for teams. We turn scattered chaos into proactive orchestration, ensuring you stay ahead rather than constantly reacting.
+        </p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <Link to="/auth">
+            <button className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg hover:scale-105 transition-transform shadow-[0_10px_40px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2">
+              Start Your Relay <ChevronRight size={20} />
+            </button>
+          </Link>
+          <a href="videolink" target="_blank" rel="noopener noreferrer">
+            <button className="w-full sm:w-auto px-8 py-4 rounded-full border border-white/10 bg-white/5 text-white font-bold text-lg hover:bg-white/10 transition-colors">
+              Watch Demo
+            </button>
+          </a>
+        </div>
+      </motion.div>
+    </div>
+
+    {/* Background Glows */}
+    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-cyan-500/10 blur-[120px] rounded-full -z-10" />
+  </section>
+);
+
+const FeatureCard = ({ icon: Icon, title, description, delay }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 30 }}
+    whileInView={{ opacity: 1, y: 0 }}
+    viewport={{ once: true }}
+    transition={{ duration: 0.5, delay }}
+    className="p-8 rounded-3xl bg-zinc-900/50 border border-white/5 hover:border-cyan-500/50 transition-all duration-500 group"
+  >
+    <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+      <Icon className="text-cyan-400" size={24} />
+    </div>
+    <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
+    <p className="text-zinc-400 leading-relaxed text-sm italic">{description}</p>
+  </motion.div>
+);
+
+const BatonPassSection = () => {
+  const containerRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start center", "end center"]
+  });
+
+  const pathHeight = useSpring(useTransform(scrollYProgress, [0, 1], ["0%", "100%"]), {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)]">
-      {/* Navigation */}
-      <nav className="border-b fixed w-full top-0 z-50 bg-[var(--color-surface)] border-[var(--color-border)]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <Logo />
+    <section id="features" ref={containerRef} className="py-24 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="text-center mb-20">
+          <h2 className="text-4xl font-bold text-white mb-4">Orchestrate Intelligently</h2>
+          <p className="text-zinc-400">Solving the headaches that slow teams down.</p>
+        </div>
 
-            <div className="flex items-center gap-4">
-              <Link to="/auth">
-                <Button variant="text">Login</Button>
-              </Link>
-              <Link to="/auth">
-                <Button variant='contained' color="primary">Get Started</Button>
-              </Link>
-            </div>
-            <ThemeToggle />
+        <div className="relative">
+          {/* Central Progress Line (The Baton Track) */}
+          <div className="absolute left-1/2 top-0 w-[2px] h-full bg-zinc-800 -translate-x-1/2 hidden md:block">
+            <motion.div
+              style={{ height: pathHeight }}
+              className="w-full bg-gradient-to-b from-cyan-500 via-blue-500 to-purple-600 shadow-[0_0_20px_rgba(6,182,212,0.6)]"
+            />
+          </div>
+
+          <div className="space-y-32">
+            <BatonFeature
+              side="left"
+              icon={Layers}
+              title="Unified Backbone" desc="No more scattered information. We act as a central nervous system for your files, chats, and decisions."
+            />
+            <BatonFeature
+              side="right"
+              icon={Clock}
+              title="Predictive Momentum" desc="Catch potential issues early. RelayOps surfaces threats before they become 'deadline surprises'."
+            />
+            <BatonFeature
+              side="left"
+              icon={Smartphone}
+              title="On-the-Go Agility" desc="A mobile MVP designed for quick interactions, ensuring you stay aligned while away from your desk."
+            />
+            <BatonFeature
+              side="right"
+              icon={MessageSquare}
+              title="Threaded Clarity" desc="Contextual discussions that stay within the project lane, so updates never get buried in email."
+            />
           </div>
         </div>
-      </nav>
+      </div>
+    </section>
+  );
+};
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden pt-32 pb-20 bg-[var(--color-bg)]">
-        {/* Background gradient */}
-        <div className="absolute inset-0 opacity-10 bg-gradient-to-br from-[var(--color-primary)] to-transparent" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm bg-[var(--color-surface)] text-[var(--color-primary)] border border-[var(--color-border)]">
-              <Zap size={16} />
-              <span>Trusted by 500+ companies worldwide</span>
-            </div>
+const BatonFeature = ({ side, title, desc, icon: Icon }) => (
+  <div className={`flex items-center justify-between w-full ${side === 'right' ? 'flex-row-reverse' : ''}`}>
+    <motion.div
+      initial={{ opacity: 0, x: side === 'left' ? -100 : 100 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.8 }}
+      className="md:w-[42%] group"
+    >
+      <div className="p-8 rounded-[2rem] bg-gradient-to-br from-zinc-900 to-black border border-white/5 group-hover:border-cyan-500/30 transition-all duration-500">
+        <Icon className="text-cyan-500 mb-6" size={32} />
+        <h3 className="text-2xl font-bold text-white mb-4">{title}</h3>
+        <p className="text-zinc-400 leading-relaxed">{desc}</p>
+      </div>
+    </motion.div>
+    <div className="hidden md:block w-1/2"></div>
+  </div>
+);
 
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-display font-bold mb-6 leading-tight" style={{ color: 'var(--text)' }}>
-              Fix Breakdowns
-              <span className="block mt-2 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-hover)] bg-clip-text text-transparent">
-                Before They Break You
-              </span>
-            </h1>
+const Landing = () => {
+  return (
+    <div className="min-h-screen bg-[#050505] text-zinc-300 selection:bg-cyan-500/30 selection:text-cyan-400 font-sans">
+      {/* Custom Cursor Overlay could be added here */}
+      <Navbar />
+      <Hero />
 
-            <p className="text-xl sm:text-2xl mb-10 max-w-3xl mx-auto leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-              Centrailze assets, automate maintainance requests, and keep teams moving with real-time visibility
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Link to="/auth">
-                <Button
-                  size="large"
-                  variant="contained"
-                  className="w-full sm:w-auto shadow-lg hover:shadow-xl"
-                  endIcon={<ArrowRight size={20} />}
-                >
-                  Start Managing Assets
-                </Button>
-              </Link>
-              <Link to="/auth">
-                <Button size="large" variant="outlined" className="w-full sm:w-auto">
-                  Explore Workflow
-                </Button>
-              </Link>
-            </div>
-
-            {/* Stats bar */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 max-w-4xl mx-auto mt-16">
-              {stats.map((stat, index) => (
-                <div className="rounded-xl p-6 border bg-[var(--color-surface)] border-[var(--color-border)]">
-                  <div className="flex justify-center mb-3 text-[var(--color-primary)]">
-                    {stat.icon}
-                  </div>
-                  <div className="text-3xl font-bold mb-1" style={{ color: 'var(--text)' }}>{stat.value}</div>
-                  <div className="text-sm" style={{ color: 'var(--text-muted)' }}>{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-24 relative" style={{ backgroundColor: 'var(--bg)' }}>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <div className="inline-block px-4 py-2 rounded-full text-sm font-semibold mb-4 dark:bg-black" style={{ backgroundColor: 'var(--bg-muted)', color: 'var(--text)' }}>
-              POWERFUL FEATURES
-            </div>
-            <h2 className="text-4xl sm:text-5xl font-display font-bold mb-4" style={{ color: 'var(--text)' }}>
-              Everything you need to manage maintenance
-            </h2>
-            <p className="text-xl max-w-2xl mx-auto" style={{ color: 'var(--text-muted)' }}>
-              Powerful features designed to make equipment maintenance simple and efficient.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, index) => (
-              <div
-                key={index}
-                className="group relative p-8 rounded-2xl border bg-[var(--color-surface)] border-[var(--color-border)] hover:shadow-2xl transition-all">
-                <div className="absolute top-0 right-0 w-32 h-32 rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: 'linear-gradient(to bottom right, var(--primary-100), transparent)' }}></div>
-                <div className="relative">
-                  <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-3 text-[var(--color-primary)]">
-                    {feature.icon}
-                  </div>
-                  <h3 className="text-xl font-semibold mb-3" style={{ color: 'var(--text)' }}>
-                    {feature.title}
-                  </h3>
-                  <p className="leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-                    {feature.description}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* Grid of MVP Features */}
+      <section className="max-w-7xl mx-auto px-6 py-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <FeatureCard
+            icon={LayoutDashboard}
+            title="Visualize Progress"
+            description="Clear, intuitive progress tracking to eliminate 'Unclear Progress'."
+            delay={0.1}
+          />
+          <FeatureCard
+            icon={Smartphone}
+            title="Mobile Friendly"
+            description="A lightweight 'command center' built for high-speed, on-the-go interactions."
+            delay={0.2}
+          />
+          <FeatureCard
+            icon={Shield}
+            title="Resource Harmony"
+            description="Balanced workloads that prevent team members from being overworked or underutilized."
+            delay={0.3}
+          />
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section className="py-24 relative overflow-hidden" style={{ backgroundColor: 'var(--bg-muted)' }}>
-        <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full filter blur-3xl opacity-20" style={{ background: 'var(--secondary-300)' }}></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div>
-              <div className="inline-block px-4 py-2 rounded-full text-sm font-semibold mb-4" style={{ backgroundColor: 'var(--card)', color: 'var(--text)' }}>
-                PROVEN RESULTS
-              </div>
-              <h2 className="text-4xl sm:text-5xl font-display font-bold mb-6 leading-tight" style={{ color: 'var(--text)' }}>
-                Reduce costs and increase efficiency
-              </h2>
-              <p className="text-lg mb-8 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-                GearGuard helps organizations optimize their maintenance operations and maximize equipment uptime with data-driven insights and automation.
-              </p>
+      <BatonPassSection />
 
-              <div className="space-y-4 mb-8">
-                {[
-                  { text: 'Zero-Gap Compliance: Ensure every asset meets 100% of regulatory safety standards automatically.' },
-                  { text: 'Zero-Manual Entry: Intelligent Auto-Fill pulls equipment history instantly.' },
-                  { text: 'Predictive Cost Shield: Identify failing assets algorithms before catastrophic failures.' },
-                  { text: 'Technician Autonomy: Mobile-first workflows for duration and completion recording.' }
-                ].map((item, index) => (
-                  <div key={index} className="flex items-start gap-4 rounded-lg p-4 border bg-[var(--color-surface)] border-[var(--color-border)]">
-                    <div className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center mt-0.5" style={{ backgroundColor: 'var(--bg-muted)' }}>
-                      <CheckCircle2 size={16} style={{ color: 'var(--text)', backgroundColor: 'var(--bg-muted)' }} />
-                    </div>
-                    <span className="font-medium" style={{ color: 'var(--text)' }}>{item.text}</span>
-                  </div>
-                ))}
-              </div>
-
-              <Link to="/auth">
-                <Button size="large" variant="contained" color="primary" className="shadow-lg">
-                  Get Started Now
-                </Button>
-              </Link>
-            </div>
-
-            <div className="relative">
-              <div className="relative rounded-3xl p-1 shadow-2xl" style={{ backgroundColor: 'var(--card)' }}>
-                <div className="rounded-3xl p-8" style={{ backgroundColor: 'var(--card)' }}>
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="rounded-2xl p-6 text-center" style={{ backgroundColor: 'var(--bg-muted)' }}>
-                      <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <TrendingUp size={32} className="text-white" />
-                      </div>
-                      <p className="text-3xl font-bold mb-1" style={{ color: 'var(--text)' }}>99.9%</p>
-                      <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Asset Reliability</p>
-                    </div>
-                    <div className="rounded-2xl p-6 text-center" style={{ backgroundColor: 'var(--bg-muted)' }}>
-                      <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Users size={32} className="text-white" />
-                      </div>
-                      <p className="text-3xl font-bold mb-1" style={{ color: 'var(--text)' }}>95%</p>
-                      <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Team Utilization</p>
-                    </div>
-                    <div className="rounded-2xl p-6 text-center" style={{ backgroundColor: 'var(--bg-muted)' }}>
-                      <div className="w-16 h-16 bg-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Clock size={32} className="text-white" />
-                      </div>
-                      <p className="text-3xl font-bold mb-1" style={{ color: 'var(--text)' }}>1.2h</p>
-                      <p className="text-sm" style={{ color: 'var(--text-muted)' }}>MTTR</p>
-                    </div>
-                    <div className="rounded-2xl p-6 text-center" style={{ backgroundColor: 'var(--bg-muted)' }}>
-                      <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Shield size={32} className="text-white" />
-                      </div>
-                      <p className="text-3xl font-bold mb-1" style={{ color: 'var(--text)' }}>$0</p>
-                      <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Cost of Inaction</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24 relative overflow-hidden" style={{ background: 'var(--primary-700)', color: 'var(--text)' }}>
-        <div className="absolute inset-0 opacity-30"></div>
-
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-4xl sm:text-5xl font-display font-bold  mb-6">
-            Ready to optimize your maintenance?
-          </h2>
-          <p className="text-xl mb-10 max-w-2xl mx-auto leading-relaxed">
-            Join hundreds of companies already using GearGuard to streamline their operations and reduce costs.
+      {/* Footer / Final CTA */}
+      <footer className="border-t border-white/5 py-20 bg-black">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <h2 className="text-4xl font-bold text-white mb-6">Ready to run smarter?</h2>
+          <p className="text-zinc-500 mb-10 max-w-xl mx-auto">
+            Join the teams moving from reactive chaos to proactive orchestration.
           </p>
           <Link to="/auth">
-            <Button variant='contained' color="primary">
-              Join In Now!!
-            </Button>
+            <button className="px-10 py-4 rounded-full bg-white text-black font-extrabold text-lg hover:bg-cyan-400 hover:scale-105 transition-all">
+              Get Started Now
+            </button>
           </Link>
-          <p className="mt-6 text-sm">No credit card required • 14-day free trial • Cancel anytime</p>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-16" style={{ backgroundColor: 'var(--secondary-900)', color: 'var(--text)' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-            <div className="col-span-1">
-              <div className="flex items-center gap-3 mb-4">
-                <Logo />
-              </div>
-              <p className="text-gray-400 text-sm leading-relaxed">
-                The ultimate maintenance tracking solution for modern businesses.
-              </p>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-3 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-3 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
-              <ul className="space-y-3 text-sm text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Privacy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Security</a></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="border-t pt-8 text-center text-sm text-gray-400" style={{ borderColor: 'var(--border)' }}>
-            <p>&copy; {new Date().getFullYear()} RelayOps. All rights reserved.</p>
+          <div className="mt-20 text-xs text-zinc-700 tracking-widest uppercase">
+            &copy; {new Date().getFullYear()} RelayOps — Continuous Improvement. Total Alignment.
           </div>
         </div>
       </footer>
