@@ -36,10 +36,10 @@ const Navbar = () => (
       </div>
 
       <div className="flex items-center gap-4">
-        <Link to="/auth" className="text-sm font-medium text-white hover:text-cyan-400 transition-colors">
+        <Link to="/login" className="text-sm font-medium text-white hover:text-cyan-400 transition-colors">
           <button> Login </button>
         </Link>
-        <Link to="/auth" className="px-5 py-2.5 rounded-full bg-white text-black text-sm font-bold hover:bg-cyan-400 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+        <Link to="/signup" className="px-5 py-2.5 rounded-full bg-white text-black text-sm font-bold hover:bg-cyan-400 transition-all duration-300 shadow-[0_0_20px_rgba(255,255,255,0.2)]">
           <button> Get Started </button>
         </Link>
       </div>
@@ -66,7 +66,7 @@ const Hero = () => (
           RelayOps is the intelligent backbone for teams. We turn scattered chaos into proactive orchestration, ensuring you stay ahead rather than constantly reacting.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link to="/auth">
+          <Link to="/signup">
             <button className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg hover:scale-105 transition-transform shadow-[0_10px_40px_rgba(6,182,212,0.3)] flex items-center justify-center gap-2">
               Start Your Relay <ChevronRight size={20} />
             </button>
@@ -217,7 +217,7 @@ const Landing = () => {
           <p className="text-zinc-500 mb-10 max-w-xl mx-auto">
             Join the teams moving from reactive chaos to proactive orchestration.
           </p>
-          <Link to="/auth">
+          <Link to="/signup">
             <button className="px-10 py-4 rounded-full bg-white text-black font-extrabold text-lg hover:bg-cyan-400 hover:scale-105 transition-all">
               Get Started Now
             </button>

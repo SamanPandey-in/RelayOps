@@ -4,7 +4,7 @@ import { useAuth } from './firebase/auth';
 import { ThemeProvider, Layout } from './components';
 
 // Pages
-import { Landing, AuthPage, ForgotPassword, Dashboard, Projects, ProjectDetails, Team, TaskDetails, Settings, Profile } from './pages/index'
+import { Landing, Login, Signup, ForgotPassword, Dashboard, Projects, ProjectDetails, Team, TaskDetails, Settings, Profile } from './pages/index'
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -42,10 +42,26 @@ function AppRoutes() {
       {/* Public Routes */}
       <Route path="/" element={<Landing />} />
       <Route
+        path="/login"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          <PublicRoute>
+            <Signup />
+          </PublicRoute>
+        }
+      />
+      <Route
         path="/auth"
         element={
           <PublicRoute>
-            <AuthPage />
+            <Login />
           </PublicRoute>
         }
       />

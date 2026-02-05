@@ -1,5 +1,6 @@
 import Landing from './Landing'
-import AuthPage from './Auth/AuthPage'
+import Login from './Auth/Login'
+import Signup from './Auth/Signup'
 import ForgotPassword from './Auth/ForgotPassword';
 import Dashboard from './Dashboard'
 import Projects from './Projects'
@@ -9,4 +10,4 @@ import TaskDetails from './TaskDetails'
 import Settings from './Settings'
 import Profile from './Profile'
 
-export { Landing, AuthPage, ForgotPassword, Dashboard, Projects, ProjectDetails, Team, TaskDetails, Settings, Profile };
+export { Landing, Login, Signup, ForgotPassword, Dashboard, Projects, ProjectDetails, Team, TaskDetails, Settings, Profile };
