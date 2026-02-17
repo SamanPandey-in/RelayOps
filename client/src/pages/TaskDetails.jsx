@@ -76,7 +76,7 @@ const TaskDetails = () => {
     }, [taskId, task]);
 
     if (loading) return <div className="text-gray-500 dark:text-zinc-400 px-4 py-6">Loading task details...</div>;
-    if (!task) return <div className="text-red-500 px-4 py-6">Task not found.</div>;
+    if (!task) return <div style={{color: 'var(--color-error)'}} className="px-4 py-6">Task not found.</div>;
 
     return (
         <div className="flex flex-col-reverse lg:flex-row gap-6 sm:p-4 text-gray-900 dark:text-zinc-100 max-w-6xl mx-auto">
@@ -114,7 +114,8 @@ const TaskDetails = () => {
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
                             placeholder="Write a comment..."
-                            className="w-full dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 rounded-md p-2 text-sm text-gray-900 dark:text-zinc-200 resize-none focus:outline-none focus:ring-1 focus:ring-blue-600"
+                            style={{color: 'var(--color-input-text)', backgroundColor: 'var(--color-input-bg)', borderColor: 'var(--color-input-border)'}}
+                            className="w-full border rounded-md p-2 text-sm resize-none focus:outline-none focus:ring-1"
                             rows={3}
                         />
                         <Button 
@@ -135,13 +136,13 @@ const TaskDetails = () => {
                     <div className="mb-3">
                         <h1 className="text-lg font-medium text-gray-900 dark:text-zinc-100">{task.title}</h1>
                         <div className="flex flex-wrap gap-2 mt-2">
-                            <span className="px-2 py-0.5 rounded bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-300 text-xs">
+                            <span style={{backgroundColor: 'var(--color-surface-variant)', color: 'var(--color-text)'}} className="px-2 py-0.5 rounded text-xs">
                                 {task.status}
                             </span>
-                            <span className="px-2 py-0.5 rounded bg-blue-200 dark:bg-blue-900 text-blue-900 dark:text-blue-300 text-xs">
+                            <span style={{backgroundColor: 'var(--color-surface-variant)', color: 'var(--color-text)'}} className="px-2 py-0.5 rounded text-xs">
                                 {task.type}
                             </span>
-                            <span className="px-2 py-0.5 rounded bg-green-200 dark:bg-emerald-900 text-green-900 dark:text-emerald-300 text-xs">
+                            <span style={{backgroundColor: 'var(--color-surface-variant)', color: 'var(--color-text)'}} className="px-2 py-0.5 rounded text-xs">
                                 {task.priority}
                             </span>
                         </div>

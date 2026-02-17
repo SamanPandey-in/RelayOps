@@ -5,7 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================================================
-   BASE TYPOGRAPHY & SPACING TOKENS
+   VERCEL BLACK & WHITE THEME - PRODUCTION READY
+   Centralized theme system with CSS variables for optimal performance
    ============================================================================ */
 
 * {
@@ -49,18 +50,18 @@
   --border-width: 1px;
   --border-width-2: 2px;
 
-  /* Shadows */
+  /* Shadows - Vercel Style (subtle, minimal) */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
   --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.1);
   --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.1);
-  --shadow-card: 0 2px 8px rgba(15, 23, 42, 0.08);
-  --shadow-card-hover: 0 4px 16px rgba(15, 23, 42, 0.16);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
   --box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --box-shadow-card: 0 2px 8px rgba(15, 23, 42, 0.08);
-  --box-shadow-card-hover: 0 4px 16px rgba(15, 23, 42, 0.16);
+  --box-shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --box-shadow-card-hover: 0 4px 16px rgba(0, 0, 0, 0.12);
 
   /* Transitions & Animation */
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -72,209 +73,230 @@
 }
 
 /* ============================================================================
-   LIGHT MODE - COLOR PALETTE
-   ============================================================================
-   Primary: #2563eb (Blue-600)
-   Backgrounds: #ffffff (White), #f9fafb (Light Gray)
-   Text: #000000 (Black), #4b5563 (Gray)
-   Borders: #e5e7eb (Light Gray)
+   LIGHT MODE - VERCEL BLACK & WHITE THEME
+   Minimalist, high-contrast design following Vercel's design principles
    ========================================================================== */
 
 :root {
+  /* Grayscale Palette */
+  --gray-0: #ffffff;
+  --gray-50: #fafafa;
+  --gray-100: #f5f5f5;
+  --gray-150: #efefef;
+  --gray-200: #e5e5e5;
+  --gray-300: #d4d4d4;
+  --gray-400: #a3a3a3;
+  --gray-500: #737373;
+  --gray-600: #525252;
+  --gray-700: #404040;
+  --gray-800: #262626;
+  --gray-900: #171717;
+  --gray-1000: #000000;
+
   /* Core Colors - Light Mode */
-  --color-bg: #ffffff;
-  --color-surface: #ffffff;
-  --color-surface-variant: #fafafa;
-  --color-text: #000000;
-  --color-text-secondary: #404040;
-  --color-text-tertiary: #737373;
-  --color-border: #e5e5e5;
-  --color-border-light: #f5f5f5;
-  --color-divider: #e5e5e5;
+  --color-bg: var(--gray-0);
+  --color-surface: var(--gray-0);
+  --color-surface-variant: var(--gray-50);
+  --color-text: var(--gray-1000);
+  --color-text-secondary: var(--gray-700);
+  --color-text-tertiary: var(--gray-500);
+  --color-border: var(--gray-200);
+  --color-border-light: var(--gray-100);
+  --color-divider: var(--gray-150);
   --color-shadow: rgba(0, 0, 0, 0.08);
 
-  /* Primary (Pure Black for contrast) */
-  --color-primary: #000000;
-  --color-primary-50: #fafafa;
-  --color-primary-100: #f5f5f5;
-  --color-primary-200: #e5e5e5;
-  --color-primary-300: #d4d4d4;
-  --color-primary-400: #a3a3a3;
-  --color-primary-500: #737373;
-  --color-primary-600: #525252;
-  --color-primary-700: #404040;
-  --color-primary-800: #262626;
-  --color-primary-900: #171717;
-  --color-primary-hover: #171717;
-  --color-primary-light: rgba(0, 0, 0, 0.06);
-  --color-primary-dark: #000000;
+  /* Primary (Pure Black) */
+  --color-primary: var(--gray-1000);
+  --color-primary-50: var(--gray-50);
+  --color-primary-100: var(--gray-100);
+  --color-primary-200: var(--gray-200);
+  --color-primary-300: var(--gray-300);
+  --color-primary-400: var(--gray-400);
+  --color-primary-500: var(--gray-500);
+  --color-primary-600: var(--gray-600);
+  --color-primary-700: var(--gray-700);
+  --color-primary-800: var(--gray-800);
+  --color-primary-900: var(--gray-900);
+  --color-primary-hover: var(--gray-900);
+  --color-primary-light: rgba(0, 0, 0, 0.04);
+  --color-primary-dark: var(--gray-1000);
 
   /* Secondary */
-  --color-secondary: #404040;
-  --color-secondary-light: #f5f5f5;
-  --color-secondary-dark: #171717;
+  --color-secondary: var(--gray-700);
+  --color-secondary-light: var(--gray-100);
+  --color-secondary-dark: var(--gray-900);
 
-  /* Status (neutralized) */
-  --color-success: #000000;
-  --color-success-light: #f5f5f5;
-  --color-success-bg: #fafafa;
+  /* Status Colors - Neutral B&W */
+  --color-success: var(--gray-1000);
+  --color-success-light: var(--gray-100);
+  --color-success-bg: var(--gray-50);
 
-  --color-error: #000000;
-  --color-error-light: #f5f5f5;
-  --color-error-bg: #fafafa;
+  --color-error: var(--gray-1000);
+  --color-error-light: var(--gray-100);
+  --color-error-bg: var(--gray-50);
 
-  --color-warning: #000000;
-  --color-warning-light: #f5f5f5;
-  --color-warning-bg: #fafafa;
+  --color-warning: var(--gray-1000);
+  --color-warning-light: var(--gray-100);
+  --color-warning-bg: var(--gray-50);
 
-  --color-info: #000000;
-  --color-info-light: #f5f5f5;
-  --color-info-bg: #fafafa;
+  --color-info: var(--gray-1000);
+  --color-info-light: var(--gray-100);
+  --color-info-bg: var(--gray-50);
 
   /* Links & Buttons */
-  --color-link: #000000;
-  --color-link-hover: #404040;
-  --color-btn-bg: #000000;
-  --color-btn-bg-hover: #171717;
-  --color-btn-text: #ffffff;
-  --color-btn-disabled-bg: #e5e5e5;
-  --color-btn-disabled-text: #a3a3a3;
+  --color-link: var(--gray-1000);
+  --color-link-hover: var(--gray-700);
+  --color-btn-bg: var(--gray-1000);
+  --color-btn-bg-hover: var(--gray-900);
+  --color-btn-text: var(--gray-0);
+  --color-btn-disabled-bg: var(--gray-200);
+  --color-btn-disabled-text: var(--gray-400);
 
   /* Forms */
-  --color-input-bg: #ffffff;
-  --color-input-text: #000000;
-  --color-input-border: #e5e5e5;
-  --color-input-border-focus: #000000;
-  --color-input-placeholder: #a3a3a3;
+  --color-input-bg: var(--gray-0);
+  --color-input-text: var(--gray-1000);
+  --color-input-border: var(--gray-200);
+  --color-input-border-focus: var(--gray-1000);
+  --color-input-placeholder: var(--gray-400);
 
   /* Sidebar */
-  --color-sidebar-bg: #ffffff;
-  --color-sidebar-text: #000000;
+  --color-sidebar-bg: var(--gray-0);
+  --color-sidebar-text: var(--gray-1000);
   --color-sidebar-item-hover: rgba(0, 0, 0, 0.04);
-  --color-sidebar-item-active: #000000;
-  --color-sidebar-item-active-bg: #f5f5f5;
-  --color-sidebar-text-active: #000000;
-  --color-sidebar-bg-active: #f5f5f5;
-  --color-sidebar-border: #e5e5e5;
+  --color-sidebar-item-active: var(--gray-1000);
+  --color-sidebar-item-active-bg: var(--gray-100);
+  --color-sidebar-text-active: var(--gray-1000);
+  --color-sidebar-bg-active: var(--gray-100);
+  --color-sidebar-border: var(--gray-200);
 
   /* Mentions */
-  --color-mention-bg: #f5f5f5;
-  --color-mention-text: #000000;
-  --color-mention-border: #e5e5e5;
+  --color-mention-bg: var(--gray-100);
+  --color-mention-text: var(--gray-1000);
+  --color-mention-border: var(--gray-200);
 
   /* Badges */
-  --badge-info-bg: #f5f5f5;
-  --badge-info-text: #000000;
-  --badge-success-bg: #f5f5f5;
-  --badge-success-text: #000000;
-  --badge-warning-bg: #f5f5f5;
-  --badge-warning-text: #000000;
-  --badge-error-bg: #f5f5f5;
-  --badge-error-text: #000000;
+  --badge-info-bg: var(--gray-100);
+  --badge-info-text: var(--gray-1000);
+  --badge-success-bg: var(--gray-100);
+  --badge-success-text: var(--gray-1000);
+  --badge-warning-bg: var(--gray-100);
+  --badge-warning-text: var(--gray-1000);
+  --badge-error-bg: var(--gray-100);
+  --badge-error-text: var(--gray-1000);
 }
 
-
 /* ============================================================================
-   DARK MODE - COLOR PALETTE
-   ============================================================================
-   Primary: #60a5fa (Blue-400)
-   Backgrounds: #000000 (Black), #0b0b0b (Very Dark)
-   Text: #ffffff (White), #9ca3af (Light Gray)
-   Borders: #1f2937 (Dark Gray)
+   DARK MODE - VERCEL BLACK & WHITE THEME
+   Inverted palette for dark mode - minimal, high-contrast
    ========================================================================== */
 
 .theme-dark,
 .dark {
+  /* Grayscale Palette (Inverted) */
+  --gray-0: #000000;
+  --gray-50: #0a0a0a;
+  --gray-100: #111111;
+  --gray-150: #1a1a1a;
+  --gray-200: #262626;
+  --gray-300: #404040;
+  --gray-400: #525252;
+  --gray-500: #737373;
+  --gray-600: #a3a3a3;
+  --gray-700: #d4d4d4;
+  --gray-800: #e5e5e5;
+  --gray-900: #f5f5f5;
+  --gray-1000: #ffffff;
+
   /* Core Colors - Dark Mode */
-  --color-bg: #000000;
-  --color-surface: #0a0a0a;
-  --color-surface-variant: #111111;
-  --color-text: #ffffff;
-  --color-text-secondary: #d4d4d4;
-  --color-text-tertiary: #a3a3a3;
-  --color-border: #1f1f1f;
-  --color-border-light: #262626;
-  --color-divider: #1f1f1f;
+  --color-bg: var(--gray-0);
+  --color-surface: var(--gray-50);
+  --color-surface-variant: var(--gray-100);
+  --color-text: var(--gray-1000);
+  --color-text-secondary: var(--gray-700);
+  --color-text-tertiary: var(--gray-500);
+  --color-border: var(--gray-200);
+  --color-border-light: var(--gray-300);
+  --color-divider: var(--gray-150);
   --color-shadow: rgba(0, 0, 0, 0.6);
 
-  /* Primary (Pure White for contrast) */
-  --color-primary: #ffffff;
-  --color-primary-50: #171717;
-  --color-primary-100: #262626;
-  --color-primary-200: #404040;
-  --color-primary-300: #525252;
-  --color-primary-400: #737373;
-  --color-primary-500: #a3a3a3;
-  --color-primary-600: #d4d4d4;
-  --color-primary-700: #e5e5e5;
-  --color-primary-800: #f5f5f5;
-  --color-primary-900: #ffffff;
-  --color-primary-hover: #e5e5e5;
+  /* Primary (Pure White) */
+  --color-primary: var(--gray-1000);
+  --color-primary-50: var(--gray-0);
+  --color-primary-100: var(--gray-50);
+  --color-primary-200: var(--gray-100);
+  --color-primary-300: var(--gray-150);
+  --color-primary-400: var(--gray-200);
+  --color-primary-500: var(--gray-300);
+  --color-primary-600: var(--gray-500);
+  --color-primary-700: var(--gray-700);
+  --color-primary-800: var(--gray-800);
+  --color-primary-900: var(--gray-900);
+  --color-primary-hover: var(--gray-800);
   --color-primary-light: rgba(255, 255, 255, 0.08);
-  --color-primary-dark: #ffffff;
+  --color-primary-dark: var(--gray-1000);
 
   /* Secondary */
-  --color-secondary: #d4d4d4;
-  --color-secondary-light: #1f1f1f;
-  --color-secondary-dark: #ffffff;
+  --color-secondary: var(--gray-700);
+  --color-secondary-light: var(--gray-200);
+  --color-secondary-dark: var(--gray-1000);
 
-  /* Status (neutralized) */
-  --color-success: #ffffff;
-  --color-success-light: #1f1f1f;
-  --color-success-bg: #0a0a0a;
+  /* Status Colors - Neutral */
+  --color-success: var(--gray-1000);
+  --color-success-light: var(--gray-200);
+  --color-success-bg: var(--gray-50);
 
-  --color-error: #ffffff;
-  --color-error-light: #1f1f1f;
-  --color-error-bg: #0a0a0a;
+  --color-error: var(--gray-1000);
+  --color-error-light: var(--gray-200);
+  --color-error-bg: var(--gray-50);
 
-  --color-warning: #ffffff;
-  --color-warning-light: #1f1f1f;
-  --color-warning-bg: #0a0a0a;
+  --color-warning: var(--gray-1000);
+  --color-warning-light: var(--gray-200);
+  --color-warning-bg: var(--gray-50);
 
-  --color-info: #ffffff;
-  --color-info-light: #1f1f1f;
-  --color-info-bg: #0a0a0a;
+  --color-info: var(--gray-1000);
+  --color-info-light: var(--gray-200);
+  --color-info-bg: var(--gray-50);
 
   /* Links & Buttons */
-  --color-link: #ffffff;
-  --color-link-hover: #d4d4d4;
-  --color-btn-bg: #ffffff;
-  --color-btn-bg-hover: #e5e5e5;
-  --color-btn-text: #000000;
-  --color-btn-disabled-bg: #1f1f1f;
-  --color-btn-disabled-text: #737373;
+  --color-link: var(--gray-1000);
+  --color-link-hover: var(--gray-700);
+  --color-btn-bg: var(--gray-1000);
+  --color-btn-bg-hover: var(--gray-800);
+  --color-btn-text: var(--gray-0);
+  --color-btn-disabled-bg: var(--gray-200);
+  --color-btn-disabled-text: var(--gray-500);
 
   /* Forms */
-  --color-input-bg: #0a0a0a;
-  --color-input-text: #ffffff;
-  --color-input-border: #1f1f1f;
-  --color-input-border-focus: #ffffff;
-  --color-input-placeholder: #737373;
+  --color-input-bg: var(--gray-50);
+  --color-input-text: var(--gray-1000);
+  --color-input-border: var(--gray-200);
+  --color-input-border-focus: var(--gray-1000);
+  --color-input-placeholder: var(--gray-500);
 
   /* Sidebar */
-  --color-sidebar-bg: #000000;
-  --color-sidebar-text: #ffffff;
+  --color-sidebar-bg: var(--gray-0);
+  --color-sidebar-text: var(--gray-1000);
   --color-sidebar-item-hover: rgba(255, 255, 255, 0.06);
-  --color-sidebar-item-active: #ffffff;
-  --color-sidebar-item-active-bg: #111111;
-  --color-sidebar-text-active: #000000;
-  --color-sidebar-bg-active: #111111;
-  --color-sidebar-border: #1f1f1f;
+  --color-sidebar-item-active: var(--gray-1000);
+  --color-sidebar-item-active-bg: var(--gray-100);
+  --color-sidebar-text-active: var(--gray-0);
+  --color-sidebar-bg-active: var(--gray-100);
+  --color-sidebar-border: var(--gray-200);
 
   /* Mentions */
-  --color-mention-bg: #111111;
-  --color-mention-text: #ffffff;
-  --color-mention-border: #1f1f1f;
+  --color-mention-bg: var(--gray-100);
+  --color-mention-text: var(--gray-1000);
+  --color-mention-border: var(--gray-200);
 
   /* Badges */
-  --badge-info-bg: #111111;
-  --badge-info-text: #ffffff;
-  --badge-success-bg: #111111;
-  --badge-success-text: #ffffff;
-  --badge-warning-bg: #111111;
-  --badge-warning-text: #ffffff;
-  --badge-error-bg: #111111;
-  --badge-error-text: #ffffff;
+  --badge-info-bg: var(--gray-100);
+  --badge-info-text: var(--gray-1000);
+  --badge-success-bg: var(--gray-100);
+  --badge-success-text: var(--gray-1000);
+  --badge-warning-bg: var(--gray-100);
+  --badge-warning-text: var(--gray-1000);
+  --badge-error-bg: var(--gray-100);
+  --badge-error-text: var(--gray-1000);
 }
 
 /* ============================================================================
@@ -765,6 +787,161 @@
 
 /* Mobile first - additional styles as needed */
 @media (max-width: 640px) {
+/* ============================================================================
+   STATUS & PRIORITY UTILITY CLASSES - CENTRALIZED THEME
+   All status badges, priority indicators use B&W theme variables
+   ============================================================================ */
+
+/* Status Badge Classes */
+.status-planning,
+.status-PLANNING {
+  background-color: var(--color-surface-variant);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.status-active,
+.status-ACTIVE {
+  background-color: var(--color-surface-variant);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.status-on-hold,
+.status-ON_HOLD {
+  background-color: var(--color-surface-variant);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.status-completed,
+.status-COMPLETED {
+  background-color: var(--color-surface-variant);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.status-cancelled,
+.status-CANCELLED {
+  background-color: var(--color-surface-variant);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.status-done,
+.status-DONE {
+  background-color: var(--color-surface-variant);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.status-in-progress,
+.status-IN_PROGRESS {
+  background-color: var(--color-surface-variant);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+/* Priority Badge Classes */
+.priority-low,
+.priority-LOW {
+  background-color: var(--color-surface-variant);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.priority-medium,
+.priority-MEDIUM {
+  background-color: var(--color-surface-variant);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.priority-high,
+.priority-HIGH {
+  background-color: var(--color-surface-variant);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+/* Type Badge Classes */
+.type-bug,
+.type-BUG {
+  background-color: var(--color-surface-variant);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.type-feature,
+.type-FEATURE {
+  background-color: var(--color-surface-variant);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.type-task,
+.type-TASK {
+  background-color: var(--color-surface-variant);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.type-improvement,
+.type-IMPROVEMENT {
+  background-color: var(--color-surface-variant);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.type-other,
+.type-OTHER {
+  background-color: var(--color-surface-variant);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+/* Analytics and stat colors - all grayscale */
+.stat-completed {
+  color: var(--color-text);
+  background-color: var(--color-surface-variant);
+}
+
+.stat-in-progress {
+  color: var(--color-text);
+  background-color: var(--color-surface-variant);
+}
+
+.stat-at-risk {
+  color: var(--color-text);
+  background-color: var(--color-surface-variant);
+}
+
+.stat-team {
+  color: var(--color-text);
+  background-color: var(--color-surface-variant);
+}
+
+/* Activity Event Colors */
+.activity-bug {
+  color: var(--color-text-secondary);
+}
+
+.activity-feature {
+  color: var(--color-text-secondary);
+}
+
+.activity-task {
+  color: var(--color-text-secondary);
+}
+
+.activity-improvement {
+  color: var(--color-text-secondary);
+}
+
+.activity-other {
+  color: var(--color-text-secondary);
+}
+
   /* Small screens */
   .sm\:hidden {
     display: none;
