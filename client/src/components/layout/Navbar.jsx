@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { SearchIcon, PanelLeft, LogOut, User } from 'lucide-react';
 
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../firebase/auth';
 import { assets } from '../../assets/assets';
 import ThemeToggle from '../theme/ThemeToggle';
 

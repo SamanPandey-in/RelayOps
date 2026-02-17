@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeftIcon, PlusIcon, SettingsIcon, BarChart3Icon, CalendarIcon, FileStackIcon, ZapIcon } from 'lucide-react';
 
-import { ProjectAnalytics, ProjectSettings, CreateTaskDialog, ProjectCalendar, ProjectTasks } from '../components';
+import { ProjectAnalytics, ProjectSettings, CreateTaskDialog, ProjectCalendar, ProjectTasks, Button } from '../components';
 
 export default function ProjectDetail() {
 
@@ -43,9 +43,13 @@ export default function ProjectDetail() {
         return (
             <div className="p-6 text-center text-zinc-900 dark:text-zinc-200">
                 <p className="text-3xl md:text-5xl mt-40 mb-10">Project not found</p>
-                <button onClick={() => navigate('/projects')} className="mt-4 px-4 py-2 rounded bg-zinc-200 text-zinc-900 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-white dark:hover:bg-zinc-600" >
+                <Button 
+                  variant='contained'
+                  color='primary'
+                  onClick={() => navigate('/projects')}
+                >
                     Back to Projects
-                </button>
+                </Button>
             </div>
         );
     }
@@ -65,10 +69,14 @@ export default function ProjectDetail() {
                         </span>
                     </div>
                 </div>
-                <button onClick={() => setShowCreateTask(true)} className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-gradient-to-br from-blue-500 to-blue-600 text-white" >
-                    <PlusIcon className="size-4" />
+                <Button 
+                  variant='contained'
+                  color='primary'
+                  startIcon={<PlusIcon size={16} />}
+                  onClick={() => setShowCreateTask(true)}
+                >
                     New Task
-                </button>
+                </Button>
             </div>
 
             {/* Info Cards */}

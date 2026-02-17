@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { UsersIcon, Search, UserPlus, Shield, Activity } from 'lucide-react';
 
-import { InviteMemberDialog } from '../components';
+import { InviteMemberDialog, Button } from '../components';
 
 const Team = () => {
 
@@ -34,9 +34,14 @@ const Team = () => {
                         Manage team members and their contributions
                     </p>
                 </div>
-                <button onClick={() => setIsDialogOpen(true)} className="flex items-center px-5 py-2 rounded text-sm bg-gradient-to-br from-blue-500 to-blue-600 hover:opacity-90 text-white transition" >
-                    <UserPlus className="w-4 h-4 mr-2" /> Invite Member
-                </button>
+                <Button 
+                  variant='contained' 
+                  color='primary'
+                  startIcon={<UserPlus size={16} />}
+                  onClick={() => setIsDialogOpen(true)}
+                >
+                  Invite Member
+                </Button>
                 <InviteMemberDialog isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen} />
             </div>
 

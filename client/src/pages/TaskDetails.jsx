@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { CalendarIcon, MessageCircle, PenIcon } from 'lucide-react';
 
+import { Button } from '../components';
 import { assets } from '../assets/assets';
 
 const TaskDetails = () => {
@@ -116,9 +117,13 @@ const TaskDetails = () => {
                             className="w-full dark:bg-zinc-800 border border-gray-300 dark:border-zinc-700 rounded-md p-2 text-sm text-gray-900 dark:text-zinc-200 resize-none focus:outline-none focus:ring-1 focus:ring-blue-600"
                             rows={3}
                         />
-                        <button onClick={handleAddComment} className="bg-gradient-to-l from-blue-500 to-blue-600 transition-colors text-white text-sm px-5 py-2 rounded " >
+                        <Button 
+                          variant='contained'
+                          color='primary'
+                          onClick={handleAddComment}
+                        >
                             Post
-                        </button>
+                        </Button>
                     </div>
                 </div>
             </div>

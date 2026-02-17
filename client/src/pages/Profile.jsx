@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Mail, Calendar, LogOut } from 'lucide-react';
 
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../firebase/auth';
+import { Button } from '../components';
 import { dummyUsers } from '../assets/assets';
 
 const Profile = () => {
@@ -101,32 +102,38 @@ const Profile = () => {
               placeholder="Tell us about yourself..."
             />
             <div className="flex gap-3">
-              <button
+              <Button
+                variant='contained'
+                color='primary'
+                size='small'
                 onClick={handleSaveAbout}
-                className="px-4 py-2 text-sm rounded bg-blue-600 text-white hover:bg-blue-700 font-medium transition-colors"
               >
                 Save
-              </button>
-              <button
+              </Button>
+              <Button
+                variant='outlined'
+                color='primary'
+                size='small'
                 onClick={() => {
                   setAbout('Hey there! This is your space to manage your profile and stay on top of your tasks. Keep growing, stay focused, and make the most of every opportunity.');
                   setEditingAbout(false);
                 }}
-                className="px-4 py-2 text-sm border border-gray-300 dark:border-zinc-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-50 dark:hover:bg-zinc-700 font-medium transition-colors"
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </div>
         ) : (
-          <div className="p-4 rounded bg-gray-50 dark:bg-zinc-700/30 text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
-            {about}
-            <button
+          <div className="p-4 rounded bg-gray-50 dark:bg-zinc-700/30 text-gray-700 dark:text-gray-300 text-sm leading-relaxed flex items-center justify-between">
+            <span>{about}</span>
+            <Button
+              variant='text'
+              color='primary'
+              size='small'
               onClick={() => setEditingAbout(true)}
-              className="ml-4 text-blue-600 dark:text-blue-400 hover:underline font-medium"
             >
               Edit
-            </button>
+            </Button>
           </div>
         )}
       </div>
@@ -148,32 +155,38 @@ const Profile = () => {
                   className="w-full px-4 py-2 text-sm border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                 />
                 <div className="flex gap-3">
-                  <button
+                  <Button
+                    variant='contained'
+                    color='primary'
+                    size='small'
                     onClick={handleSaveName}
-                    className="px-4 py-2 text-sm rounded bg-blue-600 text-white hover:bg-blue-700 font-medium transition-colors"
                   >
                     Save
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant='outlined'
+                    color='primary'
+                    size='small'
                     onClick={() => {
                       setFullName(profile.name);
                       setEditingName(false);
                     }}
-                    className="px-4 py-2 text-sm border border-gray-300 dark:border-zinc-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-50 dark:hover:bg-zinc-700 font-medium transition-colors"
                   >
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : (
               <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-zinc-700/30 rounded">
                 <span className="text-gray-900 dark:text-white">{profile.name}</span>
-                <button
+                <Button
+                  variant='text'
+                  color='primary'
+                  size='small'
                   onClick={() => setEditingName(true)}
-                  className="text-blue-600 dark:text-blue-400 hover:underline font-medium text-sm"
                 >
                   Edit
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -190,32 +203,38 @@ const Profile = () => {
                   className="w-full px-4 py-2 text-sm border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
                 />
                 <div className="flex gap-3">
-                  <button
+                  <Button
+                    variant='contained'
+                    color='primary'
+                    size='small'
                     onClick={handleSaveUsername}
-                    className="px-4 py-2 text-sm rounded bg-blue-600 text-white hover:bg-blue-700 font-medium transition-colors"
                   >
                     Save
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant='outlined'
+                    color='primary'
+                    size='small'
                     onClick={() => {
                       setUsername(profile.name.split(' ')[0].toLowerCase());
                       setEditingUsername(false);
                     }}
-                    className="px-4 py-2 text-sm border border-gray-300 dark:border-zinc-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-50 dark:hover:bg-zinc-700 font-medium transition-colors"
                   >
                     Cancel
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : (
               <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-zinc-700/30 rounded">
                 <span className="text-gray-900 dark:text-white">@{username}</span>
-                <button
+                <Button
+                  variant='text'
+                  color='primary'
+                  size='small'
                   onClick={() => setEditingUsername(true)}
-                  className="text-blue-600 dark:text-blue-400 hover:underline font-medium text-sm"
                 >
                   Edit
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -242,13 +261,14 @@ const Profile = () => {
       <div className="dark:bg-gradient-to-br dark:from-red-800/20 dark:to-red-900/20 border border-red-200 dark:border-red-800 rounded p-6">
         <h2 className="text-lg font-semibold text-red-700 dark:text-red-400 mb-4">Danger Zone</h2>
         <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Sign out of your account on this device</p>
-        <button
+        <Button
+          variant='contained'
+          color='error'
+          startIcon={<LogOut size={16} />}
           onClick={handleLogout}
-          className="flex items-center gap-2 px-5 py-2 text-sm rounded bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800 font-medium transition-colors"
         >
-          <LogOut className="w-4 h-4" />
           Logout
-        </button>
+        </Button>
       </div>
     </div>
   );
