@@ -9,68 +9,76 @@ export function getMuiTheme(mode = "light") {
       mode: isDark ? "dark" : "light",
 
       primary: {
-        main: isDark ? "#60a5fa" : "#2563eb",
-        light: isDark ? "#93c5fd" : "#3b82f6",
-        dark: isDark ? "#3b82f6" : "#1d4ed8",
+        main: isDark ? "#ffffff" : "#000000",
+        light: isDark ? "#f5f5f5" : "#404040",
+        dark: isDark ? "#e5e5e5" : "#000000",
         contrastText: isDark ? "#000000" : "#ffffff",
       },
+
       secondary: {
-        main: isDark ? "#9ca3af" : "#4b5563",
-        light: isDark ? "#d1d5db" : "#9ca3af",
-        dark: isDark ? "#6b7280" : "#1f2937",
+        main: isDark ? "#d4d4d4" : "#404040",
+        light: isDark ? "#f5f5f5" : "#737373",
+        dark: isDark ? "#a3a3a3" : "#171717",
       },
+
       error: {
-        main: "#dc2626",
-        light: "#fecaca",
-        dark: "#991b1b",
+        main: isDark ? "#ffffff" : "#000000",
+        light: isDark ? "#1f1f1f" : "#f5f5f5",
+        dark: isDark ? "#e5e5e5" : "#171717",
       },
+
       warning: {
-        main: "#f59e0b",
-        light: "#fde68a",
-        dark: "#92400e",
+        main: isDark ? "#ffffff" : "#000000",
+        light: isDark ? "#1f1f1f" : "#f5f5f5",
+        dark: isDark ? "#e5e5e5" : "#171717",
       },
+
       success: {
-        main: "#16a34a",
-        light: "#bbf7d0",
-        dark: "#15803d",
+        main: isDark ? "#ffffff" : "#000000",
+        light: isDark ? "#1f1f1f" : "#f5f5f5",
+        dark: isDark ? "#e5e5e5" : "#171717",
       },
+
       info: {
-        main: "#2563eb",
-        light: "#bfdbfe",
-        dark: "#1e3a8a",
+        main: isDark ? "#ffffff" : "#000000",
+        light: isDark ? "#1f1f1f" : "#f5f5f5",
+        dark: isDark ? "#e5e5e5" : "#171717",
       },
 
       background: {
         default: isDark ? "#000000" : "#ffffff",
-        paper: isDark ? "#0b0b0b" : "#ffffff",
+        paper: isDark ? "#0a0a0a" : "#ffffff",
       },
 
       text: {
         primary: isDark ? "#ffffff" : "#000000",
-        secondary: isDark ? "#9ca3af" : "#4b5563",
-        disabled: isDark ? "#6b7280" : "#9ca3af",
+        secondary: isDark ? "#d4d4d4" : "#404040",
+        disabled: isDark ? "#737373" : "#a3a3a3",
       },
-      divider: isDark ? "#1f2937" : "#e5e7eb",
+
+      divider: isDark ? "#1f1f1f" : "#e5e5e5",
     },
 
     typography: {
       fontFamily: "'Roboto', sans-serif",
       fontSize: 16,
+
       h1: {
-        fontSize: isDark ? "2.25rem" : "2.25rem",
+        fontSize: "2.25rem",
         fontWeight: 600,
         lineHeight: 1.2,
       },
       h2: {
-        fontSize: isDark ? "1.875rem" : "1.875rem",
+        fontSize: "1.875rem",
         fontWeight: 600,
         lineHeight: 1.3,
       },
       h3: {
-        fontSize: isDark ? "1.5rem" : "1.5rem",
+        fontSize: "1.5rem",
         fontWeight: 600,
         lineHeight: 1.4,
       },
+
       body1: {
         fontSize: "1rem",
         fontWeight: 400,
@@ -81,6 +89,7 @@ export function getMuiTheme(mode = "light") {
         fontWeight: 400,
         lineHeight: 1.5,
       },
+
       button: {
         fontSize: "0.875rem",
         fontWeight: 500,
@@ -100,105 +109,129 @@ export function getMuiTheme(mode = "light") {
             textTransform: "none",
             fontWeight: 500,
             fontSize: "0.875rem",
-            transition: "all 0.3s ease",
+            transition: "all 0.2s ease",
             borderRadius: "8px",
           },
+
           contained: {
-            backgroundColor: isDark ? "#60a5fa" : "#2563eb",
+            backgroundColor: isDark ? "#ffffff" : "#000000",
             color: isDark ? "#000000" : "#ffffff",
+
             "&:hover": {
-              backgroundColor: isDark ? "#3b82f6" : "#1d4ed8",
-              boxShadow: "0 4px 12px rgba(37, 99, 235, 0.4)",
+              backgroundColor: isDark ? "#e5e5e5" : "#171717",
+              boxShadow: "none",
             },
+
             "&:disabled": {
-              backgroundColor: isDark ? "#1f2937" : "#d1d5db",
-              color: isDark ? "#6b7280" : "#6b7280",
+              backgroundColor: isDark ? "#1f1f1f" : "#e5e5e5",
+              color: "#a3a3a3",
             },
           },
+
           outlined: {
-            borderColor: isDark ? "#374151" : "#d1d5db",
+            borderColor: isDark ? "#1f1f1f" : "#e5e5e5",
             color: isDark ? "#ffffff" : "#000000",
+
             "&:hover": {
-              backgroundColor: isDark ? "rgba(96, 165, 250, 0.08)" : "rgba(37, 99, 235, 0.08)",
-              borderColor: isDark ? "#60a5fa" : "#2563eb",
+              backgroundColor: isDark
+                ? "rgba(255,255,255,0.06)"
+                : "rgba(0,0,0,0.04)",
+              borderColor: isDark ? "#ffffff" : "#000000",
             },
           },
+
           text: {
-            color: isDark ? "#60a5fa" : "#2563eb",
+            color: isDark ? "#ffffff" : "#000000",
+
             "&:hover": {
-              backgroundColor: isDark ? "rgba(96, 165, 250, 0.08)" : "rgba(37, 99, 235, 0.08)",
+              backgroundColor: isDark
+                ? "rgba(255,255,255,0.06)"
+                : "rgba(0,0,0,0.04)",
             },
           },
         },
+
         defaultProps: {
           disableElevation: true,
         },
       },
+
       MuiTextField: {
         styleOverrides: {
           root: {
             "& .MuiOutlinedInput-root": {
-              backgroundColor: isDark ? "#111827" : "#ffffff",
+              backgroundColor: isDark ? "#0a0a0a" : "#ffffff",
               color: isDark ? "#ffffff" : "#000000",
               fontSize: "0.875rem",
               borderRadius: "8px",
-              transition: "all 0.3s ease",
+              transition: "all 0.2s ease",
+
               "& fieldset": {
-                borderColor: isDark ? "#374151" : "#d1d5db",
+                borderColor: isDark ? "#1f1f1f" : "#e5e5e5",
               },
+
               "&:hover fieldset": {
-                borderColor: isDark ? "#60a5fa" : "#2563eb",
+                borderColor: isDark ? "#ffffff" : "#000000",
               },
+
               "&.Mui-focused fieldset": {
-                borderColor: isDark ? "#60a5fa" : "#2563eb",
+                borderColor: isDark ? "#ffffff" : "#000000",
                 borderWidth: 2,
               },
             },
+
             "& .MuiInputBase-input::placeholder": {
-              color: isDark ? "#6b7280" : "#9ca3af",
+              color: isDark ? "#737373" : "#a3a3a3",
               opacity: 1,
             },
           },
         },
       },
+
       MuiInputAdornment: {
         styleOverrides: {
           root: {
-            color: isDark ? "#9ca3af" : "#4b5563",
+            color: isDark ? "#d4d4d4" : "#404040",
           },
         },
       },
+
       MuiSelect: {
         styleOverrides: {
           root: {
-            backgroundColor: isDark ? "#111827" : "#ffffff",
+            backgroundColor: isDark ? "#0a0a0a" : "#ffffff",
             color: isDark ? "#ffffff" : "#000000",
             fontSize: "0.875rem",
             borderRadius: "8px",
+
             "& .MuiOutlinedInput-notchedOutline": {
-              borderColor: isDark ? "#374151" : "#d1d5db",
+              borderColor: isDark ? "#1f1f1f" : "#e5e5e5",
             },
+
             "&:hover .MuiOutlinedInput-notchedOutline": {
-              borderColor: isDark ? "#60a5fa" : "#2563eb",
+              borderColor: isDark ? "#ffffff" : "#000000",
             },
           },
         },
       },
+
       MuiPaper: {
         styleOverrides: {
           root: {
-            backgroundColor: isDark ? "#0b0b0b" : "#ffffff",
+            backgroundColor: isDark ? "#0a0a0a" : "#ffffff",
             color: isDark ? "#ffffff" : "#000000",
             backgroundImage: "none",
           },
         },
       },
+
       MuiCheckbox: {
         styleOverrides: {
           root: {
-            color: isDark ? "#374151" : "#d1d5db",
+            color: isDark ? "#1f1f1f" : "#d4d4d4",
+
             "&.Mui-checked": {
-              color: isDark ? "#60a5fa" : "#2563eb",
+              color: isDark ? "#ffffff" : "#000000",
             },
           },
         },
