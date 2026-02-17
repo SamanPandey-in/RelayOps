@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Mail, Calendar, LogOut } from 'lucide-react';
 
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../firebase/auth';
 import { Button } from '../components';
 import { dummyUsers } from '../assets/assets';
 
