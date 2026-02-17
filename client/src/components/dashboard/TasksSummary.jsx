@@ -24,21 +24,21 @@ export default function TasksSummary() {
             title: "My Tasks",
             count: myTasks.length,
             icon: User,
-            color: "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-400",
+            color: "bg-gray-100 text-gray-900 dark:bg-gray-200 dark:text-gray-900",
             items: myTasks.slice(0, 3)
         },
         {
             title: "Overdue",
             count: overdueTasks.length,
             icon: AlertTriangle,
-            color: "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-400",
+            color: "bg-gray-100 text-gray-900 dark:bg-gray-200 dark:text-gray-900",
             items: overdueTasks.slice(0, 3)
         },
         {
             title: "In Progress",
             count: inProgressIssues.length,
             icon: Clock,
-            color: "bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-400",
+            color: "bg-gray-100 text-gray-900 dark:bg-gray-200 dark:text-gray-900",
             items: inProgressIssues.slice(0, 3)
         }
     ];

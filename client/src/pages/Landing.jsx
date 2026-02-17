@@ -30,9 +30,9 @@ const Navbar = () => (
       </div>
 
       <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
-        <a href="#features" className="hover:text-cyan-400 transition-colors">Platform</a>
-        <a href="#vision" className="hover:text-cyan-400 transition-colors">Our Vision</a>
-        <a href="#mobile" className="hover:text-cyan-400 transition-colors">Mobile</a>
+        <a href="#features" className="transition-colors" style={{color: 'var(--color-text-secondary)'}}>Platform</a>
+        <a href="#vision" className="transition-colors" style={{color: 'var(--color-text-secondary)'}}>Our Vision</a>
+        <a href="#mobile" className="transition-colors" style={{color: 'var(--color-text-secondary)'}}>Mobile</a>
       </div>
 
       <div className="flex items-center gap-4">
@@ -56,7 +56,7 @@ const Hero = () => (
         transition={{ duration: 0.8 }}
         className="text-center"
       >
-        <span className="px-4 py-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 text-xs font-bold tracking-widest uppercase mb-6 inline-block">
+        <span className="px-4 py-1.5 rounded-full border text-xs font-bold tracking-widest uppercase mb-6 inline-block" style={{borderColor: 'var(--color-primary)', backgroundColor: 'var(--color-surface-variant)', color: 'var(--color-primary)'}}>
           The Future of Team Flow
         </span>
         <h1 className="text-6xl md:text-8xl font-black text-white tracking-tight mb-8">

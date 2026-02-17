@@ -100,7 +100,7 @@ export default function Projects() {
                         <p className="text-gray-500 dark:text-zinc-400 mb-6 text-sm">
                             Create your first project to get started
                         </p>
-                        <button onClick={() => setIsDialogOpen(true)} className="flex items-center gap-1.5 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mx-auto text-sm" >
+                        <button onClick={() => setIsDialogOpen(true)} className="flex items-center gap-1.5 text-white px-4 py-2 rounded mx-auto text-sm" style={{backgroundColor: 'var(--color-btn-bg)'}}>
                             <Plus className="size-4" />
                             Create Project
                         </button>
