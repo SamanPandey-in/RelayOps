@@ -1,6 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, LayoutDashboard, Clock, Layers, MessageSquare, Shield, Smartphone, ChevronRight } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Zap, Shield, BarChart3, Users, Globe, ChevronRight, LayoutDashboard, Clock, Layers, MessageSquare, Smartphone } from "lucide-react";
+import MacbookScrollDemo from "../components/MacbookScrollDemo";
+import TextHoverEffectDemo from "../components/TextHoverEffectDemo";
 
 /**
  * HEED MONOCHROME LANDING PAGE
@@ -80,78 +82,9 @@ const Landing = () => {
             </button>
           </div>
         </div>
-
-        {/* Dashboard Preview */}
-        <div className="mt-24 max-w-6xl mx-auto px-6 relative">
-          <div className="rounded-xl border border-white/10 bg-[#0A0A0A] overflow-hidden dashboard-glow">
-            <div className="h-10 border-b border-white/10 bg-[#111] flex items-center px-4 gap-2">
-              <div className="size-2.5 rounded-full bg-red-500/50"></div>
-              <div className="size-2.5 rounded-full bg-yellow-500/50"></div>
-              <div className="size-2.5 rounded-full bg-green-500/50"></div>
-            </div>
-            <div className="p-4 md:p-8 grid grid-cols-1 md:grid-cols-12 gap-6">
-              {/* Left Sidebar Mock */}
-              <div className="md:col-span-3 space-y-6">
-                <div className="p-4 rounded-lg bg-white/5 border border-white/5">
-                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Project Health</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-slate-300">Alpha Core</span>
-                      <span className="text-green-400 font-mono">98%</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                      <div className="w-[98%] h-full bg-green-400"></div>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-slate-300">Edge API</span>
-                      <span className="text-yellow-400 font-mono">64%</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-                      <div className="w-[64%] h-full bg-yellow-400"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {/* Main Area Mock */}
-              <div className="md:col-span-6 space-y-6">
-                <div className="p-4 rounded-lg border relative overflow-hidden group bg-white/5 border-white/10">
-                  <div className="absolute top-0 right-0 p-4 opacity-20 text-white">
-                    <Shield size={36} />
-                  </div>
-                  <h3 className="text-sm font-bold mb-2 flex items-center gap-2 text-white">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-white"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
-                    </span>
-                    Predictive Risk Alert
-                  </h3>
-                  <p className="text-white font-medium mb-1">Potential delay detected in "Q3 Launch"</p>
-                  <p className="text-slate-400 text-sm">Velocity has dropped by 14% over the last 48 hours. Buffer reduced to 2 days.</p>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="h-32 bg-white/5 rounded-lg border border-white/10 p-4 flex flex-col justify-between">
-                    <span className="text-slate-500 text-xs font-bold uppercase">Tasks Resolved</span>
-                    <span className="text-3xl font-bold text-white tracking-tight">248</span>
-                  </div>
-                  <div className="h-32 bg-white/5 rounded-lg border border-white/10 p-4 flex flex-col justify-between">
-                    <span className="text-slate-500 text-xs font-bold uppercase">Live Resources</span>
-                    <span className="text-3xl font-bold text-white tracking-tight">12/14</span>
-                  </div>
-                </div>
-              </div>
-              {/* Right Mock */}
-              <div className="md:col-span-3">
-                <div className="p-4 rounded-lg bg-white/5 border border-white/5 h-full">
-                  <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Team Load</h3>
-                  <div className="flex items-end gap-2 h-40">
-                    {[40, 70, 90, 55, 30, 40, 70, 90, 55, 30].map((h, i) => (
-                      <div key={i} className="flex-1 bg-white/10 rounded-t-sm" style={{ height: `${h}%` }}></div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* Dashboard Preview Section - Replaced with Macbook Scroll */}
+        <div className="relative pt-20 -mt-20 overflow-hidden">
+          <MacbookScrollDemo />
         </div>
       </main>
 
@@ -180,10 +113,10 @@ const Landing = () => {
             />
           </div>
         </div>
-      </section>
+      </section >
 
       {/* Bento / Secondary Value Prop */}
-      <section className="py-20 px-6">
+      < section className="py-20 px-6" >
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
           <div>
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-8 tracking-tight">Decisions, not just discussions.</h2>
@@ -214,10 +147,10 @@ const Landing = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* Pricing Section */}
-      <section id="pricing" className="py-32 px-6 border-t border-white/5 relative z-10">
+      < section id="pricing" className="py-32 px-6 border-t border-white/5 relative z-10" >
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Scales with your ambition</h2>
@@ -251,10 +184,10 @@ const Landing = () => {
             />
           </div>
         </div>
-      </section>
+      </section >
 
       {/* Final CTA */}
-      <section className="py-24 px-6">
+      < section className="py-24 px-6" >
         <div className="max-w-5xl mx-auto rounded-3xl p-12 md:p-20 text-center relative overflow-hidden bg-zinc-900/50 border border-white/10">
           <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 20% 50%, white, transparent)' }}></div>
           <h2 className="text-4xl md:text-6xl font-black text-white mb-8 relative z-10">Ready to lead, not follow?</h2>
@@ -270,11 +203,12 @@ const Landing = () => {
             </button>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* Footer */}
-      <footer className="py-20 px-6 border-t border-white/5 bg-black">
+      < footer className="py-20 px-6 border-t border-white/5 bg-black" >
         <div className="max-w-7xl mx-auto">
+          <TextHoverEffectDemo />
           <div className="grid grid-cols-2 md:grid-cols-4 gap-12 mb-16">
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2 mb-6">
@@ -304,8 +238,8 @@ const Landing = () => {
             </div>
           </div>
         </div>
-      </footer>
-    </div>
+      </footer >
+    </div >
   );
 };
 
