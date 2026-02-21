@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle2, Zap, Shield, BarChart3, Users, Globe, ChevronRight, LayoutDashboard, Clock, Layers, MessageSquare, Smartphone } from "lucide-react";
-import MacbookScrollDemo from "../components/MacbookScrollDemo";
-import TextHoverEffectDemo from "../components/TextHoverEffectDemo";
-import BackgroundRippleEffectDemo from "../components/BackgroundRippleEffectDemo";
+import MacbookScrollDemo from "./MacbookScrollDemo";
+import TextHoverEffectDemo from "./TextHoverEffectDemo";
+import BackgroundRippleEffectDemo from "./BackgroundRippleEffectDemo";
 
 /**
  * HEED MONOCHROME LANDING PAGE

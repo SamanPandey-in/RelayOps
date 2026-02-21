@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { BackgroundRippleEffect } from "@/components/ui/background-ripple-effect";
+import { BackgroundRippleEffect } from "./background-ripple-effect";
 
 export default function BackgroundRippleEffectDemo() {
     return (

@@ -1,4 +1,4 @@
-import Landing from './Landing'
+import Landing from './Landing/Landing'
 import Login from './Auth/Login'
 import Signup from './Auth/Signup'
 import ForgotPassword from './Auth/ForgotPassword';
