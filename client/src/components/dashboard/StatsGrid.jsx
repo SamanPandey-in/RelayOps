@@ -21,32 +21,32 @@ export default function StatsGrid() {
             title: "Total Projects",
             value: stats.totalProjects,
             subtitle: `projects in ${currentWorkspace?.name}`,
-            bgStyle: { backgroundColor: 'var(--color-primary-light)' },
-            textStyle: { color: 'var(--color-primary)' },
+            bgStyle: { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+            textStyle: { color: 'white' },
         },
         {
             icon: CheckCircle,
             title: "Completed Projects",
             value: stats.completedProjects,
             subtitle: `of ${stats.totalProjects} total`,
-            bgStyle: { backgroundColor: 'var(--color-success-light)' },
-            textStyle: { color: 'var(--color-success)' },
+            bgStyle: { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+            textStyle: { color: 'white' },
         },
         {
             icon: Users,
             title: "My Tasks",
             value: stats.myTasks,
             subtitle: "assigned to me",
-            bgStyle: { backgroundColor: 'var(--color-info-light)' },
-            textStyle: { color: 'var(--color-info)' },
+            bgStyle: { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+            textStyle: { color: 'white' },
         },
         {
             icon: AlertTriangle,
             title: "Overdue",
             value: stats.overdueIssues,
             subtitle: "need attention",
-            bgStyle: { backgroundColor: 'var(--color-warning-light)' },
-            textStyle: { color: 'var(--color-warning)' },
+            bgStyle: { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
+            textStyle: { color: 'white' },
         },
     ];
 
@@ -81,7 +81,7 @@ export default function StatsGrid() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 my-9">
             {statCards.map(
                 ({ icon: Icon, title, value, subtitle, bgStyle, textStyle }, i) => (
-                    <div key={i} className="bg-white dark:bg-zinc-950 dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-200 rounded-md" >
+                    <div key={i} className="bg-white dark:bg-black border border-zinc-200 dark:border-white/10 hover:border-zinc-300 dark:hover:border-white/20 transition duration-200 rounded-md" >
                         <div className="p-6 py-4">
                             <div className="flex items-start justify-between">
                                 <div>

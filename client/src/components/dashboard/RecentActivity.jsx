@@ -34,8 +34,8 @@ const RecentActivity = () => {
     }, [currentWorkspace]);
 
     return (
-        <div className="bg-white dark:bg-zinc-950 dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 rounded-lg transition-all overflow-hidden">
-            <div className="border-b border-zinc-200 dark:border-zinc-800 p-4">
+        <div className="bg-white dark:bg-black border border-zinc-200 dark:border-white/10 hover:border-zinc-300 dark:hover:border-white/20 rounded-lg transition-all overflow-hidden">
+            <div className="border-b border-zinc-200 dark:border-white/10 p-4">
                 <h2 className="text-lg text-zinc-800 dark:text-zinc-200">Recent Activity</h2>
             </div>
 
@@ -48,7 +48,7 @@ const RecentActivity = () => {
                         <p className="text-zinc-600 dark:text-zinc-400">No recent activity</p>
                     </div>
                 ) : (
-                    <div className="divide-y divide-zinc-200 dark:divide-zinc-800">
+                    <div className="divide-y divide-zinc-200 dark:divide-white/10">
                         {tasks.map((task) => {
                             const TypeIcon = typeIcons[task.type]?.icon || Square;
                             const iconColor = typeIcons[task.type]?.color || "text-gray-500 dark:text-gray-400";
@@ -56,8 +56,8 @@ const RecentActivity = () => {
                             return (
                                 <div key={task.id} className="p-6 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors">
                                     <div className="flex items-start gap-4">
-                                        <div className="p-2 rounded-lg" style={{backgroundColor: 'var(--color-surface-variant)'}}>
-                                            <TypeIcon className="w-4 h-4" style={{color: 'var(--color-text-secondary)'}} />
+                                        <div className="p-2 rounded-lg" style={{ backgroundColor: 'var(--color-surface-variant)' }}>
+                                            <TypeIcon className="w-4 h-4" style={{ color: 'var(--color-text-secondary)' }} />
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-start justify-between mb-2">

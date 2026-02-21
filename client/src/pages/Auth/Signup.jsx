@@ -63,17 +63,17 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#050505] px-4 font-sans selection:bg-cyan-500/30">
+    <div className="min-h-screen flex items-center justify-center bg-[#000000] px-4 font-sans selection:bg-white/10">
       {/* Background Orbs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-cyan-500/10 blur-[120px] rounded-full" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full" />
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-white/5 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-white/[0.02] blur-[120px] rounded-full" />
       </div>
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative w-full max-w-md rounded-2xl overflow-hidden bg-zinc-900/40 border border-white/5 backdrop-blur-2xl shadow-2xl p-8 md:p-10"
+        className="relative w-full max-w-md rounded-2xl overflow-hidden bg-white/[0.02] border border-white/10 backdrop-blur-2xl shadow-2xl p-8 md:p-10"
       >
         {/* Logo */}
         <motion.div
@@ -169,7 +169,7 @@ export default function Signup() {
 
           <div className="text-center text-sm text-zinc-400">
             Already have an account?{" "}
-            <Link to="/login" className="text-cyan-500 hover:text-cyan-400 font-semibold transition-colors">
+            <Link to="/login" className="text-white hover:underline font-semibold transition-colors">
               Sign in
             </Link>
           </div>
@@ -189,19 +189,19 @@ const AuthInput = ({ label, icon, type = 'text', ...props }) => {
     <div className="space-y-2">
       <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">{label}</label>
       <div className="relative group">
-        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-cyan-500 transition-colors">
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-white transition-colors">
           {icon}
         </div>
         <input
           {...props}
           type={inputType}
-          className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-zinc-600 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all"
+          className="w-full bg-white/[0.03] border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-zinc-600 focus:outline-none focus:border-white/30 focus:ring-1 focus:ring-white/30 transition-all"
         />
         {isPasswordType && (
           <button
             type="button"
             onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-cyan-500 transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors"
           >
             {isPasswordVisible ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
@@ -214,7 +214,7 @@ const AuthInput = ({ label, icon, type = 'text', ...props }) => {
 const AuthButton = ({ children, loading, ...props }) => (
   <button
     {...props}
-    className="w-full py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold shadow-[0_10px_20px_rgba(6,182,212,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center disabled:opacity-50 disabled:scale-100"
+    className="w-full py-4 rounded-xl bg-white text-black font-bold shadow-[0_10px_20px_rgba(255,255,255,0.05)] hover:bg-zinc-200 active:scale-[0.98] transition-all flex items-center justify-center disabled:opacity-50 disabled:scale-100"
   >
     {loading ? <Loader2 className="animate-spin" size={20} /> : children}
   </button>

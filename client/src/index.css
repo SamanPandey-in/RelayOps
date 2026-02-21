@@ -1,4 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+@keyframes cell-ripple {
+  0% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+    background-color: var(--cell-border-color);
+  }
+
+  100% {
+    opacity: 0.4;
+  }
+}
+
+.animate-cell-ripple {
+  animation: cell-ripple var(--duration, 600ms) ease-in-out var(--delay, 0ms);
+}
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -18,7 +38,7 @@
   --font-size-lg: 18px;
   --font-size-xl: 20px;
   --font-size-2xl: 24px;
-  
+
   --font-weight-light: 300;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
@@ -208,9 +228,9 @@
   --gray-1000: #ffffff;
 
   /* Core Colors - Dark Mode */
-  --color-bg: var(--gray-0);
-  --color-surface: var(--gray-50);
-  --color-surface-variant: var(--gray-100);
+  --color-bg: #000000;
+  --color-surface: #0a0a0a;
+  --color-surface-variant: #111111;
   --color-text: var(--gray-1000);
   --color-text-secondary: var(--gray-700);
   --color-text-tertiary: var(--gray-500);
@@ -347,6 +367,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -357,6 +378,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -364,9 +386,12 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -516,6 +541,7 @@
 }
 
 @layer components {
+
   /* Common Component Classes */
   .card {
     @apply p-4 rounded-lg border;
@@ -620,6 +646,26 @@
 
   .separator {
     background-color: var(--color-border);
+  }
+
+  .glass-nav {
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .hero-gradient-text {
+    background: linear-gradient(180deg, #FFFFFF 0%, #a1a1aa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .dashboard-glow {
+    box-shadow: 0 0 100px -20px rgba(255, 255, 255, 0.1);
+  }
+
+  .border-subtle {
+    border-color: rgba(255, 255, 255, 0.1);
   }
 }
 
@@ -787,160 +833,160 @@
 
 /* Mobile first - additional styles as needed */
 @media (max-width: 640px) {
-/* ============================================================================
+  /* ============================================================================
    STATUS & PRIORITY UTILITY CLASSES - CENTRALIZED THEME
    All status badges, priority indicators use B&W theme variables
    ============================================================================ */
 
-/* Status Badge Classes */
-.status-planning,
-.status-PLANNING {
-  background-color: var(--color-surface-variant);
-  color: var(--color-text);
-  border-color: var(--color-border);
-}
+  /* Status Badge Classes */
+  .status-planning,
+  .status-PLANNING {
+    background-color: var(--color-surface-variant);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
 
-.status-active,
-.status-ACTIVE {
-  background-color: var(--color-surface-variant);
-  color: var(--color-text);
-  border-color: var(--color-border);
-}
+  .status-active,
+  .status-ACTIVE {
+    background-color: var(--color-surface-variant);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
 
-.status-on-hold,
-.status-ON_HOLD {
-  background-color: var(--color-surface-variant);
-  color: var(--color-text);
-  border-color: var(--color-border);
-}
+  .status-on-hold,
+  .status-ON_HOLD {
+    background-color: var(--color-surface-variant);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
 
-.status-completed,
-.status-COMPLETED {
-  background-color: var(--color-surface-variant);
-  color: var(--color-text);
-  border-color: var(--color-border);
-}
+  .status-completed,
+  .status-COMPLETED {
+    background-color: var(--color-surface-variant);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
 
-.status-cancelled,
-.status-CANCELLED {
-  background-color: var(--color-surface-variant);
-  color: var(--color-text);
-  border-color: var(--color-border);
-}
+  .status-cancelled,
+  .status-CANCELLED {
+    background-color: var(--color-surface-variant);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
 
-.status-done,
-.status-DONE {
-  background-color: var(--color-surface-variant);
-  color: var(--color-text);
-  border-color: var(--color-border);
-}
+  .status-done,
+  .status-DONE {
+    background-color: var(--color-surface-variant);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
 
-.status-in-progress,
-.status-IN_PROGRESS {
-  background-color: var(--color-surface-variant);
-  color: var(--color-text);
-  border-color: var(--color-border);
-}
+  .status-in-progress,
+  .status-IN_PROGRESS {
+    background-color: var(--color-surface-variant);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
 
-/* Priority Badge Classes */
-.priority-low,
-.priority-LOW {
-  background-color: var(--color-surface-variant);
-  color: var(--color-text);
-  border-color: var(--color-border);
-}
+  /* Priority Badge Classes */
+  .priority-low,
+  .priority-LOW {
+    background-color: var(--color-surface-variant);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
 
-.priority-medium,
-.priority-MEDIUM {
-  background-color: var(--color-surface-variant);
-  color: var(--color-text);
-  border-color: var(--color-border);
-}
+  .priority-medium,
+  .priority-MEDIUM {
+    background-color: var(--color-surface-variant);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
 
-.priority-high,
-.priority-HIGH {
-  background-color: var(--color-surface-variant);
-  color: var(--color-text);
-  border-color: var(--color-border);
-}
+  .priority-high,
+  .priority-HIGH {
+    background-color: var(--color-surface-variant);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
 
-/* Type Badge Classes */
-.type-bug,
-.type-BUG {
-  background-color: var(--color-surface-variant);
-  color: var(--color-text);
-  border-color: var(--color-border);
-}
+  /* Type Badge Classes */
+  .type-bug,
+  .type-BUG {
+    background-color: var(--color-surface-variant);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
 
-.type-feature,
-.type-FEATURE {
-  background-color: var(--color-surface-variant);
-  color: var(--color-text);
-  border-color: var(--color-border);
-}
+  .type-feature,
+  .type-FEATURE {
+    background-color: var(--color-surface-variant);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
 
-.type-task,
-.type-TASK {
-  background-color: var(--color-surface-variant);
-  color: var(--color-text);
-  border-color: var(--color-border);
-}
+  .type-task,
+  .type-TASK {
+    background-color: var(--color-surface-variant);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
 
-.type-improvement,
-.type-IMPROVEMENT {
-  background-color: var(--color-surface-variant);
-  color: var(--color-text);
-  border-color: var(--color-border);
-}
+  .type-improvement,
+  .type-IMPROVEMENT {
+    background-color: var(--color-surface-variant);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
 
-.type-other,
-.type-OTHER {
-  background-color: var(--color-surface-variant);
-  color: var(--color-text);
-  border-color: var(--color-border);
-}
+  .type-other,
+  .type-OTHER {
+    background-color: var(--color-surface-variant);
+    color: var(--color-text);
+    border-color: var(--color-border);
+  }
 
-/* Analytics and stat colors - all grayscale */
-.stat-completed {
-  color: var(--color-text);
-  background-color: var(--color-surface-variant);
-}
+  /* Analytics and stat colors - all grayscale */
+  .stat-completed {
+    color: var(--color-text);
+    background-color: var(--color-surface-variant);
+  }
 
-.stat-in-progress {
-  color: var(--color-text);
-  background-color: var(--color-surface-variant);
-}
+  .stat-in-progress {
+    color: var(--color-text);
+    background-color: var(--color-surface-variant);
+  }
 
-.stat-at-risk {
-  color: var(--color-text);
-  background-color: var(--color-surface-variant);
-}
+  .stat-at-risk {
+    color: var(--color-text);
+    background-color: var(--color-surface-variant);
+  }
 
-.stat-team {
-  color: var(--color-text);
-  background-color: var(--color-surface-variant);
-}
+  .stat-team {
+    color: var(--color-text);
+    background-color: var(--color-surface-variant);
+  }
 
-/* Activity Event Colors */
-.activity-bug {
-  color: var(--color-text-secondary);
-}
+  /* Activity Event Colors */
+  .activity-bug {
+    color: var(--color-text-secondary);
+  }
 
-.activity-feature {
-  color: var(--color-text-secondary);
-}
+  .activity-feature {
+    color: var(--color-text-secondary);
+  }
 
-.activity-task {
-  color: var(--color-text-secondary);
-}
+  .activity-task {
+    color: var(--color-text-secondary);
+  }
 
-.activity-improvement {
-  color: var(--color-text-secondary);
-}
+  .activity-improvement {
+    color: var(--color-text-secondary);
+  }
 
-.activity-other {
-  color: var(--color-text-secondary);
-}
+  .activity-other {
+    color: var(--color-text-secondary);
+  }
 
   /* Small screens */
   .sm\:hidden {
@@ -949,6 +995,7 @@
 }
 
 @media (min-width: 641px) and (max-width: 1024px) {
+
   /* Medium screens */
   .md\:hidden {
     display: none;
@@ -956,6 +1003,7 @@
 }
 
 @media (min-width: 1025px) {
+
   /* Large screens */
   .lg\:hidden {
     display: none;

@@ -84,8 +84,8 @@ export function getMuiTheme(mode = "light") {
       },
 
       background: {
-        default: isDark ? colors[0] : colors[0],
-        paper: isDark ? colors[50] : colors[0],
+        default: isDark ? "#000000" : colors[0],
+        paper: isDark ? "#0a0a0a" : colors[0],
       },
 
       text: {
