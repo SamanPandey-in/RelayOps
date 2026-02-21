@@ -24,21 +24,21 @@ export default function TasksSummary() {
             title: "My Tasks",
             count: myTasks.length,
             icon: User,
-            color: "bg-gray-100 text-gray-900 dark:bg-gray-200 dark:text-gray-900",
+            color: "bg-white text-black dark:bg-white dark:text-black",
             items: myTasks.slice(0, 3)
         },
         {
             title: "Overdue",
             count: overdueTasks.length,
             icon: AlertTriangle,
-            color: "bg-gray-100 text-gray-900 dark:bg-gray-200 dark:text-gray-900",
+            color: "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-200",
             items: overdueTasks.slice(0, 3)
         },
         {
             title: "In Progress",
             count: inProgressIssues.length,
             icon: Clock,
-            color: "bg-gray-100 text-gray-900 dark:bg-gray-200 dark:text-gray-900",
+            color: "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-200",
             items: inProgressIssues.slice(0, 3)
         }
     ];
@@ -46,10 +46,10 @@ export default function TasksSummary() {
     return (
         <div className="space-y-6">
             {summaryCards.map((card) => (
-                <div key={card.title} className="bg-white dark:bg-zinc-950 dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 transition-all duration-200 rounded-lg overflow-hidden">
-                    <div className="border-b border-zinc-200 dark:border-zinc-800 p-4 pb-3">
+                <div key={card.title} className="bg-white dark:bg-black border border-zinc-200 dark:border-white/10 hover:border-zinc-300 dark:hover:border-white/20 transition-all duration-200 rounded-lg overflow-hidden">
+                    <div className="border-b border-zinc-200 dark:border-white/10 p-4 pb-3">
                         <div className="flex items-center gap-3">
-                            <div className="p-2 bg-zinc-50 dark:bg-zinc-800 rounded-lg">
+                            <div className="p-2 bg-zinc-50 dark:bg-white/5 rounded-lg">
                                 <card.icon className="w-4 h-4 text-gray-500 dark:text-zinc-400" />
                             </div>
                             <div className="flex items-center justify-between flex-1">
@@ -68,7 +68,7 @@ export default function TasksSummary() {
                         ) : (
                             <div className="space-y-3">
                                 {card.items.map((issue) => (
-                                    <div key={issue.id} className="p-3 rounded-lg bg-zinc-50 dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer">
+                                    <div key={issue.id} className="p-3 rounded-lg bg-zinc-50 dark:bg-white/5 hover:bg-zinc-100 dark:hover:bg-white/10 transition-colors cursor-pointer">
                                         <h4 className="text-sm font-medium text-gray-800 dark:text-white truncate">
                                             {issue.title}
                                         </h4>

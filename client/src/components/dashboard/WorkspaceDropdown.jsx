@@ -35,7 +35,7 @@ function WorkspaceDropdown() {
 
     return (
         <div className="relative m-4" ref={dropdownRef}>
-            <button onClick={() => setIsOpen(prev => !prev)} className="w-full flex items-center justify-between p-3 h-auto text-left rounded hover:bg-gray-100 dark:hover:bg-zinc-800" >
+            <button onClick={() => setIsOpen(prev => !prev)} className="w-full flex items-center justify-between p-3 h-auto text-left rounded hover:bg-gray-100 dark:hover:bg-white/5" >
                 <div className="flex items-center gap-3">
                     <img src={currentWorkspace?.image_url} alt={currentWorkspace?.name} className="w-8 h-8 rounded shadow" />
                     <div className="min-w-0 flex-1">
@@ -51,13 +51,13 @@ function WorkspaceDropdown() {
             </button>
 
             {isOpen && (
-                <div className="absolute z-50 w-64 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded shadow-lg top-full left-0">
+                <div className="absolute z-50 w-64 bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded shadow-lg top-full left-0">
                     <div className="p-2">
                         <p className="text-xs text-gray-500 dark:text-zinc-400 uppercase tracking-wider mb-2 px-2">
                             Workspaces
                         </p>
                         {dummyWorkspaces.map((ws) => (
-                            <div key={ws.id} onClick={() => onSelectWorkspace(ws.id)} className="flex items-center gap-3 p-2 cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-zinc-800" >
+                            <div key={ws.id} onClick={() => onSelectWorkspace(ws.id)} className="flex items-center gap-3 p-2 cursor-pointer rounded hover:bg-gray-100 dark:hover:bg-white/5" >
                                 <img src={ws.image_url} alt={ws.name} className="w-6 h-6 rounded" />
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-medium text-gray-800 dark:text-white truncate">
@@ -68,16 +68,16 @@ function WorkspaceDropdown() {
                                     </p>
                                 </div>
                                 {currentWorkspace?.id === ws.id && (
-                                    <Check className="w-4 h-4 flex-shrink-0" style={{color: 'var(--color-primary)'}} />
+                                    <Check className="w-4 h-4 flex-shrink-0" style={{ color: 'var(--color-primary)' }} />
                                 )}
                             </div>
                         ))}
                     </div>
 
-                    <hr className="border-gray-200 dark:border-zinc-700" />
+                    <hr className="border-gray-200 dark:border-white/10" />
 
-                    <div className="p-2 cursor-pointer rounded group hover:bg-gray-100 dark:hover:bg-zinc-800" >
-                        <p className="flex items-center text-xs gap-2 my-1 w-full group-hover:text-gray-700 dark:group-hover:text-gray-300" style={{color: 'var(--color-primary)'}}>
+                    <div className="p-2 cursor-pointer rounded group hover:bg-gray-100 dark:hover:bg-white/5" >
+                        <p className="flex items-center text-xs gap-2 my-1 w-full group-hover:text-gray-700 dark:group-hover:text-gray-300" style={{ color: 'var(--color-primary)' }}>
                             <Plus className="w-4 h-4" /> Create Workspace
                         </p>
                     </div>

@@ -64,11 +64,11 @@ const Profile = () => {
       </div>
 
       {/* Profile Avatar & Basic Info */}
-      <div className="dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded p-8">
+      <div className="bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded p-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
           <div className="flex-shrink-0">
-            <img 
-              src={profile.image} 
+            <img
+              src={profile.image}
               alt={profile.name}
               className="w-24 h-24 rounded-full object-cover"
             />
@@ -90,14 +90,14 @@ const Profile = () => {
       </div>
 
       {/* About Section */}
-      <div className="dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded p-6">
+      <div className="bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">About</h2>
         {editingAbout ? (
           <div className="space-y-4">
             <textarea
               value={about}
               onChange={(e) => setAbout(e.target.value)}
-              className="w-full px-4 py-3 text-sm border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none"
+              className="w-full px-4 py-3 text-sm border border-gray-300 dark:border-white/10 rounded-lg bg-white dark:bg-black text-gray-900 dark:text-white focus:ring-2 focus:ring-white/20 focus:border-transparent outline-none resize-none"
               rows="4"
               placeholder="Tell us about yourself..."
             />
@@ -139,9 +139,9 @@ const Profile = () => {
       </div>
 
       {/* Personal Information Section */}
-      <div className="dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded p-6">
+      <div className="bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded p-6">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-5">Personal Information</h2>
-        
+
         <div className="space-y-5">
           {/* Full Name */}
           <div className="p-4 rounded hover:bg-gray-50 dark:hover:bg-zinc-700/50 transition">
@@ -152,7 +152,7 @@ const Profile = () => {
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full px-4 py-2 text-sm border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 text-sm border border-gray-300 dark:border-white/10 rounded-lg bg-white dark:bg-black text-gray-900 dark:text-white focus:ring-2 focus:ring-white/20 focus:border-transparent outline-none"
                 />
                 <div className="flex gap-3">
                   <Button
@@ -200,7 +200,7 @@ const Profile = () => {
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full px-4 py-2 text-sm border border-gray-300 dark:border-zinc-600 rounded-lg bg-white dark:bg-zinc-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  className="w-full px-4 py-2 text-sm border border-gray-300 dark:border-white/10 rounded-lg bg-white dark:bg-black text-gray-900 dark:text-white focus:ring-2 focus:ring-white/20 focus:border-transparent outline-none"
                 />
                 <div className="flex gap-3">
                   <Button
