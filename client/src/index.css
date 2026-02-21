@@ -1,4 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+@keyframes cell-ripple {
+  0% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+    background-color: var(--cell-border-color);
+  }
+
+  100% {
+    opacity: 0.4;
+  }
+}
+
+.animate-cell-ripple {
+  animation: cell-ripple var(--duration, 600ms) ease-in-out var(--delay, 0ms);
+}
+
 @import "tailwindcss";
 @import "tw-animate-css";
 

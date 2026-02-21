@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, CheckCircle2, Zap, Shield, BarChart3, Users, Globe, ChevronRight, LayoutDashboard, Clock, Layers, MessageSquare, Smartphone } from "lucide-react";
 import MacbookScrollDemo from "../components/MacbookScrollDemo";
 import TextHoverEffectDemo from "../components/TextHoverEffectDemo";
+import BackgroundRippleEffectDemo from "../components/BackgroundRippleEffectDemo";
 
 /**
  * HEED MONOCHROME LANDING PAGE
@@ -60,7 +61,8 @@ const Landing = () => {
       <Navbar />
 
       <main className="relative pt-32 pb-20 overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none">
+        <BackgroundRippleEffectDemo />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full pointer-events-none z-0">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-white/5 blur-[120px] rounded-full"></div>
         </div>
 
