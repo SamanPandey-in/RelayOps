@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { SearchIcon, PanelLeft, LogOut, User } from 'lucide-react';
 
-import { useAuth } from '../../firebase/auth';
+import { useBackendAuth } from '../../hooks/useBackendAuth';
 import { assets } from '../../assets/assets';
 import ThemeToggle from '../theme/ThemeToggle';
 
@@ -11,7 +11,7 @@ const Navbar = ({ setIsSidebarOpen }) => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout } = useBackendAuth();
   const { theme } = useSelector(state => state.theme);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileMenuRef = useRef(null);

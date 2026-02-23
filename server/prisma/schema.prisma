@@ -1,0 +1,293 @@
+// ============================================================================
+// HEED COLLABORATION PLATFORM - PRISMA SCHEMA
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================================
+// USER MODEL
+// ============================================================================
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  name         String
+  imageUrl     String?   @map("image_url")
+  role         Role      @default(MEMBER)
+  isActive     Boolean   @default(true) @map("is_active")
+  lastLogin    DateTime? @map("last_login")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  ownedWorkspaces     Workspace[]               @relation("WorkspaceOwner")
+  workspaceMemberships WorkspaceMember[]
+  projectMemberships  ProjectMember[]
+  projectLeadings     Project[]                 @relation("ProjectTeamLead")
+  tasks               Task[]                     @relation("TaskAssignee")
+  reportedTasks        Task[]                    @relation("TaskReporter")
+  messages             Message[]                 @relation("MessageAuthor")
+  notifications        Notification[]
+  refreshTokens       RefreshToken[]
+
+  @@map("users")
+  @@index([email])
+  @@index([role])
+  @@index([isActive])
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+// ============================================================================
+// WORKSPACE MODEL
+// ============================================================================
+model Workspace {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String?
+  imageUrl    String?  @map("image_url")
+  settings    Json     @default("{}")
+  ownerId     String   @map("owner_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  owner          User                 @relation("WorkspaceOwner", fields: [ownerId], references: [id])
+  members        WorkspaceMember[]
+  projects       Project[]
+
+  @@map("workspaces")
+  @@index([slug])
+  @@index([ownerId])
+}
+
+// ============================================================================
+// WORKSPACE MEMBER MODEL
+// ============================================================================
+model WorkspaceMember {
+  id          String   @id @default(uuid())
+  workspaceId String   @map("workspace_id")
+  userId      String   @map("user_id")
+  role        Role     @default(MEMBER)
+  message     String   @default("")
+  joinedAt    DateTime @default(now()) @map("joined_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@map("workspace_members")
+  @@index([workspaceId])
+  @@index([userId])
+}
+
+// ============================================================================
+// PROJECT MODEL
+// ============================================================================
+model Project {
+  id          String        @id @default(uuid())
+  name        String
+  description String?
+  priority   Priority      @default(MEDIUM)
+  status     ProjectStatus @default(PLANNING)
+  startDate  DateTime?     @map("start_date")
+  endDate    DateTime?     @map("end_date")
+  progress   Int           @default(0)
+  workspaceId String        @map("workspace_id")
+  teamLeadId String         @map("team_lead_id")
+  createdAt  DateTime      @default(now()) @map("created_at")
+  updatedAt  DateTime      @updatedAt @map("updated_at")
+
+  // Relations
+  workspace  Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  teamLead   User             @relation("ProjectTeamLead", fields: [teamLeadId], references: [id])
+  members    ProjectMember[]
+  tasks      Task[]
+  messages   Message[]
+
+  @@map("projects")
+  @@index([workspaceId])
+  @@index([teamLeadId])
+  @@index([status])
+  @@index([priority])
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum ProjectStatus {
+  PLANNING
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  ARCHIVED
+}
+
+// ============================================================================
+// PROJECT MEMBER MODEL
+// ============================================================================
+model ProjectMember {
+  id        String   @id @default(uuid())
+  projectId String   @map("project_id")
+  userId    String   @map("user_id")
+  role      ProjectRole @default(MEMBER)
+  joinedAt  DateTime @default(now()) @map("joined_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@map("project_members")
+  @@index([projectId])
+  @@index([userId])
+}
+
+enum ProjectRole {
+  LEAD
+  MEMBER
+  VIEWER
+}
+
+// ============================================================================
+// TASK MODEL
+// ============================================================================
+model Task {
+  id          String     @id @default(uuid())
+  projectId   String     @map("project_id")
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  type        TaskType   @default(TASK)
+  priority    Priority   @default(MEDIUM)
+  assigneeId  String?    @map("assignee_id")
+  reporterId  String     @map("reporter_id")
+  dueDate     DateTime?  @map("due_date")
+  completedAt DateTime?  @map("completed_at")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  // Relations
+  project  Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignee User?    @relation("TaskAssignee", fields: [assigneeId], references: [id])
+  reporter User     @relation("TaskReporter", fields: [reporterId], references: [id])
+
+  @@map("tasks")
+  @@index([projectId])
+  @@index([assigneeId])
+  @@index([reporterId])
+  @@index([status])
+  @@index([priority])
+  @@index([dueDate])
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+}
+
+enum TaskType {
+  TASK
+  FEATURE
+  BUG
+  IMPROVEMENT
+  OTHER
+}
+
+// ============================================================================
+// MESSAGE MODEL
+// ============================================================================
+model Message {
+  id        String   @id @default(uuid())
+  projectId String   @map("project_id")
+  authorId  String   @map("author_id")
+  parentId  String?  @map("parent_id")
+  content   String
+  isEdited  Boolean  @default(false) @map("is_edited")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  author    User     @relation("MessageAuthor", fields: [authorId], references: [id])
+  parent    Message? @relation("MessageThread", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Message[] @relation("MessageThread")
+
+  @@map("messages")
+  @@index([projectId])
+  @@index([authorId])
+  @@index([parentId])
+  @@index([createdAt])
+}
+
+// ============================================================================
+// NOTIFICATION MODEL
+// ============================================================================
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String           @map("user_id")
+  type      NotificationType
+  title     String
+  message   String?
+  data      Json             @default("{}")
+  isRead    Boolean          @default(false) @map("is_read")
+  readAt    DateTime?         @map("read_at")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+enum NotificationType {
+  TASK_ASSIGNED
+  TASK_UPDATED
+  TASK_COMPLETED
+  DUE_DATE_APPROACHING
+  PROJECT_INVITE
+  MENTION
+}
+
+// ============================================================================
+// REFRESH TOKEN MODEL
+// ============================================================================
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+  @@index([userId])
+  @@index([token])
+}

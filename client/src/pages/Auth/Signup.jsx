@@ -3,12 +3,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, User, Loader2, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-import { useAuth } from '../../firebase/auth';
+import { useBackendAuth } from '../../hooks/useBackendAuth';
 import { Logo } from '../../components';
 
 export default function Signup() {
   const navigate = useNavigate();
-  const { signup, signInWithGoogle } = useAuth();
+  const { register, signInWithOAuth } = useBackendAuth();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -33,15 +33,25 @@ export default function Signup() {
     if (formData.password !== formData.confirmPassword) {
       return setError("Passwords do not match");
     }
-    if (formData.password.length < 6) {
-      return setError("Password must be at least 6 characters");
+    if (formData.password.length < 8) {
+      return setError("Password must be at least 8 characters");
     }
 
     setLoading(true);
     try {
-      const result = await signup(formData);
-      if (result.success) navigate("/dashboard");
-      else setError(result.error || "Signup failed");
+      const result = await register({ name: formData.fullName, email: formData.email, password: formData.password });
+      if (result.success) {
+        // Check if email verification is required
+        if (result.message) {
+          setError(""); // Clear any existing errors
+          // Show success message and stay on page
+          alert(result.message);
+        } else {
+          navigate("/dashboard");
+        }
+      } else {
+        setError(result.error || "Signup failed");
+      }
     } catch {
       setError("Something went wrong");
     } finally {
@@ -49,17 +59,16 @@ export default function Signup() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  /* Handle Google OAuth */
+  const handleGoogleSignUp = async () => {
     setError("");
     setLoading(true);
-    try {
-      await signInWithGoogle();
-      navigate("/dashboard");
-    } catch {
-      setError("Google sign-in failed");
-    } finally {
+    const result = await signInWithOAuth('google');
+    if (!result.success) {
+      setError(result.error || "Google sign-in failed");
       setLoading(false);
     }
+    // OAuth will redirect, so we don't set loading back on failure
   };
 
   return (
@@ -155,9 +164,10 @@ export default function Signup() {
             </div>
           </div>
 
+          {/* Google OAuth Sign Up */}
           <button
             type="button"
-            onClick={handleGoogleSignIn}
+            onClick={handleGoogleSignUp}
             disabled={loading}
             className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
           >

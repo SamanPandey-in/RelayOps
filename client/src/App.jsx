@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-import { useAuth } from './firebase/auth';
+import { useBackendAuth } from './hooks/useBackendAuth';
 import { ThemeProvider, Layout } from './components';
 
 // Pages
@@ -8,7 +8,7 @@ import { Landing, Login, Signup, ForgotPassword, Dashboard, Projects, ProjectDet
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading } = useBackendAuth();
 
   if (loading) {
     return (
@@ -23,7 +23,7 @@ const ProtectedRoute = ({ children }) => {
 
 // Public Route Component (redirect to dashboard if already authenticated)
 const PublicRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading } = useBackendAuth();
 
   if (loading) {
     return (

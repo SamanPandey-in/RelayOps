@@ -14,6 +14,7 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.7",
     "@mui/material": "^7.3.7",
+    "@neondatabase/neon-js": "^0.2.0-beta.1",
     "@reduxjs/toolkit": "^2.11.2",
     "@tabler/icons-react": "^3.37.1",
     "@tailwindcss/vite": "^4.1.18",

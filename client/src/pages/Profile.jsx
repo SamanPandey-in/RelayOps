@@ -2,13 +2,13 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Mail, Calendar, LogOut } from 'lucide-react';
 
-import { useAuth } from '../firebase/auth';
+import { useBackendAuth } from '../hooks/useBackendAuth';
 import { Button } from '../components';
 import { dummyUsers } from '../assets/assets';
 
 const Profile = () => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout } = useBackendAuth();
   const [profile, setProfile] = useState(dummyUsers[0]);
   const [editingName, setEditingName] = useState(false);
   const [editingUsername, setEditingUsername] = useState(false);

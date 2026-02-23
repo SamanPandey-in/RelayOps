@@ -1,4 +1,7 @@
-// slice to manage API interactions using RTK Query
+// ============================================================================
+// API SLICE - RTK Query endpoints for backend API
+// ============================================================================
+
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
@@ -16,256 +19,308 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Equipment', 'Team', 'Request'],
+  tagTypes: ['User', 'Workspace', 'Project', 'Task', 'Notification'],
   endpoints: (builder) => ({
-    // EQUIPMENT ENDPOINTS
-    getEquipment: builder.query({
+    // ============================================================================
+    // AUTH ENDPOINTS
+    // ============================================================================
+    
+    login: builder.mutation({
+      query: (credentials) => ({
+        url: '/auth/login',
+        method: 'POST',
+        body: credentials,
+      }),
+      transformResponse: (response) => response.data,
+    }),
+    
+    register: builder.mutation({
+      query: (userData) => ({
+        url: '/auth/register',
+        method: 'POST',
+        body: userData,
+      }),
+      transformResponse: (response) => response.data,
+    }),
+    
+    logout: builder.mutation({
+      query: () => ({
+        url: '/auth/logout',
+        method: 'POST',
+      }),
+      transformResponse: (response) => response.data,
+    }),
+    
+    getProfile: builder.query({
+      query: () => '/auth/profile',
+      providesTags: (result) => result ? [{ type: 'User', id: result.id }] : ['User'],
+      transformResponse: (response) => response.data,
+    }),
+    
+    updateProfile: builder.mutation({
+      query: (data) => ({
+        url: '/auth/profile',
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['User'],
+      transformResponse: (response) => response.data,
+    }),
+    
+    refreshToken: builder.mutation({
+      query: (refreshToken) => ({
+        url: '/auth/refresh-token',
+        method: 'POST',
+        body: { refreshToken },
+      }),
+      transformResponse: (response) => response.data,
+    }),
+
+    // ============================================================================
+    // WORKSPACE ENDPOINTS
+    // ============================================================================
+    
+    getWorkspaces: builder.query({
+      query: () => '/workspaces',
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ id }) => ({ type: 'Workspace', id })),
+              { type: 'Workspace', id: 'LIST' },
+            ]
+          : [{ type: 'Workspace', id: 'LIST' }],
+      transformResponse: (response) => response.data,
+    }),
+    
+    getWorkspaceById: builder.query({
+      query: (id) => `/workspaces/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Workspace', id }],
+      transformResponse: (response) => response.data,
+    }),
+    
+    createWorkspace: builder.mutation({
+      query: (data) => ({
+        url: '/workspaces',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: [{ type: 'Workspace', id: 'LIST' }],
+      transformResponse: (response) => response.data,
+    }),
+    
+    updateWorkspace: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/workspaces/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Workspace', id },
+        { type: 'Workspace', id: 'LIST' },
+      ],
+      transformResponse: (response) => response.data,
+    }),
+    
+    deleteWorkspace: builder.mutation({
+      query: (id) => ({
+        url: `/workspaces/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: [{ type: 'Workspace', id: 'LIST' }],
+    }),
+
+    // ============================================================================
+    // PROJECT ENDPOINTS
+    // ============================================================================
+    
+    getProjects: builder.query({
       query: (params) => ({
-        url: '/equipment',
+        url: '/projects',
         params,
       }),
       providesTags: (result) =>
         result?.data
           ? [
-              ...result.data.map(({ _id }) => ({ type: 'Equipment', id: _id })),
-              { type: 'Equipment', id: 'LIST' },
+              ...result.data.map(({ id }) => ({ type: 'Project', id })),
+              { type: 'Project', id: 'LIST' },
             ]
-          : [{ type: 'Equipment', id: 'LIST' }],
+          : [{ type: 'Project', id: 'LIST' }],
       transformResponse: (response) => response.data,
     }),
     
-    getEquipmentById: builder.query({
-      query: (id) => `/equipment/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Equipment', id }],
+    getProjectById: builder.query({
+      query: (id) => `/projects/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Project', id }],
       transformResponse: (response) => response.data,
     }),
     
-    createEquipment: builder.mutation({
+    createProject: builder.mutation({
       query: (data) => ({
-        url: '/equipment',
+        url: '/projects',
         method: 'POST',
         body: data,
       }),
-      invalidatesTags: [{ type: 'Equipment', id: 'LIST' }],
+      invalidatesTags: [{ type: 'Project', id: 'LIST' }],
       transformResponse: (response) => response.data,
     }),
     
-    updateEquipment: builder.mutation({
+    updateProject: builder.mutation({
       query: ({ id, ...data }) => ({
-        url: `/equipment/${id}`,
+        url: `/projects/${id}`,
         method: 'PUT',
         body: data,
       }),
       invalidatesTags: (result, error, { id }) => [
-        { type: 'Equipment', id },
-        { type: 'Equipment', id: 'LIST' },
+        { type: 'Project', id },
+        { type: 'Project', id: 'LIST' },
       ],
       transformResponse: (response) => response.data,
     }),
     
-    deleteEquipment: builder.mutation({
+    deleteProject: builder.mutation({
       query: (id) => ({
-        url: `/equipment/${id}`,
+        url: `/projects/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: [{ type: 'Equipment', id: 'LIST' }],
+      invalidatesTags: [{ type: 'Project', id: 'LIST' }],
+    }),
+
+    // ============================================================================
+    // TASK ENDPOINTS
+    // ============================================================================
+    
+    getTasks: builder.query({
+      query: (params) => ({
+        url: '/tasks',
+        params,
+      }),
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ id }) => ({ type: 'Task', id })),
+              { type: 'Task', id: 'LIST' },
+            ]
+          : [{ type: 'Task', id: 'LIST' }],
+      transformResponse: (response) => response.data,
     }),
     
-    scrapEquipment: builder.mutation({
+    getTaskById: builder.query({
+      query: (id) => `/tasks/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Task', id }],
+      transformResponse: (response) => response.data,
+    }),
+    
+    createTask: builder.mutation({
+      query: (data) => ({
+        url: '/tasks',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: [{ type: 'Task', id: 'LIST' }],
+      transformResponse: (response) => response.data,
+    }),
+    
+    updateTask: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/tasks/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Task', id },
+        { type: 'Task', id: 'LIST' },
+      ],
+      transformResponse: (response) => response.data,
+    }),
+    
+    deleteTask: builder.mutation({
       query: (id) => ({
-        url: `/equipment/${id}/scrap`,
+        url: `/tasks/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: [{ type: 'Task', id: 'LIST' }],
+    }),
+
+    // ============================================================================
+    // DASHBOARD ENDPOINTS
+    // ============================================================================
+    
+    getDashboardStats: builder.query({
+      query: () => '/dashboard/stats',
+      transformResponse: (response) => response.data,
+    }),
+    
+    getRecentActivity: builder.query({
+      query: () => '/dashboard/activity',
+      transformResponse: (response) => response.data,
+    }),
+
+    // ============================================================================
+    // NOTIFICATION ENDPOINTS
+    // ============================================================================
+    
+    getNotifications: builder.query({
+      query: () => '/notifications',
+      providesTags: (result) =>
+        result?.data
+          ? [
+              ...result.data.map(({ id }) => ({ type: 'Notification', id })),
+              { type: 'Notification', id: 'LIST' },
+            ]
+          : [{ type: 'Notification', id: 'LIST' }],
+      transformResponse: (response) => response.data,
+    }),
+    
+    markNotificationRead: builder.mutation({
+      query: (id) => ({
+        url: `/notifications/${id}/read`,
         method: 'PATCH',
       }),
       invalidatesTags: (result, error, id) => [
-        { type: 'Equipment', id },
-        { type: 'Equipment', id: 'LIST' },
+        { type: 'Notification', id },
+        { type: 'Notification', id: 'LIST' },
       ],
       transformResponse: (response) => response.data,
-    }),
-
-    // TEAM ENDPOINTS
-    getTeams: builder.query({
-      query: () => '/teams',
-      providesTags: (result) =>
-        result?.data
-          ? [
-              ...result.data.map(({ _id }) => ({ type: 'Team', id: _id })),
-              { type: 'Team', id: 'LIST' },
-            ]
-          : [{ type: 'Team', id: 'LIST' }],
-      transformResponse: (response) => response.data,
-    }),
-    
-    getTeamById: builder.query({
-      query: (id) => `/teams/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Team', id }],
-      transformResponse: (response) => response.data,
-    }),
-    
-    createTeam: builder.mutation({
-      query: (data) => ({
-        url: '/teams',
-        method: 'POST',
-        body: data,
-      }),
-      invalidatesTags: [{ type: 'Team', id: 'LIST' }],
-      transformResponse: (response) => response.data,
-    }),
-    
-    updateTeam: builder.mutation({
-      query: ({ id, ...data }) => ({
-        url: `/teams/${id}`,
-        method: 'PUT',
-        body: data,
-      }),
-      invalidatesTags: (result, error, { id }) => [
-        { type: 'Team', id },
-        { type: 'Team', id: 'LIST' },
-      ],
-      transformResponse: (response) => response.data,
-    }),
-    
-    deleteTeam: builder.mutation({
-      query: (id) => ({
-        url: `/teams/${id}`,
-        method: 'DELETE',
-      }),
-      invalidatesTags: [{ type: 'Team', id: 'LIST' }],
-    }),
-    
-    addTechnicianToTeam: builder.mutation({
-      query: ({ teamId, technicianId }) => ({
-        url: `/teams/${teamId}/technicians`,
-        method: 'POST',
-        body: { technicianId },
-      }),
-      invalidatesTags: (result, error, { teamId }) => [
-        { type: 'Team', id: teamId },
-        { type: 'Team', id: 'LIST' },
-      ],
-      transformResponse: (response) => response.data,
-    }),
-    
-    removeTechnicianFromTeam: builder.mutation({
-      query: ({ teamId, technicianId }) => ({
-        url: `/teams/${teamId}/technicians`,
-        method: 'DELETE',
-        body: { technicianId },
-      }),
-      invalidatesTags: (result, error, { teamId }) => [
-        { type: 'Team', id: teamId },
-        { type: 'Team', id: 'LIST' },
-      ],
-      transformResponse: (response) => response.data,
-    }),
-
-    // REQUEST ENDPOINTS
-    getRequests: builder.query({
-      query: (params) => ({
-        url: '/requests',
-        params,
-      }),
-      providesTags: (result) =>
-        result?.data
-          ? [
-              ...result.data.map(({ _id }) => ({ type: 'Request', id: _id })),
-              { type: 'Request', id: 'LIST' },
-            ]
-          : [{ type: 'Request', id: 'LIST' }],
-      transformResponse: (response) => response.data,
-    }),
-    
-    getRequestById: builder.query({
-      query: (id) => `/requests/${id}`,
-      providesTags: (result, error, id) => [{ type: 'Request', id }],
-      transformResponse: (response) => response.data,
-    }),
-    
-    getKanbanRequests: builder.query({
-      query: () => '/requests/kanban',
-      providesTags: [{ type: 'Request', id: 'KANBAN' }],
-      transformResponse: (response) => response.data,
-    }),
-    
-    createRequest: builder.mutation({
-      query: (data) => ({
-        url: '/requests',
-        method: 'POST',
-        body: data,
-      }),
-      invalidatesTags: [
-        { type: 'Request', id: 'LIST' },
-        { type: 'Request', id: 'KANBAN' },
-      ],
-      transformResponse: (response) => response.data,
-    }),
-    
-    updateRequest: builder.mutation({
-      query: ({ id, ...data }) => ({
-        url: `/requests/${id}`,
-        method: 'PUT',
-        body: data,
-      }),
-      invalidatesTags: (result, error, { id }) => [
-        { type: 'Request', id },
-        { type: 'Request', id: 'LIST' },
-        { type: 'Request', id: 'KANBAN' },
-      ],
-      transformResponse: (response) => response.data,
-    }),
-    
-    updateRequestStatus: builder.mutation({
-      query: ({ id, status, duration }) => ({
-        url: `/requests/${id}/status`,
-        method: 'PATCH',
-        body: { status, duration },
-      }),
-      invalidatesTags: (result, error, { id }) => [
-        { type: 'Request', id },
-        { type: 'Request', id: 'LIST' },
-        { type: 'Request', id: 'KANBAN' },
-      ],
-      transformResponse: (response) => response.data,
-    }),
-    
-    deleteRequest: builder.mutation({
-      query: (id) => ({
-        url: `/requests/${id}`,
-        method: 'DELETE',
-      }),
-      invalidatesTags: [
-        { type: 'Request', id: 'LIST' },
-        { type: 'Request', id: 'KANBAN' },
-      ],
     }),
   }),
 });
 
 // Export hooks for usage in components
 export const {
-  // Equipment
-  useGetEquipmentQuery,
-  useGetEquipmentByIdQuery,
-  useCreateEquipmentMutation,
-  useUpdateEquipmentMutation,
-  useDeleteEquipmentMutation,
-  useScrapEquipmentMutation,
+  // Auth
+  useLoginMutation,
+  useRegisterMutation,
+  useLogoutMutation,
+  useGetProfileQuery,
+  useUpdateProfileMutation,
+  useRefreshTokenMutation,
   
-  // Teams
-  useGetTeamsQuery,
-  useGetTeamByIdQuery,
-  useCreateTeamMutation,
-  useUpdateTeamMutation,
-  useDeleteTeamMutation,
-  useAddTechnicianToTeamMutation,
-  useRemoveTechnicianFromTeamMutation,
+  // Workspaces
+  useGetWorkspacesQuery,
+  useGetWorkspaceByIdQuery,
+  useCreateWorkspaceMutation,
+  useUpdateWorkspaceMutation,
+  useDeleteWorkspaceMutation,
   
-  // Requests
-  useGetRequestsQuery,
-  useGetRequestByIdQuery,
-  useGetKanbanRequestsQuery,
-  useCreateRequestMutation,
-  useUpdateRequestMutation,
-  useUpdateRequestStatusMutation,
-  useDeleteRequestMutation,
+  // Projects
+  useGetProjectsQuery,
+  useGetProjectByIdQuery,
+  useCreateProjectMutation,
+  useUpdateProjectMutation,
+  useDeleteProjectMutation,
+  
+  // Tasks
+  useGetTasksQuery,
+  useGetTaskByIdQuery,
+  useCreateTaskMutation,
+  useUpdateTaskMutation,
+  useDeleteTaskMutation,
+  
+  // Dashboard
+  useGetDashboardStatsQuery,
+  useGetRecentActivityQuery,
+  
+  // Notifications
+  useGetNotificationsQuery,
+  useMarkNotificationReadMutation,
 } = apiSlice;
