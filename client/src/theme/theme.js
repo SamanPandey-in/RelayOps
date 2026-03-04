@@ -1,50 +1,49 @@
 import { createTheme } from '@mui/material/styles';
+import tokens from './tokens';
 
 export const buildTheme = (mode = 'light') => {
   const isDark = mode === 'dark';
-
-  const primaryMain = isDark ? '#ffffff' : '#000000';
-  const primaryContrast = isDark ? '#000000' : '#ffffff';
+  const colors = isDark ? tokens.darkGray : tokens.gray;
 
   return createTheme({
     palette: {
       mode,
       primary: {
-        main: primaryMain,
-        contrastText: primaryContrast,
+        main: colors[1000],
+        contrastText: colors[0],
       },
       secondary: {
-        main: isDark ? '#9ca3af' : '#4b5563',
+        main: colors[700],
       },
       error: {
-        main: '#d32f2f',
+        main: colors[400],
       },
       warning: {
-        main: '#ed6c02',
+        main: colors[500],
       },
       success: {
-        main: '#2e7d32',
+        main: colors[600],
       },
       background: {
-        default: isDark ? '#0a0a0a' : '#f7f7f7',
-        paper: isDark ? '#121212' : '#ffffff',
+        default: isDark ? colors[0] : colors[0],
+        paper: isDark ? colors[50] : colors[0],
       },
     },
-    spacing: 8,
+    spacing: tokens.spacing[2],
     shape: {
-      borderRadius: 10,
+      borderRadius: tokens.borderRadius.md,
     },
     typography: {
-      fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-      h1: { fontSize: '2.25rem', fontWeight: 700 },
-      h2: { fontSize: '1.875rem', fontWeight: 700 },
-      h3: { fontSize: '1.5rem', fontWeight: 600 },
-      h4: { fontSize: '1.25rem', fontWeight: 600 },
-      h5: { fontSize: '1.125rem', fontWeight: 600 },
-      h6: { fontSize: '1rem', fontWeight: 600 },
-      body1: { fontSize: '1rem' },
-      body2: { fontSize: '0.875rem' },
-      button: { textTransform: 'none', fontWeight: 600 },
+      fontFamily: tokens.font.family,
+      h1: { fontSize: '2.25rem', fontWeight: tokens.font.weight.bold },
+      h2: { fontSize: '1.875rem', fontWeight: tokens.font.weight.bold },
+      h3: { fontSize: '1.5rem', fontWeight: tokens.font.weight.semibold },
+      h4: { fontSize: '1.25rem', fontWeight: tokens.font.weight.semibold },
+      h5: { fontSize: '1.125rem', fontWeight: tokens.font.weight.semibold },
+      h6: { fontSize: '1rem', fontWeight: tokens.font.weight.semibold },
+      body1: { fontSize: '1rem', fontWeight: tokens.font.weight.normal },
+      body2: { fontSize: '0.875rem', fontWeight: tokens.font.weight.normal },
+      button: { textTransform: 'none', fontWeight: tokens.font.weight.medium },
     },
     components: {
       MuiButton: {
@@ -53,13 +52,13 @@ export const buildTheme = (mode = 'light') => {
         },
         styleOverrides: {
           root: {
-            borderRadius: 10,
+            borderRadius: tokens.borderRadius.md,
           },
           containedPrimary: {
-            backgroundColor: primaryMain,
-            color: primaryContrast,
+            backgroundColor: colors[1000],
+            color: colors[0],
             '&:hover': {
-              backgroundColor: primaryMain,
+              backgroundColor: colors[900],
               filter: 'brightness(0.92)',
             },
           },
@@ -68,7 +67,7 @@ export const buildTheme = (mode = 'light') => {
       MuiCard: {
         styleOverrides: {
           root: {
-            borderRadius: 12,
+            borderRadius: tokens.borderRadius.lg,
             border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'}`,
             boxShadow: 'none',
           },
@@ -77,8 +76,8 @@ export const buildTheme = (mode = 'light') => {
       MuiChip: {
         styleOverrides: {
           root: {
-            borderRadius: 8,
-            fontWeight: 500,
+            borderRadius: tokens.borderRadius.sm,
+            fontWeight: tokens.font.weight.medium,
           },
         },
       },
