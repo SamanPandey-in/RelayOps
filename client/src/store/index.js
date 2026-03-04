@@ -68,6 +68,7 @@ export { default as settingsReducer } from "./slices/settingsSlice.js";
 export {
   selectUserTeams,
   selectCurrentTeam,
+  selectCurrentTeamMembers,
   selectTeamMembers,
   selectAllTeams,
   selectTeamById,
