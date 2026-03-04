@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation, useSearchParams } from 'react-router-dom';
 import { ChevronRightIcon, SettingsIcon, KanbanIcon, ChartColumnIcon, CalendarIcon, ArrowRightIcon } from 'lucide-react';
 import { useSelector } from 'react-redux';
+import { selectAllProjects } from '../../store';
 
 const ProjectSidebar = () => {
 
@@ -10,15 +11,13 @@ const ProjectSidebar = () => {
     const [expandedProjects, setExpandedProjects] = useState(new Set());
     const [searchParams] = useSearchParams();
 
-    const projects = useSelector(
-        (state) => state?.workspace?.currentWorkspace?.projects || []
-    );
+    const projects = useSelector(selectAllProjects);
 
     const getProjectSubItems = (projectId) => [
-        { title: 'Tasks', icon: KanbanIcon, url: `/projectsDetail?id=${projectId}&tab=tasks` },
-        { title: 'Analytics', icon: ChartColumnIcon, url: `/projectsDetail?id=${projectId}&tab=analytics` },
-        { title: 'Calendar', icon: CalendarIcon, url: `/projectsDetail?id=${projectId}&tab=calendar` },
-        { title: 'Settings', icon: SettingsIcon, url: `/projectsDetail?id=${projectId}&tab=settings` }
+        { title: 'Tasks', icon: KanbanIcon, url: `/projects/${projectId}?tab=tasks` },
+        { title: 'Analytics', icon: ChartColumnIcon, url: `/projects/${projectId}?tab=analytics` },
+        { title: 'Calendar', icon: CalendarIcon, url: `/projects/${projectId}?tab=calendar` },
+        { title: 'Settings', icon: SettingsIcon, url: `/projects/${projectId}?tab=settings` }
     ];
 
     const toggleProject = (id) => {
@@ -54,8 +53,7 @@ const ProjectSidebar = () => {
                                 {getProjectSubItems(project.id).map((subItem) => {
                                     // checking if the current path matches the sub-item's URL
                                     const isActive =
-                                        location.pathname === `/projectsDetail` &&
-                                        searchParams.get('id') === project.id &&
+                                        location.pathname === `/projects/${project.id}` &&
                                         searchParams.get('tab') === subItem.title.toLowerCase();
 
                                     return (

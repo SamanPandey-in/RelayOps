@@ -7,7 +7,6 @@ export { default as ProjectOverview } from './dashboard/ProjectOverview';
 export { default as RecentActivity } from './dashboard/RecentActivity';
 export { default as StatsGrid } from './dashboard/StatsGrid';
 export { default as TasksSummary } from './dashboard/TasksSummary';
-export { default as WorkspaceDropdown } from './dashboard/WorkspaceDropdown';
 
 // Layout Components
 export { default as Layout } from './layout/Layout';
@@ -27,6 +26,8 @@ export { default as ProjectTasks } from './projects/ProjectTasks';
 
 // Team Components
 export { default as InviteMemberDialog } from './team/InviteMemberDialog';
+export { default as TeamMembersSection } from './team/TeamMembersSection';
+export { default as ProjectSection } from './team/ProjectSection';
 
 // Theme Components
 export { default as ThemeProvider } from './theme/ThemeProvider';

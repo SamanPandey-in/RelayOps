@@ -1,14 +1,20 @@
 // redux store configuration
 import { configureStore } from "@reduxjs/toolkit";
 import themeReducer from "./slices/themeSlice";
-import workspaceReducer from "./slices/workspaceSlice";
+import userReducer from "./slices/userSlice";
+import projectsReducer from "./slices/projectsSlice";
+import teamsReducer from "./slices/teamsSlice";
+import tasksReducer from "./slices/tasksSlice";
 import settingsReducer from "./slices/settingsSlice";
 import { apiSlice } from "./slices/apiSlice";
 
 export const store = configureStore({
   reducer: {
     theme: themeReducer,
-    workspace: workspaceReducer,
+    users: userReducer,
+    projects: projectsReducer,
+    teams: teamsReducer,
+    tasks: tasksReducer,
     settings: settingsReducer,
     [apiSlice.reducerPath]: apiSlice.reducer,
   },

@@ -1,6 +1,18 @@
 // Store
 export { default as store } from "./store.js";
 
+// Thunks (for atomic multi-slice operations)
+export {
+  createTeamAtomic,
+  createProjectAtomic,
+  deleteProjectAtomic,
+  deleteTeamAtomic,
+  inviteMemberAtomic,
+  joinTeamAtomic,
+  joinTeamByIdentifierAtomic,
+  updateProjectAtomic,
+} from "./thunks.js";
+
 // Theme Slice
 export { toggleTheme, setTheme, loadTheme } from "./slices/themeSlice.js";
 export { default as themeReducer } from "./slices/themeSlice.js";
@@ -8,19 +20,58 @@ export { default as themeReducer } from "./slices/themeSlice.js";
 // API Slice
 export { apiSlice } from "./slices/apiSlice.js";
 
-// Workspace Slice
-export { 
-  setWorkspaces, 
-  setCurrentWorkspace, 
-  addWorkspace, 
-  updateWorkspace, 
-  deleteWorkspace,
+// User Slice
+export {
+  setUser,
+  setCurrentTeamId,
+  addTeamToUser,
+  removeTeamFromUser,
+  setLoading as setUserLoading,
+  setError as setUserError,
+  clearError as clearUserError,
+} from "./slices/userSlice.js";
+export { default as userReducer } from "./slices/userSlice.js";
+
+// Projects Slice
+export {
+  setProjects,
+  setCurrentProjectId,
   addProject,
+  updateProject,
+  updateProjectStatus,
+  deleteProject,
   addTask,
   updateTask,
-  deleteTask
-} from "./slices/workspaceSlice.js";
-export { default as workspaceReducer } from "./slices/workspaceSlice.js";
+  deleteTask,
+} from "./slices/projectsSlice.js";
+export { default as projectsReducer } from "./slices/projectsSlice.js";
+
+// Tasks Slice
+export {
+  setTasks,
+  setTasksLoading,
+  setTasksError,
+  clearTasksError,
+} from "./slices/tasksSlice.js";
+export { default as tasksReducer } from "./slices/tasksSlice.js";
+
+// Teams Slice
+export {
+  createTeam,
+  joinTeam,
+  leaveTeam,
+  addTeamMember,
+  removeTeamMember,
+  addTeamProject,
+  removeTeamProject,
+  updateTeam,
+  deleteTeam,
+  setTeams,
+  setLoading as setTeamsLoading,
+  setError as setTeamsError,
+  clearError as clearTeamsError,
+} from "./slices/teamsSlice.js";
+export { default as teamsReducer } from "./slices/teamsSlice.js";
 
 // Settings Slice
 export {
@@ -33,3 +84,42 @@ export {
   setError as setSettingsError
 } from "./slices/settingsSlice.js";
 export { default as settingsReducer } from "./slices/settingsSlice.js";
+
+// Selectors
+export {
+  selectCurrentUserId,
+  selectUserTeams,
+  selectTeamsByUser,
+  selectUserTeamObjects,
+  selectCurrentTeamId,
+  selectCurrentTeam,
+  selectCurrentTeamMembers,
+  selectTeamMembers,
+  selectAllTeams,
+  selectTeamById,
+  selectTeamByInviteCode,
+  selectIsUserInTeam,
+  selectTeamProjects,
+  selectTeamProjectsByStatus,
+  selectTeamsError,
+  selectUserInfo,
+  selectCurrentUser,
+  selectTeamCount,
+  selectTasksForUser,
+  selectUserTasksSortedByDueDate,
+  selectUserTasksByStatus,
+  selectUserTasksCountByStatus,
+  selectAllTasks,
+  selectTasksByProjectId,
+  selectTaskById,
+  selectDashboardStats,
+  selectRecentTasks,
+  selectTaskSummaryCards,
+  selectAllProjects,
+  selectProjectById,
+  selectProjectsByStatus,
+  selectProjectsByTeam,
+  selectProjectsByTeamAndStatus,
+  selectProjectsForUserTeams,
+  selectProjectsForCurrentTeam,
+} from "./selectors.js";

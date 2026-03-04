@@ -1,18 +1,17 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { ArrowRight, Calendar, UsersIcon, FolderOpen } from 'lucide-react';
+import { selectAllTeams, selectProjectsForUserTeams, selectUserTeams } from '../../store';
 
 import CreateProjectDialog from './CreateProjectDialog';
 
 const ProjectOverview = () => {
     const statusColors = {
-        PLANNING: "bg-zinc-100 text-zinc-800 dark:bg-white/5 dark:text-zinc-400",
-        ACTIVE: "bg-zinc-200 text-zinc-900 dark:bg-white/10 dark:text-white",
-        ON_HOLD: "bg-zinc-100 text-zinc-600 dark:bg-white/5 dark:text-zinc-500",
-        COMPLETED: "bg-zinc-900 text-white dark:bg-white dark:text-black",
-        CANCELLED: "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
+        active: "bg-zinc-200 text-zinc-900 dark:bg-white/10 dark:text-white",
+        completed: "bg-zinc-900 text-white dark:bg-white dark:text-black",
+        deprecated: "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
     };
 
     const priorityColors = {
@@ -21,15 +20,12 @@ const ProjectOverview = () => {
         HIGH: "border-zinc-900 text-zinc-900 dark:border-white dark:text-white",
     };
 
-    const currentWorkspace = useSelector((state) => state?.workspace?.currentWorkspace || null);
+    const userTeamIds = useSelector(selectUserTeams);
+    const projects = useSelector((state) => selectProjectsForUserTeams(state, userTeamIds));
+    const teams = useSelector(selectAllTeams);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [projects, setProjects] = useState([]);
 
-    useEffect(() => {
-        setProjects(currentWorkspace?.projects || []);
-    }, [currentWorkspace]);
-
-    return currentWorkspace && (
+    return (
         <div className="bg-white dark:bg-black border border-zinc-200 dark:border-white/10 hover:border-zinc-300 dark:hover:border-white/20 transition-all duration-200 rounded-lg overflow-hidden">
             <div className="border-b border-zinc-200 dark:border-white/10 p-4 flex items-center justify-between">
                 <h2 className="text-md text-zinc-800 dark:text-zinc-300">Project Overview</h2>
@@ -52,8 +48,12 @@ const ProjectOverview = () => {
                     </div>
                 ) : (
                     <div className="divide-y divide-zinc-200 dark:divide-white/10">
-                        {projects.slice(0, 5).map((project) => (
-                            <Link key={project.id} to={`/projectsDetail?id=${project.id}&tab=tasks`} className="block p-6 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors">
+                        {projects.slice(0, 5).map((project) => {
+                            const teamName = teams.find((team) => team.id === project.teamId)?.name || 'Unknown team';
+                            const memberCount = project?.memberIds?.length ?? project?.members?.length ?? 0;
+
+                            return (
+                                <Link key={project.id} to={`/projects/${project.id}?tab=tasks`} className="block p-6 hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors">
                                 <div className="flex items-start justify-between mb-3">
                                     <div className="flex-1">
                                         <h3 className="font-semibold text-zinc-800 dark:text-zinc-300 mb-1">
@@ -64,8 +64,8 @@ const ProjectOverview = () => {
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-2 ml-4">
-                                        <span className={`text-xs px-2 py-1 rounded ${statusColors[project.status]}`}>
-                                            {project.status.replace('_', ' ').replaceAll(/\b\w/g, c => c.toUpperCase())}
+                                        <span className={`text-xs px-2 py-1 rounded ${statusColors[project.status] || statusColors.active}`}>
+                                            {(project.status || "active").replace('_', ' ').replaceAll(/\b\w/g, c => c.toUpperCase())}
                                         </span>
                                         <div className={`w-2 h-2 rounded-full border-2 ${priorityColors[project.priority]}`} />
                                     </div>
@@ -73,12 +73,15 @@ const ProjectOverview = () => {
 
                                 <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-500 mb-3">
                                     <div className="flex items-center gap-4">
-                                        {project.members?.length > 0 && (
+                                        {memberCount > 0 && (
                                             <div className="flex items-center gap-1">
                                                 <UsersIcon className="w-3 h-3" />
-                                                {project.members.length} members
+                                                {memberCount} members
                                             </div>
                                         )}
+                                        <div className="flex items-center gap-1">
+                                            Team: {teamName}
+                                        </div>
                                         {project.end_date && (
                                             <div className="flex items-center gap-1">
                                                 <Calendar className="w-3 h-3" />
@@ -97,8 +100,9 @@ const ProjectOverview = () => {
                                         <div className="h-1.5 bg-white rounded" style={{ width: `${project.progress || 0}%` }} />
                                     </div>
                                 </div>
-                            </Link>
-                        ))}
+                                </Link>
+                            );
+                        })}
                     </div>
                 )}
             </div>

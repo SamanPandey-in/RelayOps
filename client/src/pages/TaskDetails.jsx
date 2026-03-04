@@ -7,6 +7,7 @@ import { CalendarIcon, MessageCircle, PenIcon } from 'lucide-react';
 
 import { Button } from '../components';
 import { assets } from '../assets/assets';
+import { selectAllProjects } from '../store';
 
 const TaskDetails = () => {
 
@@ -21,7 +22,7 @@ const TaskDetails = () => {
     const [newComment, setNewComment] = useState("");
     const [loading, setLoading] = useState(true);
 
-    const { currentWorkspace } = useSelector((state) => state.workspace);
+    const projects = useSelector(selectAllProjects);
 
     const fetchComments = async () => {
 
@@ -31,7 +32,7 @@ const TaskDetails = () => {
         setLoading(true);
         if (!projectId || !taskId) return;
 
-        const proj = currentWorkspace.projects.find((p) => p.id === projectId);
+        const proj = projects.find((p) => p.id === projectId);
         if (!proj) return;
 
         const tsk = proj.tasks.find((t) => t.id === taskId);
