@@ -1,6 +1,9 @@
 import { useSelector } from 'react-redux';
 import { FolderOpen, CheckCircle, Users, AlertTriangle } from 'lucide-react';
 import { selectDashboardStats } from '../../store';
+import { Box } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import { MediumAvatar } from '../ui/ReusableStyled';
 
 export default function StatsGrid() {
     const stats = useSelector(selectDashboardStats);
@@ -11,39 +14,40 @@ export default function StatsGrid() {
             title: "Total Projects",
             value: stats.totalProjects,
             subtitle: `projects in your teams`,
-            bgStyle: { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
-            textStyle: { color: 'white' },
         },
         {
             icon: CheckCircle,
             title: "Completed Projects",
             value: stats.completedProjects,
             subtitle: `of ${stats.totalProjects} total`,
-            bgStyle: { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
-            textStyle: { color: 'white' },
         },
         {
             icon: Users,
             title: "My Tasks",
             value: stats.myTasks,
             subtitle: "assigned to me",
-            bgStyle: { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
-            textStyle: { color: 'white' },
         },
         {
             icon: AlertTriangle,
             title: "Overdue",
             value: stats.overdueIssues,
             subtitle: "need attention",
-            bgStyle: { backgroundColor: 'rgba(255, 255, 255, 0.05)' },
-            textStyle: { color: 'white' },
         },
     ];
+
+    const StatIconBox = styled(Box)(({ theme }) => ({
+        padding: theme.spacing(1.5),
+        borderRadius: 16,
+        backgroundColor: 'rgba(255,255,255,0.05)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+    }));
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 my-9">
             {statCards.map(
-                ({ icon: Icon, title, value, subtitle, bgStyle, textStyle }, i) => (
+                ({ icon: Icon, title, value, subtitle }, i) => (
                     <div key={i} className="bg-white dark:bg-black border border-zinc-200 dark:border-white/10 hover:border-zinc-300 dark:hover:border-white/20 transition duration-200 rounded-md" >
                         <div className="p-6 py-4">
                             <div className="flex items-start justify-between">
@@ -60,9 +64,9 @@ export default function StatsGrid() {
                                         </p>
                                     )}
                                 </div>
-                                <div className="p-3 rounded-xl" style={bgStyle}>
-                                    <Icon size={20} style={textStyle} />
-                                </div>
+                                <StatIconBox>
+                                    <Icon size={20} style={{ color: 'white' }} />
+                                </StatIconBox>
                             </div>
                         </div>
                     </div>

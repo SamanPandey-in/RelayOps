@@ -19,6 +19,11 @@ import {
     TableRow,
     Typography,
 } from '@mui/material';
+import { MediumAvatar } from '../ui/ReusableStyled';
+import { styled } from '@mui/material/styles';
+const MinWidthFormControl = styled(FormControl)({
+    minWidth: 170,
+});
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { Bug, CalendarIcon, GitCommit, MessageSquare, Square, Trash, XIcon, Zap } from 'lucide-react';
@@ -143,7 +148,7 @@ const ProjectTasks = ({ tasks }) => {
         <Box>
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 2, flexWrap: 'wrap' }}>
                 {['status', 'type', 'priority', 'assignee'].map((name) => (
-                    <FormControl key={name} size="small" sx={{ minWidth: 170 }}>
+                    <MinWidthFormControl key={name} size="small">
                         <Select
                             value={filters[name]}
                             onChange={(e) => setFilters((prev) => ({ ...prev, [name]: e.target.value }))}
@@ -155,7 +160,7 @@ const ProjectTasks = ({ tasks }) => {
                                 </MenuItem>
                             ))}
                         </Select>
-                    </FormControl>
+                    </MinWidthFormControl>
                 ))}
 
                 {(filters.status || filters.type || filters.priority || filters.assignee) && (
@@ -248,7 +253,7 @@ const ProjectTasks = ({ tasks }) => {
                                         </TableCell>
                                         <TableCell>
                                             <Stack direction="row" spacing={1} alignItems="center">
-                                                <Avatar src={task.assignee?.image} sx={{ width: 20, height: 20 }} />
+                                                <MediumAvatar src={task.assignee?.image} />
                                                 <Typography variant="body2">{task.assignee?.name || '-'}</Typography>
                                             </Stack>
                                         </TableCell>

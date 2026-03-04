@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { useSelector } from 'react-redux';
-import { Button, LinearProgress } from '@mui/material';
+import { Button } from '@mui/material';
 import { ArrowRight, Calendar, UsersIcon, FolderOpen } from 'lucide-react';
 import { selectAllTeams, selectProjectsForUserTeams, selectUserTeams } from '../../store';
-
+import { LinearProgressRounded } from '../ui/ReusableStyled';
 import CreateProjectDialog from './CreateProjectDialog';
 
 const ProjectOverview = () => {
@@ -97,10 +97,9 @@ const ProjectOverview = () => {
                                         <span className="text-zinc-500 dark:text-zinc-500">Progress</span>
                                         <span className="text-zinc-600 dark:text-zinc-400">{project.progress || 0}%</span>
                                     </div>
-                                    <LinearProgress
+                                    <LinearProgressRounded
                                         variant="determinate"
                                         value={project.progress || 0}
-                                        sx={{ borderRadius: 1, height: 6 }}
                                     />
                                 </div>
                                 </Link>

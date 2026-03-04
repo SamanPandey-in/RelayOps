@@ -1,6 +1,21 @@
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { selectTeamById } from '../../store';
+import { styled } from '@mui/material/styles';
+const ProgressBarBg = styled('div')(() => ({
+    width: '100%',
+    height: 6,
+    borderRadius: 6,
+    backgroundColor: 'var(--color-border)',
+    overflow: 'hidden',
+}));
+
+const ProgressBarFill = styled('div')(() => ({
+    height: 6,
+    borderRadius: 6,
+    backgroundColor: 'var(--color-primary)',
+    transition: 'width 0.3s',
+}));
 
 const statusColors = {
     active: "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300",
@@ -58,9 +73,9 @@ const ProjectCard = ({ project }) => {
                     <span className="text-gray-500 dark:text-zinc-500">Progress</span>
                     <span className="text-gray-400 dark:text-zinc-400">{project.progress || 0}%</span>
                 </div>
-                <div className="w-full h-1.5 rounded" style={{backgroundColor: 'var(--color-border)'}}>
-                    <div className="h-1.5 rounded" style={{ width: `${project.progress || 0}%`, backgroundColor: 'var(--color-primary)' }} />
-                </div>
+                <ProgressBarBg>
+                  <ProgressBarFill style={{ width: `${project.progress || 0}%` }} />
+                </ProgressBarBg>
             </div>
 
             </Link>
