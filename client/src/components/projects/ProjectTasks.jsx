@@ -114,10 +114,10 @@ const ProjectTasks = ({ tasks }) => {
             updatedTask.status = newStatus;
             dispatch(updateTask(updatedTask));
 
-            toast.dismissAll();
+            toast.dismiss();
             toast.success('Task status updated successfully');
         } catch (error) {
-            toast.dismissAll();
+            toast.dismiss();
             toast.error(error?.response?.data?.message || error.message);
         }
     };
@@ -132,10 +132,10 @@ const ProjectTasks = ({ tasks }) => {
 
             dispatch(deleteTask(selectedTasks));
 
-            toast.dismissAll();
+            toast.dismiss();
             toast.success('Tasks deleted successfully');
         } catch (error) {
-            toast.dismissAll();
+            toast.dismiss();
             toast.error(error?.response?.data?.message || error.message);
         }
     };

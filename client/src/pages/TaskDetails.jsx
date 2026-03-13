@@ -57,10 +57,10 @@ const TaskDetails = () => {
             
             setComments((prev) => [...prev, dummyComment]);
             setNewComment("");
-            toast.dismissAll();
+            toast.dismiss();
             toast.success("Comment added.");
         } catch (error) {
-            toast.dismissAll();
+            toast.dismiss();
             toast.error(error?.response?.data?.message || error.message);
             console.error(error);
         }
