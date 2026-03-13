@@ -66,9 +66,9 @@ const filterOptionMap = {
 };
 
 const priorityColor = {
-    LOW: 'warning',
-    MEDIUM: 'info',
-    HIGH: 'success',
+    HIGH: 'error',
+    MEDIUM: 'warning',
+    LOW: 'default',
 };
 
 const ProjectTasks = ({ tasks }) => {
