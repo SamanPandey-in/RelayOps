@@ -1,6 +1,9 @@
 // Logo
 export { default as Logo } from './Logo';
 
+// Error Boundary
+export { default as ErrorBoundary } from './ErrorBoundary';
+
 // Dashboard Components
 export { default as CreateProjectDialog } from './dashboard/CreateProjectDialog';
 export { default as ProjectOverview } from './dashboard/ProjectOverview';
