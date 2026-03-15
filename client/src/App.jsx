@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
 import { useAuth } from './firebase/auth';
-import { ThemeProvider, Layout } from './components';
+import { ThemeProvider, Layout, ErrorBoundary } from './components';
 
 // Pages
 import { Landing, Login, Signup, ForgotPassword, Dashboard, Projects, ProjectDetails, Teams, TeamDetails, TaskDetails, Settings, Profile } from './pages/index'
@@ -105,9 +105,11 @@ function AppRoutes() {
 function App() {
   return (
     <Router>
-        <ThemeProvider>
+      <ThemeProvider>
+        <ErrorBoundary>
           <AppRoutes />
-        </ThemeProvider>
+        </ErrorBoundary>
+      </ThemeProvider>
     </Router>
   );
 }

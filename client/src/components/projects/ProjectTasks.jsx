@@ -66,9 +66,9 @@ const filterOptionMap = {
 };
 
 const priorityColor = {
-    LOW: 'warning',
-    MEDIUM: 'info',
-    HIGH: 'success',
+    HIGH: 'error',
+    MEDIUM: 'warning',
+    LOW: 'default',
 };
 
 const ProjectTasks = ({ tasks }) => {
@@ -114,10 +114,10 @@ const ProjectTasks = ({ tasks }) => {
             updatedTask.status = newStatus;
             dispatch(updateTask(updatedTask));
 
-            toast.dismissAll();
+            toast.dismiss();
             toast.success('Task status updated successfully');
         } catch (error) {
-            toast.dismissAll();
+            toast.dismiss();
             toast.error(error?.response?.data?.message || error.message);
         }
     };
@@ -132,10 +132,10 @@ const ProjectTasks = ({ tasks }) => {
 
             dispatch(deleteTask(selectedTasks));
 
-            toast.dismissAll();
+            toast.dismiss();
             toast.success('Tasks deleted successfully');
         } catch (error) {
-            toast.dismissAll();
+            toast.dismiss();
             toast.error(error?.response?.data?.message || error.message);
         }
     };
@@ -260,7 +260,7 @@ const ProjectTasks = ({ tasks }) => {
                                         <TableCell>
                                             <Stack direction="row" spacing={0.5} alignItems="center">
                                                 <CalendarIcon className="size-4" />
-                                                <Typography variant="body2">{format(new Date(task.due_date), 'dd MMMM')}</Typography>
+                                                <Typography variant="body2">{task.due_date ? format(new Date(task.due_date), 'dd MMMM') : '—'}</Typography>
                                             </Stack>
                                         </TableCell>
                                     </TableRow>

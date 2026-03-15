@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { v4 as uuidv4 } from "uuid";
 import { dummyProjects } from "../../assets/assets";
 
 const FALLBACK_TEAM_ID = "team_1";
@@ -42,7 +43,7 @@ const normalizeProjectResult = (status, result) => {
 const normalizeTaskInput = (task = {}, fallbackProjectId) => {
   const normalizedTask = {
     ...task,
-    id: task.id || `task_${Date.now()}`,
+    id: task.id || uuidv4(),
     projectId: task.projectId || fallbackProjectId,
   };
 
@@ -78,13 +79,13 @@ const normalizeProjectsPayload = (projects = []) => {
   const projectIds = [];
 
   projects.forEach((project, index) => {
-    const projectId = project.id || `project_${Date.now()}_${index}`;
+    const projectId = project.id || uuidv4();
     const tasks = Array.isArray(project.tasks) ? project.tasks : [];
     const normalizedTaskIds = tasks.map((task, taskIndex) =>
       normalizeTaskInput(
         {
           ...task,
-          id: task.id || `task_${projectId}_${taskIndex}`,
+          id: task.id || uuidv4(),
           projectId,
         },
         projectId
@@ -160,7 +161,7 @@ const projectsSlice = createSlice({
         return;
       }
 
-      const projectId = id || `project_${Date.now()}`;
+      const projectId = id || uuidv4();
       if (state.projects[projectId]) {
         state.error = `Project with id ${projectId} already exists`;
         return;
@@ -179,7 +180,7 @@ const projectsSlice = createSlice({
               {
                 ...task,
                 projectId,
-                id: task.id || `task_${projectId}_${index}`,
+                id: task.id || uuidv4(),
               },
               projectId
             ).id
