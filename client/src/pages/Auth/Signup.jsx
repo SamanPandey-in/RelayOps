@@ -4,12 +4,12 @@ import { Button, IconButton, TextField } from '@mui/material';
 import { Mail, Lock, User, Loader2, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-import { useAuth } from '../../firebase/auth';
+import { useAuth } from '../../context/AuthContext';
 import { Logo } from '../../components';
 
 export default function Signup() {
   const navigate = useNavigate();
-  const { signup, signInWithGoogle } = useAuth();
+  const { signup } = useAuth();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -20,7 +20,6 @@ export default function Signup() {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "USER",
   });
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -45,19 +44,6 @@ export default function Signup() {
       else setError(result.error || "Signup failed");
     } catch {
       setError("Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    setError("");
-    setLoading(true);
-    try {
-      await signInWithGoogle();
-      navigate("/dashboard");
-    } catch {
-      setError("Google sign-in failed");
     } finally {
       setLoading(false);
     }
@@ -146,32 +132,6 @@ export default function Signup() {
               Get Started
             </AuthButton>
           </form>
-
-          <div className="relative py-2">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/5"></div>
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-zinc-900/40 px-2 text-zinc-500">Or continue with</span>
-            </div>
-          </div>
-
-          <Button
-            type="button"
-            onClick={handleGoogleSignIn}
-            disabled={loading}
-            fullWidth
-            variant="outlined"
-            color="inherit"
-            startIcon={
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path fill="currentColor" d="M12 10.8v3.6h5.1c-.2 1.3-1.5 3.8-5.1 3.8A6 6 0 1 1 12 6c1.7 0 2.9.7 3.6 1.3l2.4-2.3C16.5 3.6 14.4 2.5 12 2.5A9.5 9.5 0 1 0 21.5 12c0-.6-.1-1.1-.2-1.7H12z" />
-              </svg>
-            }
-            sx={{ py: 1.2 }}
-          >
-            Google
-          </Button>
 
           <div className="text-center text-sm text-zinc-400">
             Already have an account?{" "}

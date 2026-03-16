@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Avatar, Button, IconButton, InputAdornment, TextField } from '@mui/material';
 import { SearchIcon, PanelLeft, LogOut, User } from 'lucide-react';
 
-import { useAuth } from '../../firebase/auth';
+import { useAuth } from '../../context/AuthContext';
 import { assets } from '../../assets/assets';
 import ThemeToggle from '../theme/ThemeToggle';
 

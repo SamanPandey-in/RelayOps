@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button, TextField } from '@mui/material';
 import { User, Mail, Calendar, LogOut } from 'lucide-react';
 
-import { useAuth } from '../firebase/auth';
+import { useAuth } from '../context/AuthContext';
 import { dummyUsers } from '../assets/assets';
 
 const Profile = () => {
