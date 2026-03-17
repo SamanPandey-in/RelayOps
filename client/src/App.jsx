@@ -5,6 +5,7 @@ import { store } from './store/store';
 // NEW: import from context instead of firebase/auth
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider, Layout } from './components';
+import { useInitializeAppData } from './hooks';
 
 import {
   Landing, Login, Signup, ForgotPassword, ResetPassword,
@@ -32,6 +33,14 @@ const PublicRoute = ({ children }) => {
   );
   return !isAuthenticated ? children : <Navigate to="/dashboard" />;
 };
+
+// ─── App Initializer: Fetches all data after authentication ────────────────
+function AppInitializer() {
+  // Initialize all app data when user authenticates
+  useInitializeAppData();
+
+  return <AppRoutes />;
+}
 
 function AppRoutes() {
   return (
@@ -67,7 +76,7 @@ function App() {
       <Router>
         <AuthProvider>
           <ThemeProvider>
-            <AppRoutes />
+            <AppInitializer />
           </ThemeProvider>
         </AuthProvider>
       </Router>
