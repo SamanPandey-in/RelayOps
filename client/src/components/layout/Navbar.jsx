@@ -2,15 +2,25 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, Button, IconButton, InputAdornment, TextField } from '@mui/material';
 import { SearchIcon, PanelLeft, LogOut, User } from 'lucide-react';
+import { useSelector } from 'react-redux';
 
 import { useAuth } from '../../context/AuthContext';
-import { assets } from '../../assets/assets';
 import ThemeToggle from '../theme/ThemeToggle';
 
 const Navbar = ({ setIsSidebarOpen }) => {
 
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const currentUser = useSelector((state) => {
+    const userId = state?.users?.currentUserId;
+    return userId ? state?.users?.users?.[userId] : null;
+  });
+
+  const avatarSrc = currentUser?.avatarUrl || currentUser?.image || '';
+  const avatarInitial = (currentUser?.fullName || currentUser?.name || currentUser?.username || '?')
+    .slice(0, 1)
+    .toUpperCase();
+
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const profileMenuRef = useRef(null);
 
@@ -72,7 +82,9 @@ const Navbar = ({ setIsSidebarOpen }) => {
               onClick={() => setShowProfileMenu(!showProfileMenu)}
               className="p-1"
             >
-              <Avatar src={assets.profile_img_a} alt="User Avatar" sx={{ width: 28, height: 28 }} />
+              <Avatar src={avatarSrc} alt="User Avatar" sx={{ width: 28, height: 28 }}>
+                {avatarInitial}
+              </Avatar>
             </IconButton>
 
             {/* Dropdown Menu */}

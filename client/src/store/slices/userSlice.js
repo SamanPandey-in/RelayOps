@@ -85,6 +85,27 @@ const userSlice = createSlice({
       if (state.currentTeamId === teamId) state.currentTeamId = user.teamIds[0] ?? null;
     },
 
+    updateCurrentUser: (state, action) => {
+      const userId = state.currentUserId;
+      if (!userId || !state.users[userId]) return;
+
+      const updates = action.payload || {};
+      const nextFullName = updates.fullName ?? state.users[userId].fullName;
+      const nextBio = updates.bio ?? state.users[userId].bio;
+      const nextAvatarUrl = updates.avatarUrl ?? state.users[userId].avatarUrl;
+
+      state.users[userId] = {
+        ...state.users[userId],
+        ...updates,
+        fullName: nextFullName,
+        name: nextFullName,
+        bio: nextBio,
+        about: nextBio,
+        avatarUrl: nextAvatarUrl,
+        image: nextAvatarUrl,
+      };
+    },
+
     setLoading: (state, action) => { state.loading = Boolean(action.payload); },
     setError:   (state, action) => { state.error = action.payload; },
     clearError: (state)         => { state.error = null; },
@@ -95,6 +116,7 @@ export const {
   setUser, clearUser,
   setCurrentTeamId,
   addTeamToUser, removeTeamFromUser,
+  updateCurrentUser,
   setLoading, setError, clearError,
 } = userSlice.actions;
 
