@@ -1,19 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button, IconButton, InputAdornment, TextField } from '@mui/material';
 import { Mail, Lock, Loader2, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getAuth, sendPasswordResetEmail } from 'firebase/auth';
 
-import { useAuth } from '../../firebase/auth';
+import { useAuth } from '../../context/AuthContext';
 import { Logo } from '../../components';
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login, signInWithGoogle, sendSignInLinkToEmail, handleEmailLinkSignIn } = useAuth();
-  const auth = getAuth();
+  const { login, forgotPassword } = useAuth();
 
-  const [mode, setMode] = useState('login'); // 'login', 'forgot', 'emailsignin'
+  const [mode, setMode] = useState('login');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -49,68 +47,13 @@ export default function Login() {
     setError("");
     setLoading(true);
     try {
-      await sendPasswordResetEmail(auth, formData.email);
-      setSuccessMsg("Password reset email sent! Check your inbox.");
-      setFormData({ email: "", password: "" });
-    } catch (error) {
-      console.error(error.message);
-      setError(error.message || "Failed to send reset email. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /* Handle Email Link Sign In */
-  const handleSendEmailSignInLink = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    try {
-      const res = await sendSignInLinkToEmail(formData.email);
-      if (res.success) {
-        setSuccessMsg("Sign-in link sent! Check your inbox.");
-        setFormData({ email: "", password: "" });
+      const result = await forgotPassword(formData.email);
+      if (result.success) {
+        setSuccessMsg('If that email exists, a reset link has been sent.');
+        setFormData({ email: '', password: '' });
       } else {
-        setError(res.error || "Failed to send sign-in link. Please try again.");
+        setError(result.error || 'Failed to send reset email. Please try again.');
       }
-    } catch (err) {
-      setError(err.message || "Failed to send sign-in link. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /* Automatically handle incoming email-link sign-ins */
-  useEffect(() => {
-    const tryCompleteEmailLink = async () => {
-      const res = await handleEmailLinkSignIn();
-      if (res.success) {
-        navigate('/dashboard');
-        return;
-      }
-
-      if (res.error && res.error.toLowerCase().includes('missing email')) {
-        const prompted = window.prompt('Enter the email you used to sign in:');
-        if (prompted) {
-          const res2 = await handleEmailLinkSignIn(prompted);
-          if (res2.success) navigate('/dashboard');
-          else setError(res2.error || 'Email link sign-in failed');
-        }
-      }
-    };
-
-    tryCompleteEmailLink();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleGoogleSignIn = async () => {
-    setError("");
-    setLoading(true);
-    try {
-      await signInWithGoogle();
-      navigate("/dashboard");
-    } catch {
-      setError("Google sign-in failed");
     } finally {
       setLoading(false);
     }
@@ -197,47 +140,6 @@ export default function Login() {
               </AuthButton>
             </form>
 
-            <div className="relative py-2">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/5"></div>
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-zinc-900/40 px-2 text-zinc-500">Or continue with</span>
-              </div>
-            </div>
-
-            <Button
-              type="button"
-              onClick={handleGoogleSignIn}
-              disabled={loading}
-              fullWidth
-              variant="outlined"
-              color="inherit"
-              startIcon={
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M12 10.8v3.6h5.1c-.2 1.3-1.5 3.8-5.1 3.8A6 6 0 1 1 12 6c1.7 0 2.9.7 3.6 1.3l2.4-2.3C16.5 3.6 14.4 2.5 12 2.5A9.5 9.5 0 1 0 21.5 12c0-.6-.1-1.1-.2-1.7H12z" />
-                </svg>
-              }
-              sx={{ py: 1.2 }}
-            >
-              Google
-            </Button>
-
-            <Button
-              type="button"
-              onClick={() => {
-                setMode('emailsignin');
-                setError("");
-                setSuccessMsg("");
-              }}
-              fullWidth
-              variant="outlined"
-              color="inherit"
-              sx={{ py: 1.2 }}
-            >
-              Sign in with Email Link
-            </Button>
-
             <div className="text-center text-sm text-zinc-400">
               Don't have an account?{" "}
               <Link to="/signup" className="text-white hover:underline font-semibold transition-colors">
@@ -305,63 +207,6 @@ export default function Login() {
           </motion.div>
         )}
 
-        {mode === 'emailsignin' && (
-          <motion.div
-            key="emailsignin"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="space-y-6"
-          >
-            <Button
-              onClick={() => {
-                setMode('login');
-                setError("");
-                setSuccessMsg("");
-              }}
-              variant="text"
-              color="inherit"
-              startIcon={<ArrowLeft size={16} />}
-            >
-              Back to Login
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-white">Sign In with Email Link</h1>
-              <p className="text-zinc-400 mt-2">Enter your email to receive a sign-in link.</p>
-            </div>
-
-            {error && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400"
-              >
-                {error}
-              </motion.div>
-            )}
-
-            <form onSubmit={handleSendEmailSignInLink} className="space-y-4">
-              <AuthInput
-                label="Email"
-                icon={<Mail size={18} />}
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              />
-              <AuthButton loading={loading} disabled={!isEmailValid(formData.email)}>
-                Send Sign-In Link
-              </AuthButton>
-              {successMsg && (
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-zinc-400 text-sm text-center"
-                >
-                  {successMsg}
-                </motion.p>
-              )}
-            </form>
-          </motion.div>
-        )}
       </motion.div>
     </div>
   );
@@ -408,6 +253,7 @@ const AuthInput = ({ label, icon, type = 'text', ...props }) => {
 const AuthButton = ({ children, loading, ...props }) => (
   <Button
     {...props}
+    type="submit"
     fullWidth
     variant="contained"
     sx={{ py: 1.4 }}

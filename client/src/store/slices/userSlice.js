@@ -1,114 +1,123 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
-// Default users state - in a real app, this would come from auth
 const initialState = {
-  users: {
-    user_1: {
-      id: "user_1",
-      name: "John Doe",
-      email: "john@example.com",
-      teamIds: ["team_1", "team_2"],
-    },
-  }, // Normalized user entities
-  userIds: ["user_1"],
-  currentUserId: "user_1",
-  currentTeamId: "team_1", // Currently selected team
+  users: {},
+  userIds: [],
+  currentUserId: null,
+  currentTeamId: null,
   loading: false,
   error: null,
 };
 
 const userSlice = createSlice({
-  name: "user",
+  name: 'users',
   initialState,
   reducers: {
-    // Set user data (typically from auth)
+    // Called after successful login / signup / session restore
+    // Payload: { id, email, username, fullName, avatarUrl, bio, isEmailVerified, createdAt, updatedAt, lastLoginAt, teamIds }
     setUser: (state, action) => {
-      const { id, name, email, teams } = action.payload;
+      const {
+        id,
+        email,
+        username,
+        fullName,
+        avatarUrl,
+        bio,
+        isEmailVerified,
+        createdAt,
+        updatedAt,
+        lastLoginAt,
+        teamIds = [],
+      } = action.payload;
+
+      if (!id) return;
+
       state.currentUserId = id;
-      state.users[id] = { id, name, email, teamIds: teams || [] };
-      if (!state.userIds.includes(id)) {
-        state.userIds.push(id);
-      }
+      state.users[id] = {
+        id,
+        email,
+        username,
+        fullName,
+        name: fullName,
+        avatarUrl: avatarUrl || null,
+        image: avatarUrl || null,
+        bio: bio || '',
+        about: bio || '',
+        isEmailVerified: Boolean(isEmailVerified),
+        createdAt: createdAt || null,
+        updatedAt: updatedAt || null,
+        lastLoginAt: lastLoginAt || null,
+        teamIds,
+      };
 
-      const userTeamIds = state.users[id].teamIds || [];
-      if (userTeamIds.length > 0 && !state.currentTeamId) {
-        state.currentTeamId = userTeamIds[0];
-      }
+      if (!state.userIds.includes(id)) state.userIds.push(id);
+      if (teamIds.length > 0 && !state.currentTeamId) state.currentTeamId = teamIds[0];
     },
 
-    // Set currently selected team
-    setCurrentTeamId: (state, action) => {
-      const teamId = action.payload;
-      const currentUser = state.users[state.currentUserId];
-      const userTeamIds = currentUser?.teamIds || [];
-      if (userTeamIds.includes(teamId)) {
-        state.currentTeamId = teamId;
-      }
-    },
-
-    // Add team to user's teams (after successfully joining)
-    // ⚠️  IMPORTANT: This only updates userSlice.user.teams
-    // When user joins a team, must also call joinTeam to add user to team.members
-    // Use joinTeamAtomic thunk from store/thunks.js to ensure consistency
-    addTeamToUser: (state, action) => {
-      const teamId = action.payload;
-      const currentUser = state.currentUserId ? state.users[state.currentUserId] : null;
-      if (!currentUser) return;
-
-      const userTeamIds = currentUser.teamIds || [];
-
-      if (!userTeamIds.includes(teamId)) {
-        currentUser.teamIds = [...userTeamIds, teamId];
-
-        // If this is the first team, set it as current
-        if (currentUser.teamIds.length === 1) {
-          state.currentTeamId = teamId;
-        }
-      }
-    },
-
-    // Remove team from user's teams (after leaving)
-    // ⚠️  IMPORTANT: This only updates userSlice.user.teams
-    // When user leaves team or team is deleted, must also update team.members
-    // When team is deleted, use deleteTeamAtomic thunk from store/thunks.js
-    removeTeamFromUser: (state, action) => {
-      const teamId = action.payload;
-      const currentUser = state.currentUserId ? state.users[state.currentUserId] : null;
-      if (!currentUser) return;
-
-      currentUser.teamIds = (currentUser.teamIds || []).filter((id) => id !== teamId);
-      
-      // If removed team was current, switch to first remaining team
-      if (state.currentTeamId === teamId) {
-        state.currentTeamId = currentUser.teamIds.length > 0 ? currentUser.teamIds[0] : null;
-      }
-    },
-
-    // Set loading state
-    setLoading: (state, action) => {
-      state.loading = action.payload;
-    },
-
-    // Set error
-    setError: (state, action) => {
-      state.error = action.payload;
-    },
-
-    // Clear error
-    clearError: (state) => {
+    // Called on logout — wipes all user state
+    clearUser: (state) => {
+      state.users = {};
+      state.userIds = [];
+      state.currentUserId = null;
+      state.currentTeamId = null;
       state.error = null;
     },
+
+    setCurrentTeamId: (state, action) => {
+      const teamId = action.payload;
+      const user = state.users[state.currentUserId];
+      if (user?.teamIds?.includes(teamId)) state.currentTeamId = teamId;
+    },
+
+    addTeamToUser: (state, action) => {
+      const teamId = action.payload;
+      const user = state.users[state.currentUserId];
+      if (!user || user.teamIds.includes(teamId)) return;
+      user.teamIds = [...user.teamIds, teamId];
+      if (user.teamIds.length === 1) state.currentTeamId = teamId;
+    },
+
+    removeTeamFromUser: (state, action) => {
+      const teamId = action.payload;
+      const user = state.users[state.currentUserId];
+      if (!user) return;
+      user.teamIds = user.teamIds.filter((id) => id !== teamId);
+      if (state.currentTeamId === teamId) state.currentTeamId = user.teamIds[0] ?? null;
+    },
+
+    updateCurrentUser: (state, action) => {
+      const userId = state.currentUserId;
+      if (!userId || !state.users[userId]) return;
+
+      const updates = action.payload || {};
+      const nextFullName = updates.fullName ?? state.users[userId].fullName;
+      const nextBio = updates.bio ?? state.users[userId].bio;
+      const nextAvatarUrl = updates.avatarUrl ?? state.users[userId].avatarUrl;
+
+      state.users[userId] = {
+        ...state.users[userId],
+        ...updates,
+        fullName: nextFullName,
+        name: nextFullName,
+        bio: nextBio,
+        about: nextBio,
+        avatarUrl: nextAvatarUrl,
+        image: nextAvatarUrl,
+      };
+    },
+
+    setLoading: (state, action) => { state.loading = Boolean(action.payload); },
+    setError:   (state, action) => { state.error = action.payload; },
+    clearError: (state)         => { state.error = null; },
   },
 });
 
 export const {
-  setUser,
+  setUser, clearUser,
   setCurrentTeamId,
-  addTeamToUser,
-  removeTeamFromUser,
-  setLoading,
-  setError,
-  clearError,
+  addTeamToUser, removeTeamFromUser,
+  updateCurrentUser,
+  setLoading, setError, clearError,
 } = userSlice.actions;
 
 export default userSlice.reducer;
