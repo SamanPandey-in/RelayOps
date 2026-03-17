@@ -1,8 +1,3 @@
-// =============================================================================
-// src/context/AuthContext.jsx (no roles)
-// Drop-in replacement for src/firebase/auth.js
-// =============================================================================
-
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import api from '../lib/api';
 
@@ -56,7 +51,8 @@ export const AuthProvider = ({ children }) => {
     return { success: true };
   };
 
-  const forgotPassword = async (email) => {
+  const forgotPassword = async (payload) => {
+    const email = typeof payload === 'string' ? payload : payload?.email;
     try {
       await api.post('/auth/forgot-password', { email });
       return { success: true };
@@ -65,7 +61,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const resetPassword = async (token, newPassword) => {
+  const resetPassword = async ({ token, newPassword }) => {
     try {
       await api.post('/auth/reset-password', { token, newPassword });
       return { success: true };

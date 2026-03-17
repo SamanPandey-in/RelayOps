@@ -7,7 +7,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider, Layout } from './components';
 
 import {
-  Landing, Login, Signup, ForgotPassword,
+  Landing, Login, Signup, ForgotPassword, ResetPassword,
   Dashboard, Projects, ProjectDetails,
   Teams, TeamDetails, TaskDetails, Settings, Profile
 } from './pages/index';
@@ -41,6 +41,7 @@ function AppRoutes() {
       <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
       <Route path="/auth" element={<PublicRoute><Login /></PublicRoute>} />
       <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
+      <Route path="/reset-password" element={<PublicRoute><ResetPassword /></PublicRoute>} />
 
       <Route path="/*" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
         <Route path="dashboard" element={<Dashboard />} />

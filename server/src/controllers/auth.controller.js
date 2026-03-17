@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { prisma } from "../prisma/client.js";
+import { sendPasswordResetEmail } from "../utils/emailService.js";
 
 const SALT_ROUNDS = 12;
 const ACCESS_TOKEN_TTL = "15m";
@@ -232,6 +233,7 @@ export const forgotPassword = async (req, res, next) => {
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
     });
+    
     if (user) {
       const resetToken = crypto.randomBytes(32).toString("hex");
       const hashedToken = crypto
@@ -239,12 +241,19 @@ export const forgotPassword = async (req, res, next) => {
         .update(resetToken)
         .digest("hex");
       const resetTokenExp = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+      
       await prisma.user.update({
         where: { id: user.id },
         data: { resetToken: hashedToken, resetTokenExp },
       });
-      // TODO: send email — link: `${process.env.CLIENT_ORIGIN}/reset-password?token=${resetToken}`
-      console.log(`[DEV] Password reset token for ${email}: ${resetToken}`);
+
+      // Send password reset email
+      const clientOrigin = process.env.CLIENT_ORIGIN || "http://localhost:5173";
+      const emailResult = await sendPasswordResetEmail(email, resetToken, clientOrigin);
+      
+      if (!emailResult.success) {
+        console.warn('[Auth] Failed to send reset email, but token was generated. User can receive email if service recovers.');
+      }
     }
 
     // Always 200 to prevent user enumeration

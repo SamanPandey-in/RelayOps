@@ -25,7 +25,7 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
-      const result = await forgotPassword(email);
+      const result = await forgotPassword({ email });
       if (result.success) {
         setSuccessMsg('If that email exists, a reset link has been sent.');
         setEmail('');
