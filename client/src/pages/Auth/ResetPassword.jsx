@@ -213,6 +213,7 @@ const AuthInput = ({ label, icon, type = 'text', ...props }) => {
 const AuthButton = ({ children, loading, ...props }) => (
   <Button
     {...props}
+    type="submit"
     fullWidth
     variant="contained"
     sx={{ py: 1.4 }}

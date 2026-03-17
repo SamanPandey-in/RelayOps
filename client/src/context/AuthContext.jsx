@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import api from '../lib/api';
 
 const AuthContext = createContext(null);
@@ -6,9 +6,13 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser]       = useState(null);
   const [loading, setLoading] = useState(true);
+  const hasRestoredSession = useRef(false);
 
   // On mount: verify session via HttpOnly refresh cookie
   useEffect(() => {
+    if (hasRestoredSession.current) return;
+    hasRestoredSession.current = true;
+
     const restoreSession = async () => {
       try {
         const { data } = await api.get('/auth/me');
