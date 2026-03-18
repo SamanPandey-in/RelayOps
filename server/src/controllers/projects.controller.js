@@ -113,7 +113,17 @@ export const getProjectById = async (req, res, next) => {
 export const createProject = async (req, res, next) => {
   try {
     const userId = req.userId;
-    const { name, description, teamId, status = "ACTIVE" } = req.body;
+    const { name, description, teamId, status = "ACTIVE", key } = req.body;
+
+    let baseKey = key || name.trim().slice(0, 4).toUpperCase().replace(/[^A-Z]/g, "");
+    let projectKey = baseKey;
+
+    let counter = 1;
+
+    while (await prisma.project.findUnique({ where: { key: projectKey } })) {
+      projectKey = `${baseKey}${counter}`;
+      counter++;
+    }
 
     if (!name?.trim()) {
       return res.status(400).json({ message: "Project name is required" });
@@ -144,6 +154,7 @@ export const createProject = async (req, res, next) => {
         status,
         teamId,
         createdBy: userId,
+        key: projectKey,
         members: {
           create: {
             userId: userId,
