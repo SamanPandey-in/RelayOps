@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
 import {
     Box,
     Button,
@@ -14,38 +13,46 @@ import {
     Typography,
 } from '@mui/material';
 import { Mail, UserPlus } from 'lucide-react';
-import { dummyUsers } from '../../assets/assets';
-import { selectAllProjects, selectAllTeams } from '../../store';
+import { useAddProjectMemberMutation, useGetProjectByIdQuery } from '../../store/slices/apiSlice';
 
 const AddProjectMember = ({ isDialogOpen, setIsDialogOpen, projectId: projectIdProp }) => {
-
     const [searchParams] = useSearchParams();
     const { projectId: projectIdFromParams } = useParams();
 
     const id = projectIdProp || projectIdFromParams || searchParams.get('id');
+    const { data } = useGetProjectByIdQuery(id, { skip: !id });
+    const project = data?.project;
+    const [addProjectMember] = useAddProjectMemberMutation();
 
-    const projects = useSelector(selectAllProjects);
-    const teams = useSelector(selectAllTeams);
-
-    const project = projects.find((p) => p.id === id);
-    const team = teams.find((entry) => entry.id === project?.teamId);
-    const projectMemberIds = Array.isArray(project?.members)
-        ? project.members.map((member) => member?.user?.id || member?.userId).filter(Boolean)
-        : (project?.memberIds || []);
-    const availableMembers = (team?.members || [])
-        .filter((memberId) => !projectMemberIds.includes(memberId))
-        .map((memberId) => {
-            const profile = dummyUsers.find((user) => user.id === memberId);
-            return {
-                id: memberId,
-                label: profile?.email || profile?.name || memberId,
-            };
-        });
+    const teamMembers = project?.members || [];
+    const projectMemberIds = project?.memberIds || [];
+    const availableMembers = teamMembers
+        .filter((member) => !projectMemberIds.includes(member.id))
+        .map((member) => ({
+            id: member.id,
+            label: member.fullName || member.username || member.email,
+        }));
 
     const [memberId, setMemberId] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState('');
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+        if (!memberId || !id) return;
+
+        setIsSubmitting(true);
+        setError('');
+
+        try {
+            await addProjectMember({ projectId: id, userId: memberId }).unwrap();
+            setIsDialogOpen(false);
+            setMemberId('');
+        } catch (err) {
+            setError(err?.data?.message || 'Failed to add member');
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -60,12 +67,17 @@ const AddProjectMember = ({ isDialogOpen, setIsDialogOpen, projectId: projectIdP
                     </Typography>
                 )}
                 <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
-                    <TextField
+<TextField
                         select
                         label="Member"
                         value={memberId}
-                        onChange={(e) => setMemberId(e.target.value)}
+                        onChange={(e) => {
+                            setMemberId(e.target.value);
+                            setError('');
+                        }}
                         required
+                        fullWidth
+                        sx={{ mt: 1 }}
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
@@ -82,12 +94,18 @@ const AddProjectMember = ({ isDialogOpen, setIsDialogOpen, projectId: projectIdP
                         ))}
                     </TextField>
 
+                    {error && (
+                        <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+                            {error}
+                        </Typography>
+                    )}
+
                     <DialogActions sx={{ px: 0, pt: 3 }}>
-                        <Button type="button" variant="outlined" onClick={() => setIsDialogOpen(false)}>
+                        <Button type="button" variant="outlined" onClick={() => setIsDialogOpen(false)} disabled={isSubmitting}>
                             Cancel
                         </Button>
-                        <Button type="submit" variant="contained" disabled={!project}>
-                            Add Member
+                        <Button type="submit" variant="contained" disabled={isSubmitting || !memberId}>
+                            {isSubmitting ? 'Adding...' : 'Add Member'}
                         </Button>
                     </DialogActions>
                 </Box>

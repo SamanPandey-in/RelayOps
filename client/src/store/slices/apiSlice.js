@@ -16,7 +16,7 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Equipment', 'Team', 'Request'],
+  tagTypes: ['Equipment', 'Team', 'Project', 'Request'],
   endpoints: (builder) => ({
     // EQUIPMENT ENDPOINTS
     getEquipment: builder.query({
@@ -270,6 +270,79 @@ export const apiSlice = createApi({
         { type: 'Request', id: 'KANBAN' },
       ],
     }),
+
+    // PROJECT ENDPOINTS
+    getProjects: builder.query({
+      query: () => '/projects',
+      providesTags: (result) =>
+        result?.projects
+          ? [
+              ...result.projects.map(({ id }) => ({ type: 'Project', id })),
+              { type: 'Project', id: 'LIST' },
+            ]
+          : [{ type: 'Project', id: 'LIST' }],
+      transformResponse: (response) => response,
+    }),
+
+    getProjectById: builder.query({
+      query: (id) => `/projects/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Project', id }],
+      transformResponse: (response) => response,
+    }),
+
+    createProject: builder.mutation({
+      query: (data) => ({
+        url: '/projects',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: [{ type: 'Project', id: 'LIST' }],
+      transformResponse: (response) => response,
+    }),
+
+    updateProject: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/projects/${id}`,
+        method: 'PATCH',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Project', id },
+        { type: 'Project', id: 'LIST' },
+      ],
+      transformResponse: (response) => response,
+    }),
+
+    deleteProject: builder.mutation({
+      query: (id) => ({
+        url: `/projects/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: [{ type: 'Project', id: 'LIST' }],
+    }),
+
+    addProjectMember: builder.mutation({
+      query: ({ projectId, userId, email }) => ({
+        url: `/projects/${projectId}/members`,
+        method: 'POST',
+        body: { userId, email },
+      }),
+      invalidatesTags: (result, error, { projectId }) => [
+        { type: 'Project', id: projectId },
+        { type: 'Project', id: 'LIST' },
+      ],
+    }),
+
+    removeProjectMember: builder.mutation({
+      query: ({ projectId, userId }) => ({
+        url: `/projects/${projectId}/members/${userId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: (result, error, { projectId }) => [
+        { type: 'Project', id: projectId },
+        { type: 'Project', id: 'LIST' },
+      ],
+    }),
   }),
 });
 
@@ -303,4 +376,13 @@ export const {
   useUpdateRequestMutation,
   useUpdateRequestStatusMutation,
   useDeleteRequestMutation,
+
+  // Projects
+  useGetProjectsQuery,
+  useGetProjectByIdQuery,
+  useCreateProjectMutation,
+  useUpdateProjectMutation,
+  useDeleteProjectMutation,
+  useAddProjectMemberMutation,
+  useRemoveProjectMemberMutation,
 } = apiSlice;
