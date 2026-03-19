@@ -115,15 +115,9 @@ export const createProject = async (req, res, next) => {
     const userId = req.userId;
     const { name, description, teamId, status = "ACTIVE", key } = req.body;
 
-    let baseKey = key || name.trim().slice(0, 4).toUpperCase().replace(/[^A-Z]/g, "");
-    let projectKey = baseKey;
-
-    let counter = 1;
-
-    while (await prisma.project.findUnique({ where: { key: projectKey } })) {
-      projectKey = `${baseKey}${counter}`;
-      counter++;
-    }
+    const projectKey = (key || name.trim().slice(0,4))
+    .toUpperCase()
+    .replace(/[^A-Z]/g,'');
 
     if (!name?.trim()) {
       return res.status(400).json({ message: "Project name is required" });
@@ -133,7 +127,6 @@ export const createProject = async (req, res, next) => {
       return res.status(400).json({ message: "Team ID is required" });
     }
 
-    // Verify user is member of team
     const teamMember = await prisma.teamMember.findUnique({
       where: {
         teamId_userId: {
@@ -175,6 +168,7 @@ export const createProject = async (req, res, next) => {
       project: {
         id: project.id,
         name: project.name,
+        key: project.key,
         description: project.description,
         status: project.status,
         teamId: project.teamId,
@@ -182,6 +176,214 @@ export const createProject = async (req, res, next) => {
         memberIds: project.members.map((m) => m.userId),
       },
     });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// UPDATE project
+export const updateProject = async (req, res, next) => {
+  try {
+    const { projectId } = req.params;
+    const userId = req.userId;
+    const { name, description, status, result } = req.body;
+
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    const teamMember = await prisma.teamMember.findUnique({
+      where: {
+        teamId_userId: {
+          teamId: project.teamId,
+          userId: userId,
+        },
+      },
+    });
+
+    if (!teamMember) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const updated = await prisma.project.update({
+      where: { id: projectId },
+      data: {
+        name: name?.trim() || project.name,
+        description: description?.trim() || project.description,
+        status: status || project.status,
+        result: result ?? project.result,
+      },
+      include: {
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                username: true,
+                fullName: true,
+                avatarUrl: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    res.json({
+      message: "Project updated successfully",
+      project: {
+        id: updated.id,
+        name: updated.name,
+        key: updated.key,
+        description: updated.description,
+        status: updated.status,
+        result: updated.result,
+        teamId: updated.teamId,
+        createdBy: updated.createdBy,
+        memberIds: updated.members.map((m) => m.userId),
+        members: updated.members.map((m) => m.user),
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ADD project member
+export const addProjectMember = async (req, res, next) => {
+  try {
+    const { projectId } = req.params;
+    const { userId: targetUserId, email } = req.body;
+    const userId = req.userId;
+
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    const teamMember = await prisma.teamMember.findUnique({
+      where: {
+        teamId_userId: {
+          teamId: project.teamId,
+          userId: userId,
+        },
+      },
+    });
+
+    if (!teamMember) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    let targetUser;
+    if (targetUserId) {
+      targetUser = await prisma.user.findUnique({ where: { id: targetUserId } });
+    } else if (email) {
+      targetUser = await prisma.user.findUnique({ where: { email } });
+    }
+
+    if (!targetUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const isTeamMember = await prisma.teamMember.findUnique({
+      where: {
+        teamId_userId: {
+          teamId: project.teamId,
+          userId: targetUser.id,
+        },
+      },
+    });
+
+    if (!isTeamMember) {
+      return res.status(400).json({ message: "User must be a team member first" });
+    }
+
+    const existing = await prisma.projectMember.findUnique({
+      where: {
+        projectId_userId: {
+          projectId,
+          userId: targetUser.id,
+        },
+      },
+    });
+
+    if (existing) {
+      return res.status(400).json({ message: "User is already a project member" });
+    }
+
+    await prisma.projectMember.create({
+      data: {
+        projectId,
+        userId: targetUser.id,
+      },
+    });
+
+    res.status(201).json({
+      message: "Member added successfully",
+      member: {
+        id: targetUser.id,
+        username: targetUser.username,
+        fullName: targetUser.fullName,
+        email: targetUser.email,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// REMOVE project member
+export const removeProjectMember = async (req, res, next) => {
+  try {
+    const { projectId, userId: targetUserId } = req.params;
+    const userId = req.userId;
+
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    if (project.createdBy !== userId) {
+      return res.status(403).json({ message: "Only project creator can remove members" });
+    }
+
+    if (project.createdBy === targetUserId) {
+      return res.status(400).json({ message: "Cannot remove project creator" });
+    }
+
+    const member = await prisma.projectMember.findUnique({
+      where: {
+        projectId_userId: {
+          projectId,
+          userId: targetUserId,
+        },
+      },
+    });
+
+    if (!member) {
+      return res.status(404).json({ message: "Member not found" });
+    }
+
+    await prisma.projectMember.delete({
+      where: {
+        projectId_userId: {
+          projectId,
+          userId: targetUserId,
+        },
+      },
+    });
+
+    res.json({ message: "Member removed successfully" });
   } catch (err) {
     next(err);
   }
