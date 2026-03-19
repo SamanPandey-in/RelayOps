@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Button, InputAdornment, TextField } from '@mui/material';
 import { KeyRound, PlusCircle, UsersIcon } from 'lucide-react';
@@ -7,21 +7,21 @@ import tokens from '../theme/tokens';
 
 import CreateTeamForm from '../components/team/CreateTeamForm';
 import {
-    clearTeamsError,
-    joinTeamByIdentifierAtomic,
     selectCurrentUserId,
-    selectTeamsByUser,
-    selectTeamsError,
 } from '../store';
+import { useGetTeamsQuery, useJoinTeamByInviteCodeMutation } from '../store/slices/apiSlice';
 
 export const Teams = () => {
-    const dispatch = useDispatch();
     const currentUserId = useSelector(selectCurrentUserId);
-    const userTeams = useSelector((state) => selectTeamsByUser(state, currentUserId));
-    const teamsError = useSelector(selectTeamsError);
+    const { data: teamsData, isLoading: teamsLoading, refetch } = useGetTeamsQuery(undefined, {
+        skip: !currentUserId,
+    });
+    const [joinTeamByInviteCode] = useJoinTeamByInviteCodeMutation();
+    const userTeams = teamsData?.teams || [];
 
     const [joinIdentifier, setJoinIdentifier] = useState('');
     const [isJoining, setIsJoining] = useState(false);
+    const [joinError, setJoinError] = useState('');
 
     const teamsWithProjectCount = useMemo(
         () =>
@@ -32,22 +32,23 @@ export const Teams = () => {
         [userTeams]
     );
 
-    const handleJoinTeam = (e) => {
+    const handleJoinTeam = async (e) => {
         e.preventDefault();
 
         if (!joinIdentifier.trim()) return;
         if (!currentUserId) return;
 
         setIsJoining(true);
-        const actionResult = dispatch(
-            joinTeamByIdentifierAtomic({ identifier: joinIdentifier.trim(), userId: currentUserId })
-        );
+        setJoinError('');
 
-        setIsJoining(false);
-
-        if (actionResult) {
+        try {
+            await joinTeamByInviteCode(joinIdentifier.trim()).unwrap();
             setJoinIdentifier('');
-            dispatch(clearTeamsError());
+            await refetch();
+        } catch (error) {
+            setJoinError(error?.data?.message || 'Failed to join team');
+        } finally {
+            setIsJoining(false);
         }
     };
 
@@ -60,7 +61,7 @@ export const Teams = () => {
                         Teams where you are a member
                     </p>
                 </div>
-                <CreateTeamForm userId={currentUserId} />
+                <CreateTeamForm onTeamCreated={refetch} />
             </div>
 
             <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 p-4">
@@ -89,16 +90,20 @@ export const Teams = () => {
                         {isJoining ? 'Joining...' : 'Join Team'}
                     </Button>
                 </form>
-                {teamsError && <p className="text-sm text-red-500 mt-2">{teamsError}</p>}
+                {joinError && <p className="text-sm text-red-500 mt-2">{joinError}</p>}
             </div>
 
-            {teamsWithProjectCount.length === 0 ? (
+            {!teamsLoading && teamsWithProjectCount.length === 0 ? (
                 <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 p-12 text-center space-y-3">
                     <UsersIcon className="size-10 mx-auto text-zinc-400 mb-3" />
                     <p className="text-zinc-600 dark:text-zinc-400">You are not part of any team yet.</p>
                     <div className="flex justify-center">
-                        <CreateTeamForm userId={currentUserId} />
+                        <CreateTeamForm onTeamCreated={refetch} />
                     </div>
+                </div>
+            ) : teamsLoading ? (
+                <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 p-12 text-center">
+                    <p className="text-zinc-600 dark:text-zinc-400">Loading teams...</p>
                 </div>
             ) : (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

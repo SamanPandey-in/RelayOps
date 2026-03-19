@@ -54,7 +54,7 @@ const InviteMemberDialog = ({ isDialogOpen, setIsDialogOpen, teamId, teamName, o
             onClose={() => {
                 setIsDialogOpen(false);
                 setUserIdentifier('');
-                dispatch(clearTeamsError());
+                setError('');
             }}
             fullWidth
             maxWidth="sm"

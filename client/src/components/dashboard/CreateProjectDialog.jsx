@@ -67,10 +67,6 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
         }
     };
 
-    const removeTeamMember = (email) => {
-        setFormData((prev) => ({ ...prev, team_members: prev.team_members.filter(m => m !== email) }));
-    };
-
     return (
         <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)} fullWidth maxWidth="md">
             <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -149,7 +145,7 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
 
                     {submitError && (
                         <Typography variant="body2" color="error">
-                            {submitError || projectsError}
+                            {submitError}
                         </Typography>
                     )}
                     <DialogActions sx={{ px: 0 }}>

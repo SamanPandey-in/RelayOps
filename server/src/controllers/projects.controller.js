@@ -353,8 +353,11 @@ export const removeProjectMember = async (req, res, next) => {
       return res.status(404).json({ message: "Project not found" });
     }
 
-    if (project.createdBy !== userId) {
-      return res.status(403).json({ message: "Only project creator can remove members" });
+    const isProjectCreator = project.createdBy === userId;
+    const isSelfRemoval = userId === targetUserId;
+
+    if (!isProjectCreator && !isSelfRemoval) {
+      return res.status(403).json({ message: "Only project creator can remove other members" });
     }
 
     if (project.createdBy === targetUserId) {
@@ -383,7 +386,7 @@ export const removeProjectMember = async (req, res, next) => {
       },
     });
 
-    res.json({ message: "Member removed successfully" });
+    res.json({ message: isSelfRemoval ? "Left project successfully" : "Member removed successfully" });
   } catch (err) {
     next(err);
   }

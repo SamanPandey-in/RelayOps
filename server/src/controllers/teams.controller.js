@@ -314,8 +314,11 @@ export const removeTeamMember = async (req, res, next) => {
       return res.status(404).json({ message: "Team not found" });
     }
 
-    if (team.ownerId !== userId) {
-      return res.status(403).json({ message: "Only team owner can remove members" });
+    const isTeamOwner = team.ownerId === userId;
+    const isSelfRemoval = userId === targetUserId;
+
+    if (!isTeamOwner && !isSelfRemoval) {
+      return res.status(403).json({ message: "Only team owner can remove other members" });
     }
 
     if (team.ownerId === targetUserId) {
@@ -344,7 +347,7 @@ export const removeTeamMember = async (req, res, next) => {
       },
     });
 
-    res.json({ message: "Member removed successfully" });
+    res.json({ message: isSelfRemoval ? "Left team successfully" : "Member removed successfully" });
   } catch (err) {
     next(err);
   }

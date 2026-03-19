@@ -28,7 +28,8 @@ import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { Bug, CalendarIcon, GitCommit, MessageSquare, Square, Trash, XIcon, Zap } from 'lucide-react';
 
-import { deleteTask, updateTask } from '../../store';
+import { deleteTask as deleteTaskAction, updateTask as updateTaskAction } from '../../store';
+import { useDeleteTaskMutation, useUpdateTaskMutation } from '../../store/slices/apiSlice';
 
 const typeIcons = {
     BUG: { icon: Bug, color: 'error' },
@@ -74,6 +75,8 @@ const priorityColor = {
 const ProjectTasks = ({ tasks }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
+    const [updateTask] = useUpdateTaskMutation();
+    const [deleteTask] = useDeleteTaskMutation();
     const [selectedTasks, setSelectedTasks] = useState([]);
 
     const [filters, setFilters] = useState({
@@ -108,11 +111,11 @@ const ProjectTasks = ({ tasks }) => {
     const handleStatusChange = async (taskId, newStatus) => {
         try {
             toast.loading('Updating status...');
-            await new Promise((resolve) => setTimeout(resolve, 2000));
+            await updateTask({ id: taskId, status: newStatus }).unwrap();
 
             const updatedTask = structuredClone(tasks.find((t) => t.id === taskId));
             updatedTask.status = newStatus;
-            dispatch(updateTask(updatedTask));
+            dispatch(updateTaskAction(updatedTask));
 
             toast.dismiss();
             toast.success('Task status updated successfully');
@@ -128,9 +131,10 @@ const ProjectTasks = ({ tasks }) => {
             if (!confirm) return;
 
             toast.loading('Deleting tasks...');
-            await new Promise((resolve) => setTimeout(resolve, 2000));
+            await Promise.all(selectedTasks.map((taskId) => deleteTask(taskId).unwrap()));
 
-            dispatch(deleteTask(selectedTasks));
+            dispatch(deleteTaskAction(selectedTasks));
+            setSelectedTasks([]);
 
             toast.dismiss();
             toast.success('Tasks deleted successfully');
