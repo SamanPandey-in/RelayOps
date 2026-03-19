@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
 import {
     Box,
     Button,
@@ -14,31 +13,20 @@ import {
 } from '@mui/material';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
-import { dummyUsers } from '../../assets/assets';
-import { selectAllProjects } from '../../store';
+import { useCreateTaskMutation, useGetProjectByIdQuery } from '../../store/slices/apiSlice';
 
 export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, projectId }) {
-    const projects = useSelector(selectAllProjects);
-    const project = projects.find((p) => p.id === projectId);
-    const teamMembers = Array.isArray(project?.members) && project.members.length > 0
-        ? project.members.map((member) => ({
-            id: member?.user?.id || member?.userId,
-            label: member?.user?.email || member?.user?.name || member?.userId || "Unknown",
-        }))
-        : (project?.memberIds || []).map((memberId) => {
-            const profile = dummyUsers.find((user) => user.id === memberId);
-            return {
-                id: memberId,
-                label: profile?.email || profile?.name || memberId,
-            };
-        });
+    const { data } = useGetProjectByIdQuery(projectId, { skip: !projectId });
+    const project = data?.project;
+    const teamMembers = project?.members || [];
 
+    const [createTask] = useCreateTaskMutation();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [error, setError] = useState('');
     const [formData, setFormData] = useState({
         title: "",
         description: "",
         type: "TASK",
-        status: "TODO",
         priority: "MEDIUM",
         assigneeId: "",
         due_date: "",
@@ -46,8 +34,42 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!formData.title.trim() || !projectId) return;
 
+        setIsSubmitting(true);
+        setError('');
 
+        try {
+            await createTask({
+                title: formData.title,
+                description: formData.description,
+                projectId,
+                type: formData.type,
+                priority: formData.priority,
+                assigneeId: formData.assigneeId || undefined,
+                dueDate: formData.due_date || undefined,
+            }).unwrap();
+
+            setIsDialogOpen(false);
+            setFormData({
+                title: "",
+                description: "",
+                type: "TASK",
+                priority: "MEDIUM",
+                assigneeId: "",
+                due_date: "",
+            });
+        } catch (err) {
+            setError(err?.data?.message || 'Failed to create task');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const setIsDialogOpen = (open) => {
+        if (!open) {
+            setShowCreateTask(false);
+        }
     };
 
     return (
@@ -107,19 +129,9 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
                             <MenuItem value="">Unassigned</MenuItem>
                             {teamMembers.map((member) => (
                                 <MenuItem key={member.id} value={member.id}>
-                                    {member.label}
+                                    {member.fullName || member.username || member.email}
                                 </MenuItem>
                             ))}
-                        </TextField>
-                        <TextField
-                            select
-                            label="Status"
-                            value={formData.status}
-                            onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                        >
-                            <MenuItem value="TODO">To Do</MenuItem>
-                            <MenuItem value="IN_PROGRESS">In Progress</MenuItem>
-                            <MenuItem value="DONE">Done</MenuItem>
                         </TextField>
                     </Box>
 
@@ -144,11 +156,17 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
                         </Typography>
                     )}
 
+                    {error && (
+                        <Typography color="error" variant="body2">
+                            {error}
+                        </Typography>
+                    )}
+
                     <DialogActions sx={{ px: 0 }}>
-                        <Button type="button" variant="outlined" onClick={() => setShowCreateTask(false)}>
+                        <Button type="button" variant="outlined" onClick={() => setShowCreateTask(false)} disabled={isSubmitting}>
                             Cancel
                         </Button>
-                        <Button type="submit" variant="contained" disabled={isSubmitting}>
+                        <Button type="submit" variant="contained" disabled={isSubmitting || !formData.title.trim()}>
                             {isSubmitting ? "Creating..." : "Create Task"}
                         </Button>
                     </DialogActions>

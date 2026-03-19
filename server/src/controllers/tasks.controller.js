@@ -124,6 +124,81 @@ export const getProjectTasks = async (req, res, next) => {
   }
 };
 
+// GET single task by ID
+export const getTaskById = async (req, res, next) => {
+  try {
+    const { taskId } = req.params;
+    const userId = req.userId;
+
+    const task = await prisma.task.findUnique({
+      where: { id: taskId },
+      include: {
+        project: {
+          select: { id: true, name: true, teamId: true },
+        },
+        assignee: {
+          select: {
+            id: true,
+            username: true,
+            fullName: true,
+            avatarUrl: true,
+          },
+        },
+        creator: {
+          select: {
+            id: true,
+            username: true,
+            fullName: true,
+          },
+        },
+      },
+    });
+
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const project = await prisma.project.findUnique({
+      where: { id: task.projectId },
+    });
+
+    const userTeam = await prisma.teamMember.findUnique({
+      where: {
+        teamId_userId: {
+          teamId: project.teamId,
+          userId: userId,
+        },
+      },
+    });
+
+    if (!userTeam) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    res.json({
+      task: {
+        id: task.id,
+        title: task.title,
+        description: task.description,
+        status: task.status,
+        priority: task.priority,
+        type: task.type,
+        projectId: task.projectId,
+        project: task.project,
+        assigneeId: task.assigneeId,
+        assignee: task.assignee,
+        createdBy: task.createdBy,
+        creator: task.creator,
+        dueDate: task.dueDate,
+        createdAt: task.createdAt,
+        updatedAt: task.updatedAt,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 // CREATE task
 export const createTask = async (req, res, next) => {
   try {

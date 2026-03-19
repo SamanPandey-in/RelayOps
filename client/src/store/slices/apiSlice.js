@@ -16,7 +16,7 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Equipment', 'Team', 'Project', 'Request'],
+  tagTypes: ['Equipment', 'Team', 'Project', 'Task', 'Request'],
   endpoints: (builder) => ({
     // EQUIPMENT ENDPOINTS
     getEquipment: builder.query({
@@ -343,6 +343,56 @@ export const apiSlice = createApi({
         { type: 'Project', id: 'LIST' },
       ],
     }),
+
+    // TASK ENDPOINTS
+    getTasks: builder.query({
+      query: () => '/tasks',
+      providesTags: (result) =>
+        result?.tasks
+          ? [
+              ...result.tasks.map(({ id }) => ({ type: 'Task', id })),
+              { type: 'Task', id: 'LIST' },
+            ]
+          : [{ type: 'Task', id: 'LIST' }],
+      transformResponse: (response) => response,
+    }),
+
+    getTaskById: builder.query({
+      query: (id) => `/tasks/${id}`,
+      providesTags: (result, error, id) => [{ type: 'Task', id }],
+      transformResponse: (response) => response,
+    }),
+
+    createTask: builder.mutation({
+      query: (data) => ({
+        url: '/tasks',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: [{ type: 'Task', id: 'LIST' }],
+      transformResponse: (response) => response,
+    }),
+
+    updateTask: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/tasks/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: 'Task', id },
+        { type: 'Task', id: 'LIST' },
+      ],
+      transformResponse: (response) => response,
+    }),
+
+    deleteTask: builder.mutation({
+      query: (id) => ({
+        url: `/tasks/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: [{ type: 'Task', id: 'LIST' }],
+    }),
   }),
 });
 
@@ -385,4 +435,11 @@ export const {
   useDeleteProjectMutation,
   useAddProjectMemberMutation,
   useRemoveProjectMemberMutation,
+
+  // Tasks
+  useGetTasksQuery,
+  useGetTaskByIdQuery,
+  useCreateTaskMutation,
+  useUpdateTaskMutation,
+  useDeleteTaskMutation,
 } = apiSlice;
