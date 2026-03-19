@@ -325,6 +325,8 @@ const projectsSlice = createSlice({
 
       state.error = null;
     },
+
+    resetState: () => initialState,
   },
 });
 
@@ -338,6 +340,7 @@ export const {
   addTask,
   updateTask,
   deleteTask,
+  resetState: resetProjectsState,
 } = projectsSlice.actions;
 
 export default projectsSlice.reducer;

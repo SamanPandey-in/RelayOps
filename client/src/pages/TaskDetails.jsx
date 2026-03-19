@@ -4,6 +4,7 @@ import { Button, Chip, TextField, Typography } from '@mui/material';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { CalendarIcon, MessageCircle, PenIcon, Trash2 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 import { useGetTaskByIdQuery, useGetProjectByIdQuery, useGetCommentsQuery, useCreateCommentMutation, useDeleteCommentMutation } from '../store/slices/apiSlice';
 
@@ -20,7 +21,7 @@ const TaskDetails = () => {
     const project = projectData?.project;
     const comments = commentsData?.comments || [];
 
-    const user = { id: 'user_1' };
+    const { user } = useAuth();
     const [newComment, setNewComment] = useState("");
     const [createComment] = useCreateCommentMutation();
     const [deleteComment] = useDeleteCommentMutation();
@@ -42,7 +43,7 @@ const TaskDetails = () => {
 
     const handleDeleteComment = async (commentId) => {
         try {
-            await deleteComment(commentId).unwrap();
+            await deleteComment({ commentId, taskId }).unwrap();
             toast.success("Comment deleted.");
         } catch (error) {
             toast.error(error?.data?.message || 'Failed to delete comment');

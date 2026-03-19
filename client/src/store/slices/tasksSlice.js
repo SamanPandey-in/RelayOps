@@ -89,9 +89,11 @@ const tasksSlice = createSlice({
     clearTasksError: (state) => {
       state.error = null;
     },
+
+    resetState: () => initialState,
   },
 });
 
-export const { setTasks, setTasksLoading, setTasksError, clearTasksError } = tasksSlice.actions;
+export const { setTasks, setTasksLoading, setTasksError, clearTasksError, resetState: resetTasksState } = tasksSlice.actions;
 
 export default tasksSlice.reducer;

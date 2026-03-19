@@ -1,10 +1,4 @@
 import { createSelector } from "reselect";
-import { dummyUsers } from "../assets/assets";
-
-const DUMMY_USER_BY_ID = dummyUsers.reduce((acc, user) => {
-  acc[user.id] = user;
-  return acc;
-}, {});
 
 const normalizeProjectStatus = (status) => {
   const normalized = String(status || "active").trim().toLowerCase();
@@ -15,25 +9,40 @@ const normalizeProjectStatus = (status) => {
   return "active";
 };
 
-const mapTeamMembersToProfiles = (memberIds = [], currentUser = null) =>
-  memberIds.map((memberId) => {
+const extractMemberId = (member) => {
+  if (!member) return null;
+  if (typeof member === "string") return member;
+  return member.id || member.userId || member.user?.id || null;
+};
+
+const getTeamMemberIds = (members = []) =>
+  members.map(extractMemberId).filter(Boolean);
+
+const getTaskDueDate = (task) => task?.dueDate || task?.due_date || null;
+
+const mapTeamMembersToProfiles = (members = [], currentUser = null) =>
+  members
+    .map((member) => {
+      const memberId = extractMemberId(member);
+      if (!memberId) return null;
+
+      if (typeof member === "object") {
+        const memberUser = member.user || member;
+        return {
+          id: memberId,
+          name: memberUser.fullName || memberUser.name || memberUser.username || memberId,
+          email: memberUser.email || `${memberId}@relayops.local`,
+          avatar: memberUser.avatarUrl || memberUser.image || null,
+          role: member.role || "MEMBER",
+        };
+      }
+
     if (currentUser?.id === memberId) {
       return {
         id: currentUser.id,
-        name: currentUser.name,
+        name: currentUser.name || currentUser.fullName,
         email: currentUser.email,
         role: "ADMIN",
-      };
-    }
-
-    const knownUser = DUMMY_USER_BY_ID[memberId];
-    if (knownUser) {
-      return {
-        id: knownUser.id,
-        name: knownUser.name,
-        email: knownUser.email,
-        avatar: knownUser.image,
-        role: "MEMBER",
       };
     }
 
@@ -43,7 +52,8 @@ const mapTeamMembersToProfiles = (memberIds = [], currentUser = null) =>
       email: `${memberId}@relayops.local`,
       role: "MEMBER",
     };
-  });
+    })
+    .filter(Boolean);
 
 // Base state selectors
 const selectUsersState = (state) => state.users || {};
@@ -131,7 +141,7 @@ export const selectTeamsByUser = createSelector(
   [selectAllTeams, (_, userId) => userId],
   (allTeams, userId) => {
     if (!userId) return [];
-    return allTeams.filter((team) => (team?.members || []).includes(userId));
+    return allTeams.filter((team) => getTeamMemberIds(team?.members || []).includes(userId));
   }
 );
 
@@ -139,7 +149,9 @@ export const selectUserTeamObjects = createSelector(
   [selectCurrentUserId, selectAllTeams],
   (currentUserId, allTeams) => {
     if (!currentUserId) return [];
-    return allTeams.filter((team) => (team?.members || []).includes(currentUserId));
+    return allTeams.filter((team) =>
+      getTeamMemberIds(team?.members || []).includes(currentUserId)
+    );
   }
 );
 
@@ -171,12 +183,18 @@ export const selectUserTeamCount = createSelector(
 
 export const selectIsUserInTeam = createSelector(
   [selectTeamById, selectCurrentUserId],
-  (team, currentUserId) => Boolean(team && currentUserId && (team.members || []).includes(currentUserId))
+  (team, currentUserId) =>
+    Boolean(
+      team && currentUserId && getTeamMemberIds(team.members || []).includes(currentUserId)
+    )
 );
 
 export const selectIsUserInCurrentTeam = createSelector(
   [selectCurrentTeam, selectCurrentUserId],
-  (team, currentUserId) => Boolean(team && currentUserId && (team.members || []).includes(currentUserId))
+  (team, currentUserId) =>
+    Boolean(
+      team && currentUserId && getTeamMemberIds(team.members || []).includes(currentUserId)
+    )
 );
 
 export const selectTeamsLoading = createSelector(
@@ -206,23 +224,11 @@ export const selectAllTasks = createSelector(
     taskIds
       .map((taskId) => taskEntities[taskId])
       .filter(Boolean)
-      .map((task) => ({
-        ...task,
-        assignee: task.assigneeId ? DUMMY_USER_BY_ID[task.assigneeId] || null : null,
-      }))
 );
 
 export const selectTaskById = createSelector(
   [selectTaskEntities, (_, taskId) => taskId],
-  (taskEntities, taskId) => {
-    const task = taskEntities[taskId];
-    if (!task) return null;
-
-    return {
-      ...task,
-      assignee: task.assigneeId ? DUMMY_USER_BY_ID[task.assigneeId] || null : null,
-    };
-  }
+  (taskEntities, taskId) => taskEntities[taskId] || null
 );
 
 const selectTasksByProjectMap = createSelector([selectAllTasks], (tasks) => {
@@ -270,7 +276,7 @@ export const selectUserTasksSortedByDueDate = createSelector(
         status: task.status,
         priority: task.priority,
         type: task.type,
-        dueDate: task.due_date,
+        dueDate: getTaskDueDate(task),
         description: task.description,
         createdAt: task.createdAt,
         updatedAt: task.updatedAt,
@@ -307,7 +313,7 @@ export const selectUserTasksByStatus = createSelector(
         projectName: projectEntities[task.projectId]?.name || "Unknown Project",
         status: task.status,
         priority: task.priority,
-        dueDate: task.due_date,
+        dueDate: getTaskDueDate(task),
       };
 
       if (grouped[task.status]) {
@@ -347,7 +353,7 @@ export const selectTaskSummaryCards = createSelector(
     const now = new Date();
     const myTasks = tasks.filter((task) => task.assigneeId === userId);
     const overdueTasks = tasks.filter(
-      (task) => task.due_date && new Date(task.due_date) < now && task.status !== "DONE"
+      (task) => getTaskDueDate(task) && new Date(getTaskDueDate(task)) < now && task.status !== "DONE"
     );
     const inProgressTasks = tasks.filter((task) => task.status === "IN_PROGRESS");
 
@@ -367,16 +373,9 @@ export const selectAllProjects = createSelector(
       .map((projectId) => {
         const project = projectEntities[projectId];
         if (!project) return null;
-        const members = (project.memberIds || []).map((memberId) => ({
-          id: `member_${projectId}_${memberId}`,
-          userId: memberId,
-          projectId,
-          user: DUMMY_USER_BY_ID[memberId] || null,
-        }));
 
         return {
           ...project,
-          members,
           tasks: tasksByProject[projectId] || [],
         };
       })
@@ -489,7 +488,7 @@ export const selectDashboardStats = createSelector(
 
       (project.tasks || []).forEach((task) => {
         if (task.assigneeId === currentUserId) myTaskCount += 1;
-        if (task.due_date && new Date(task.due_date) < now && task.status !== "DONE") {
+        if (getTaskDueDate(task) && new Date(getTaskDueDate(task)) < now && task.status !== "DONE") {
           overdueTaskCount += 1;
         }
       });

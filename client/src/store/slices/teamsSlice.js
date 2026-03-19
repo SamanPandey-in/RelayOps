@@ -272,8 +272,10 @@ const teamsSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+
+    resetState: () => initialState,
   },
-  
+
 });
 
 export const {
@@ -290,6 +292,7 @@ export const {
   setLoading,
   setError,
   clearError,
+  resetState: resetTeamsState,
 } = teamsSlice.actions;
 
 export default teamsSlice.reducer;

@@ -16,7 +16,7 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Equipment', 'Team', 'Project', 'Task', 'User', 'Request'],
+  tagTypes: ['Equipment', 'Team', 'Project', 'Task', 'User', 'Request', 'Comment'],
   endpoints: (builder) => ({
     // EQUIPMENT ENDPOINTS
     getEquipment: builder.query({
@@ -433,11 +433,13 @@ export const apiSlice = createApi({
     }),
 
     deleteComment: builder.mutation({
-      query: (commentId) => ({
+      query: ({ commentId }) => ({
         url: `/tasks/comments/${commentId}`,
         method: 'DELETE',
       }),
-      invalidatesTags: [{ type: 'Comment' }],
+      invalidatesTags: (result, error, { taskId }) => [
+        { type: 'Comment', id: `task-${taskId}` },
+      ],
     }),
   }),
 });

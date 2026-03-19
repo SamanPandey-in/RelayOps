@@ -1,5 +1,11 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import api from '../lib/api';
+import { store } from '../store';
+import { apiSlice } from '../store/slices/apiSlice';
+import { clearUser } from '../store/slices/userSlice';
+import { resetTeamsState } from '../store/slices/teamsSlice';
+import { resetProjectsState } from '../store/slices/projectsSlice';
+import { resetTasksState } from '../store/slices/tasksSlice';
 
 const AuthContext = createContext(null);
 
@@ -51,6 +57,12 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try { await api.post('/auth/logout'); } catch { /* ignore */ }
     delete api.defaults.headers.common['Authorization'];
+    localStorage.removeItem('accessToken');
+    store.dispatch(clearUser());
+    store.dispatch(resetTeamsState());
+    store.dispatch(resetProjectsState());
+    store.dispatch(resetTasksState());
+    store.dispatch(apiSlice.util.resetApiState());
     setUser(null);
     return { success: true };
   };
