@@ -1,7 +1,7 @@
 // Teams Controller - handles team-related operations
 
 import { prisma } from "../prisma/client.js";
-import crypto from "crypto";
+import { randomBytes } from 'crypto';
 
 // GET all teams for authenticated user
 export const getTeams = async (req, res, next) => {
@@ -138,7 +138,7 @@ export const createTeam = async (req, res, next) => {
         name: name.trim(),
         description: description?.trim() || "",
         ownerId: userId,
-        inviteCode: `${crypto.randomBytes(4).toString("hex").toUpperCase()}-${crypto.randomBytes(4).toString("hex").toUpperCase()}`,
+        inviteCode: randomBytes(4).toString('hex').toUpperCase(),
         members: {
           create: {
             userId: userId,

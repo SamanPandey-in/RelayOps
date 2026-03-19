@@ -1,6 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { dummyProjects, dummyTeams } from "../../assets/assets";
-import { addProject, deleteProject, setProjects, updateProject } from "./projectsSlice";
 
 const generateInviteCode = (seed = "team") => `${String(seed).toUpperCase()}-${Date.now()}`;
 
@@ -49,15 +47,9 @@ const linkProjectsToTeams = (teamsById = {}, teamIds = [], projects = []) => {
   return nextTeams;
 };
 
-const normalizedInitialTeams = normalizeTeams(dummyTeams);
-
 const initialState = {
-  teams: linkProjectsToTeams(
-    normalizedInitialTeams.entities,
-    normalizedInitialTeams.ids,
-    dummyProjects || []
-  ),
-  teamIds: normalizedInitialTeams.ids,
+  teams: {},
+  teamIds: [],
   loading: false,
   error: null,
 };
@@ -281,65 +273,7 @@ const teamsSlice = createSlice({
       state.error = null;
     },
   },
-  extraReducers: (builder) => {
-    builder.addCase(setProjects, (state, action) => {
-      const incomingProjects = action.payload || [];
-
-      state.teamIds.forEach((teamId) => {
-        if (!state.teams[teamId]) return;
-        state.teams[teamId].projectIds = [];
-      });
-
-      incomingProjects.forEach((project, index) => {
-        if (!project?.id) return;
-
-        const fallbackTeamId = state.teamIds.length > 0 ? state.teamIds[index % state.teamIds.length] : null;
-        const teamId = project.teamId && state.teams[project.teamId] ? project.teamId : fallbackTeamId;
-
-        if (!teamId || !state.teams[teamId]) return;
-        if (!state.teams[teamId].projectIds.includes(project.id)) {
-          state.teams[teamId].projectIds.push(project.id);
-        }
-      });
-    });
-
-    builder.addCase(addProject, (state, action) => {
-      const { id, teamId, name } = action.payload || {};
-
-      if (!id || !teamId || !name?.trim()) return;
-      if (!state.teams[teamId]) return;
-
-      const alreadyTracked = state.teamIds.some((currentTeamId) =>
-        state.teams[currentTeamId]?.projectIds?.includes(id)
-      );
-      if (alreadyTracked) return;
-
-      state.teams[teamId].projectIds.push(id);
-    });
-
-    builder.addCase(updateProject, (state, action) => {
-      const { id, teamId } = action.payload || {};
-
-      if (!id || !teamId || !state.teams[teamId]) return;
-
-      const isTracked = state.teamIds.some((currentTeamId) =>
-        state.teams[currentTeamId]?.projectIds?.includes(id)
-      );
-      if (!isTracked) return;
-
-      removeProjectFromAllTeams(state, id);
-      if (!state.teams[teamId].projectIds.includes(id)) {
-        state.teams[teamId].projectIds.push(id);
-      }
-    });
-
-    builder.addCase(deleteProject, (state, action) => {
-      const projectId = action.payload;
-      if (!projectId) return;
-
-      removeProjectFromAllTeams(state, projectId);
-    });
-  },
+  
 });
 
 export const {
