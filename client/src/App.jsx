@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './store/store';
 
@@ -18,6 +18,9 @@ const LoadingScreen = () => (
   <AppShellSkeleton />
 );
 
+const NO_SKELETON_APP_ROUTES = ['/', '/login', '/auth', '/signup'];
+const NO_SKELETON_PUBLIC_ROUTES = ['/login', '/auth', '/signup'];
+
 // ─── Route guards (identical API, no Firebase dependency) ─────────────────
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -27,7 +30,12 @@ const ProtectedRoute = ({ children }) => {
 
 const PublicRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
-  if (loading) return <AuthScreenSkeleton />;
+  const { pathname } = useLocation();
+
+  if (loading && !NO_SKELETON_PUBLIC_ROUTES.includes(pathname)) {
+    return <AuthScreenSkeleton />;
+  }
+
   return !isAuthenticated ? children : <Navigate to="/dashboard" />;
 };
 
@@ -35,8 +43,9 @@ const PublicRoute = ({ children }) => {
 function AppInitializer() {
   // Initialize all app data when user authenticates
   const isAppLoading = useInitializeAppData();
+  const { pathname } = useLocation();
 
-  if (isAppLoading) {
+  if (isAppLoading && !NO_SKELETON_APP_ROUTES.includes(pathname)) {
     return <LoadingScreen />;
   }
 
