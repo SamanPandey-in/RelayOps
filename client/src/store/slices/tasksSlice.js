@@ -1,232 +1,137 @@
-import { createSlice } from "@reduxjs/toolkit";
-import {
-  addProject,
-  addTask,
-  deleteProject,
-  deleteTask,
-  setProjects,
-  updateProject,
-  updateTask,
-} from "./projectsSlice";
+import { createSlice, createAsyncThunk, createEntityAdapter } from "@reduxjs/toolkit";
+import api from "../../lib/api";
+import { fetchProjects } from "./projectsSlice";
 
-const normalizeTask = (task = {}, fallbackProjectId = null) => {
-  const { assignee: _assignee, ...taskRest } = task;
-  const normalizedTask = {
-    ...taskRest,
-    id: task.id || `task_${Date.now()}`,
-    projectId: task.projectId || fallbackProjectId,
-  };
+// Entity adapter for tasks
+const tasksAdapter = createEntityAdapter({
+  selectId: (task) => task.id,
+  sortComparer: (a, b) => {
+    const dateA = a.createdAt || "";
+    const dateB = b.createdAt || "";
+    return dateB.localeCompare(dateA);
+  },
+});
 
-  if (!normalizedTask.assigneeId && task.assignee?.id) {
-    normalizedTask.assigneeId = task.assignee.id;
+// Async thunks
+export const fetchTasks = createAsyncThunk(
+  "tasks/fetchTasks",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get("/tasks");
+      return response.data.tasks || [];
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to fetch tasks");
+    }
   }
+);
 
-  return normalizedTask;
-};
+export const createTask = createAsyncThunk(
+  "tasks/createTask",
+  async (taskData, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await api.post("/tasks", taskData);
+      // Hybrid pattern + dependency refresh
+      dispatch(fetchTasks());
+      dispatch(fetchProjects()); // Update project's task list
+      return response.data.task;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to create task");
+    }
+  }
+);
 
-const normalizeTaskCollection = (tasks = []) => {
-  const entities = {};
-  const ids = [];
+export const updateTaskStatus = createAsyncThunk(
+  "tasks/updateTaskStatus",
+  async ({ id, status }, { dispatch, rejectWithValue }) => {
+    try {
+      const response = await api.patch(`/tasks/${id}/status`, { status });
+      dispatch(fetchTasks());
+      return response.data.task;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to update task status");
+    }
+  }
+);
 
-  tasks.forEach((task) => {
-    if (!task?.id) return;
-
-    entities[task.id] = task;
-    ids.push(task.id);
-  });
-
-  return {
-    tasks: entities,
-    taskIds: ids,
-  };
-};
-
-const normalizeTasksFromProjects = (projects = []) => {
-  const entities = {};
-  const ids = [];
-
-  projects.forEach((project, projectIndex) => {
-    const projectId = project?.id || `project_${projectIndex}`;
-    const tasks = Array.isArray(project?.tasks) ? project.tasks : [];
-
-    tasks.forEach((task, taskIndex) => {
-      const normalizedTask = normalizeTask(
-        {
-          ...task,
-          id: task.id || `task_${projectId}_${taskIndex}`,
-          projectId,
-        },
-        projectId
-      );
-
-      entities[normalizedTask.id] = normalizedTask;
-      if (!ids.includes(normalizedTask.id)) {
-        ids.push(normalizedTask.id);
-      }
-    });
-  });
-
-  return {
-    tasks: entities,
-    taskIds: ids,
-  };
-};
-
-const initialState = {
-  tasks: {},
-  taskIds: [],
+const initialState = tasksAdapter.getInitialState({
   loading: false,
   error: null,
-};
+});
 
 const tasksSlice = createSlice({
   name: "tasks",
   initialState,
   reducers: {
-    setTasks: (state, action) => {
-      const normalizedTasks = normalizeTaskCollection(action.payload || []);
-      state.tasks = normalizedTasks.tasks;
-      state.taskIds = normalizedTasks.taskIds;
-      state.error = null;
+    updateTask: (state, action) => {
+      const task = action.payload;
+      if (!task?.id) return;
+
+      tasksAdapter.updateOne(state, {
+        id: task.id,
+        changes: task,
+      });
     },
-    setTasksLoading: (state, action) => {
-      state.loading = Boolean(action.payload);
-    },
-    setTasksError: (state, action) => {
-      state.error = action.payload || null;
+    deleteTask: (state, action) => {
+      const payload = action.payload;
+      const ids = Array.isArray(payload) ? payload : [payload];
+      tasksAdapter.removeMany(state, ids.filter(Boolean));
     },
     clearTasksError: (state) => {
       state.error = null;
     },
+    resetTasksState: () => initialState,
   },
   extraReducers: (builder) => {
-    builder.addCase(setProjects, (state, action) => {
-      const normalized = normalizeTasksFromProjects(action.payload || []);
-      state.tasks = normalized.tasks;
-      state.taskIds = normalized.taskIds;
-      state.error = null;
-    });
-
-    builder.addCase(addProject, (state, action) => {
-      const project = action.payload || {};
-      const projectId = project.id;
-      const tasks = Array.isArray(project.tasks) ? project.tasks : [];
-
-      tasks.forEach((task, index) => {
-        const normalizedTask = normalizeTask(
-          {
-            ...task,
-            id: task.id || `task_${projectId}_${index}`,
-            projectId,
-          },
-          projectId
-        );
-
-        state.tasks[normalizedTask.id] = normalizedTask;
-        if (!state.taskIds.includes(normalizedTask.id)) {
-          state.taskIds.push(normalizedTask.id);
+    builder
+      .addCase(fetchTasks.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTasks.fulfilled, (state, action) => {
+        state.loading = false;
+        tasksAdapter.setAll(state, action.payload);
+      })
+      .addCase(fetchTasks.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(createTask.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createTask.fulfilled, (state, action) => {
+        state.loading = false;
+        if (action.payload) {
+          tasksAdapter.addOne(state, action.payload);
+        }
+      })
+      .addCase(createTask.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(updateTaskStatus.fulfilled, (state, action) => {
+        if (action.payload) {
+          tasksAdapter.updateOne(state, {
+            id: action.payload.id,
+            changes: action.payload,
+          });
         }
       });
-    });
-
-    builder.addCase(updateProject, (state, action) => {
-      const project = action.payload || {};
-      if (!Array.isArray(project.tasks)) return;
-
-      const projectId = project.id;
-      const nextTaskEntities = {};
-      const nextTaskIds = [];
-
-      project.tasks.forEach((task, index) => {
-        const normalizedTask = normalizeTask(
-          {
-            ...task,
-            id: task.id || `task_${projectId}_${index}`,
-            projectId,
-          },
-          projectId
-        );
-        nextTaskEntities[normalizedTask.id] = normalizedTask;
-        nextTaskIds.push(normalizedTask.id);
-      });
-
-      state.taskIds.forEach((taskId) => {
-        const task = state.tasks[taskId];
-        if (task?.projectId !== projectId) return;
-        if (nextTaskIds.includes(taskId)) return;
-        delete state.tasks[taskId];
-      });
-      state.taskIds = state.taskIds.filter((taskId) => state.tasks[taskId]);
-
-      Object.entries(nextTaskEntities).forEach(([taskId, task]) => {
-        state.tasks[taskId] = task;
-        if (!state.taskIds.includes(taskId)) {
-          state.taskIds.push(taskId);
-        }
-      });
-    });
-
-    builder.addCase(deleteProject, (state, action) => {
-      const projectId = action.payload;
-      state.taskIds.forEach((taskId) => {
-        if (state.tasks[taskId]?.projectId === projectId) {
-          delete state.tasks[taskId];
-        }
-      });
-      state.taskIds = state.taskIds.filter((taskId) => state.tasks[taskId]);
-    });
-
-    builder.addCase(addTask, (state, action) => {
-      const payload = action.payload || {};
-      if (!payload.id) {
-        state.error = "Task id is required";
-        return;
-      }
-      const normalizedTask = normalizeTask(payload, payload.projectId);
-
-      state.tasks[normalizedTask.id] = normalizedTask;
-      if (!state.taskIds.includes(normalizedTask.id)) {
-        state.taskIds.push(normalizedTask.id);
-      }
-      state.error = null;
-    });
-
-    builder.addCase(updateTask, (state, action) => {
-      const payload = action.payload || {};
-      const taskId = payload.id;
-
-      if (!taskId || !state.tasks[taskId]) {
-        state.error = `Task with id ${taskId} not found`;
-        return;
-      }
-
-      const mergedTask = normalizeTask(
-        {
-          ...state.tasks[taskId],
-          ...payload,
-        },
-        payload.projectId || state.tasks[taskId].projectId
-      );
-
-      state.tasks[taskId] = mergedTask;
-      state.error = null;
-    });
-
-    builder.addCase(deleteTask, (state, action) => {
-      const payload = action.payload;
-      const taskIdsToDelete = Array.isArray(payload)
-        ? payload
-        : payload?.taskIds || (payload ? [payload] : []);
-
-      taskIdsToDelete.forEach((taskId) => {
-        delete state.tasks[taskId];
-      });
-      state.taskIds = state.taskIds.filter((taskId) => state.tasks[taskId]);
-      state.error = null;
-    });
   },
 });
 
-export const { setTasks, setTasksLoading, setTasksError, clearTasksError } = tasksSlice.actions;
+export const { updateTask, deleteTask, clearTasksError, resetTasksState } = tasksSlice.actions;
+
+// Export selectors
+export const {
+  selectAll: selectAllTasks,
+  selectById: selectTaskById,
+  selectIds: selectTaskIds,
+  selectEntities: selectTaskEntities,
+} = tasksAdapter.getSelectors((state) => state.tasks);
+
+// Custom selectors
+export const selectTasksLoading = (state) => state.tasks.loading;
+export const selectTasksError = (state) => state.tasks.error;
 
 export default tasksSlice.reducer;

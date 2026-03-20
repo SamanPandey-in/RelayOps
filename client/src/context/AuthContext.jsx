@@ -1,5 +1,11 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import api from '../lib/api';
+import { store } from '../store';
+import { apiSlice } from '../store/slices/apiSlice';
+import { clearUser } from '../store/slices/userSlice';
+import { resetTeamsState } from '../store/slices/teamsSlice';
+import { resetProjectsState } from '../store/slices/projectsSlice';
+import { resetTasksState } from '../store/slices/tasksSlice';
 
 const AuthContext = createContext(null);
 
@@ -8,16 +14,24 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const hasRestoredSession = useRef(false);
 
-  // On mount: verify session via HttpOnly refresh cookie
+  // On mount: verify session via HttpOnly refresh cookie and get a fresh access token
   useEffect(() => {
     if (hasRestoredSession.current) return;
     hasRestoredSession.current = true;
 
     const restoreSession = async () => {
       try {
+        // Always get a fresh access token on mount — the stored one may be expired (15 min TTL).
+        // /auth/refresh validates the HttpOnly refresh cookie (7d TTL) and returns a new access token.
+        const { data: refreshData } = await api.post('/auth/refresh');
+        localStorage.setItem('accessToken', refreshData.accessToken);
+        api.defaults.headers.common['Authorization'] = `Bearer ${refreshData.accessToken}`;
+
+        // Now fetch the full user profile with the fresh token.
         const { data } = await api.get('/auth/me');
         setUser(data.user);
       } catch {
+        // Refresh token absent or expired → no session, send to login.
         setUser(null);
       } finally {
         setLoading(false);
@@ -30,6 +44,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const { data } = await api.post('/auth/login', { email, password });
       setUser(data.user);
+      localStorage.setItem('accessToken', data.accessToken);
       api.defaults.headers.common['Authorization'] = `Bearer ${data.accessToken}`;
       return { success: true, user: data.user };
     } catch (err) {
@@ -41,6 +56,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const { data } = await api.post('/auth/register', { fullName, username, email, password });
       setUser(data.user);
+      localStorage.setItem('accessToken', data.accessToken);
       api.defaults.headers.common['Authorization'] = `Bearer ${data.accessToken}`;
       return { success: true, user: data.user };
     } catch (err) {
@@ -51,6 +67,12 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try { await api.post('/auth/logout'); } catch { /* ignore */ }
     delete api.defaults.headers.common['Authorization'];
+    localStorage.removeItem('accessToken');
+    store.dispatch(clearUser());
+    store.dispatch(resetTeamsState());
+    store.dispatch(resetProjectsState());
+    store.dispatch(resetTasksState());
+    store.dispatch(apiSlice.util.resetApiState());
     setUser(null);
     return { success: true };
   };

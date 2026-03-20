@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button, Chip } from '@mui/material';
 import { ArrowLeft, FolderOpen, ShieldAlert, UserPlus, UsersIcon } from 'lucide-react';
 
 import { InviteMemberDialog } from '../components';
+import { useRemoveTeamMemberMutation } from '../store/slices/apiSlice';
 
 import {
     selectCurrentUserId,
@@ -25,7 +26,9 @@ const normalizeStatus = (status) => {
 
 const TeamDetails = () => {
     const { teamId } = useParams();
+    const navigate = useNavigate();
     const currentUserId = useSelector(selectCurrentUserId);
+    const [removeTeamMember] = useRemoveTeamMemberMutation();
 
     const team = useSelector((state) => selectTeamById(state, teamId));
     const isUserInTeam = useSelector((state) => selectIsUserInTeam(state, teamId));
@@ -34,6 +37,27 @@ const TeamDetails = () => {
 
     const [statusFilter, setStatusFilter] = useState('all');
     const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+    const [isLeaving, setIsLeaving] = useState(false);
+    const [leaveError, setLeaveError] = useState('');
+
+    const handleLeaveTeam = async () => {
+        if (!teamId || !currentUserId) return;
+
+        const shouldLeave = window.confirm('Leave this team?');
+        if (!shouldLeave) return;
+
+        setIsLeaving(true);
+        setLeaveError('');
+
+        try {
+            await removeTeamMember({ teamId, userId: currentUserId }).unwrap();
+            navigate('/teams');
+        } catch (error) {
+            setLeaveError(error?.data?.message || 'Failed to leave team');
+        } finally {
+            setIsLeaving(false);
+        }
+    };
 
     const filteredProjects = useMemo(() => {
         if (statusFilter === 'all') return teamProjects;
@@ -83,6 +107,16 @@ const TeamDetails = () => {
                 >
                     Add Member
                 </Button>
+                <Button
+                    type="button"
+                    onClick={handleLeaveTeam}
+                    variant="outlined"
+                    disabled={isLeaving}
+                    sx={{ mt: 2, ml: 1 }}
+                >
+                    {isLeaving ? 'Leaving...' : 'Leave Team'}
+                </Button>
+                {leaveError && <p className="text-sm text-red-500 mt-2">{leaveError}</p>}
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">

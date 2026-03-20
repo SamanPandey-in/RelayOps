@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import { Button, IconButton, MenuItem, Slider, TextField } from '@mui/material';
 import { format } from 'date-fns';
 import { Plus, Save, Trash2 } from 'lucide-react';
-import { dummyUsers } from '../../assets/assets';
-
-import { deleteProjectAtomic, updateProjectAtomic } from '../../store';
+import { useDeleteProjectMutation, useRemoveProjectMemberMutation, useUpdateProjectMutation } from '../../store/slices/apiSlice';
 import AddProjectMember from './AddProjectMember';
 
 const toDateInputValue = (value) => {
@@ -44,8 +42,11 @@ const buildFormData = (project) => ({
 });
 
 export default function ProjectSettings({ project }) {
-    const dispatch = useDispatch();
+    const currentUserId = useSelector((state) => state.users?.currentUserId);
     const navigate = useNavigate();
+    const [updateProject] = useUpdateProjectMutation();
+    const [removeProjectMember] = useRemoveProjectMemberMutation();
+    const [deleteProjectMutation] = useDeleteProjectMutation();
 
     const [formData, setFormData] = useState(() => buildFormData(project));
 
@@ -54,34 +55,46 @@ export default function ProjectSettings({ project }) {
     const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState("");
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
         setError("");
 
-        const actionResult = dispatch(
-            updateProjectAtomic({
+        try {
+            await updateProject({
                 id: formData.id,
                 name: formData.name,
                 description: formData.description,
-                status: formData.status,
+                status: String(formData.status || '').toUpperCase(),
                 result: formData.status === "completed" ? (formData.result || null) : null,
-                priority: formData.priority,
-                start_date: formData.start_date || null,
-                end_date: formData.end_date || null,
-                progress: Number(formData.progress || 0),
-                updatedAt: new Date().toISOString(),
-            })
-        );
-
-        setIsSubmitting(false);
-
-        if (!actionResult?.ok) {
-            setError(actionResult?.error || "Failed to update project");
+            }).unwrap();
+        } catch (apiError) {
+            setError(apiError?.data?.message || "Failed to update project");
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
-    const handleDeleteProject = () => {
+    const handleLeaveProject = async () => {
+        if (!formData.id || !currentUserId) return;
+
+        const shouldLeave = window.confirm("Leave this project?");
+        if (!shouldLeave) return;
+
+        setIsSubmitting(true);
+        setError('');
+
+        try {
+            await removeProjectMember({ projectId: formData.id, userId: currentUserId }).unwrap();
+            navigate('/projects');
+        } catch (apiError) {
+            setError(apiError?.data?.message || 'Failed to leave project');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleDeleteProject = async () => {
         if (!formData.id) return;
 
         const shouldDelete = window.confirm("Delete this project? This action cannot be undone.");
@@ -90,16 +103,14 @@ export default function ProjectSettings({ project }) {
         setIsDeleting(true);
         setError("");
 
-        const actionResult = dispatch(deleteProjectAtomic(formData.id));
-
-        setIsDeleting(false);
-
-        if (!actionResult?.ok) {
-            setError(actionResult?.error || "Failed to delete project");
-            return;
+        try {
+            await deleteProjectMutation(formData.id).unwrap();
+            navigate("/projects");
+        } catch (apiError) {
+            setError(apiError?.data?.message || "Failed to delete project");
+        } finally {
+            setIsDeleting(false);
         }
-
-        navigate("/projects");
     };
 
     const cardClasses = "rounded-lg border p-6 not-dark:bg-white dark:bg-gradient-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border-zinc-300 dark:border-zinc-800";
@@ -110,13 +121,10 @@ export default function ProjectSettings({ project }) {
             id: member?.user?.id || member?.userId,
             label: member?.user?.email || member?.user?.name || member?.userId || "Unknown",
         }))
-        : (project?.memberIds || []).map((memberId) => {
-            const profile = dummyUsers.find((user) => user.id === memberId);
-            return {
-                id: memberId,
-                label: profile?.email || profile?.name || memberId,
-            };
-        });
+        : (project?.memberIds || []).map((memberId) => ({
+            id: memberId,
+            label: memberId,
+        }));
 
     return (
         <div className="grid lg:grid-cols-2 gap-8">
@@ -207,16 +215,26 @@ export default function ProjectSettings({ project }) {
                     {error && <p className="text-sm text-red-500">{error}</p>}
 
                     <div className="flex items-center justify-between gap-2">
-                        <Button
-                            type="button"
-                            disabled={isDeleting}
-                            onClick={handleDeleteProject}
-                            variant="outlined"
-                            color="error"
-                            startIcon={<Trash2 className="size-4" />}
-                        >
-                            {isDeleting ? "Deleting..." : "Delete Project"}
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <Button
+                                type="button"
+                                disabled={isSubmitting || isDeleting}
+                                onClick={handleLeaveProject}
+                                variant="outlined"
+                            >
+                                Leave Project
+                            </Button>
+                            <Button
+                                type="button"
+                                disabled={isSubmitting}
+                                onClick={handleDeleteProject}
+                                variant="outlined"
+                                color="error"
+                                startIcon={<Trash2 className="size-4" />}
+                            >
+                                {isDeleting ? "Deleting..." : "Delete Project"}
+                            </Button>
+                        </div>
                         <Button type="submit" disabled={isSubmitting || isDeleting} variant="contained" startIcon={<Save className="size-4" />}>
                             {isSubmitting ? "Saving..." : "Save Changes"}
                         </Button>

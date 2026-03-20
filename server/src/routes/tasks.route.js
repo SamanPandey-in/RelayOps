@@ -4,6 +4,7 @@ import { Router } from "express";
 import { authenticate } from "../middlewares/auth.middleware.js";
 import {
   getTasks,
+  getTaskById,
   getProjectTasks,
   createTask,
   updateTask,
@@ -16,6 +17,7 @@ const router = Router();
 router.use(authenticate);
 
 router.get("/", getTasks);
+router.get("/:taskId", getTaskById);
 router.get("/project/:projectId", getProjectTasks);
 router.post("/", createTask);
 router.put("/:taskId", updateTask);

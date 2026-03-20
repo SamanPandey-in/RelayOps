@@ -1,286 +1,286 @@
-# ⚡ React Starter Kit — Rapid Development Boilerplate
+# Heed — Team-Centric Project & Task Operations
 
-Created by **SAMAN PANDEY**
+> **"Plan faster, collaborate clearly, and ship with confidence across teams and projects."**
 
-A **production-ready React starter kit** optimized for **hackathons**, **MVPs**, and **real-world projects**.  
-This template eliminates setup friction and gives you authentication, theming, routing, state management, API handling, and UI tooling **out of the box**.
-
----
-
-## ✨ Why This Starter Kit?
-
-This starter kit is designed to let you **start building immediately**, not configuring.
-
-### You get:
-- ✅ Modern **React 19 + Vite**
-- ✅ **Authentication system** (login/signup/protected routes)
-- ✅ **Redux Toolkit + RTK Query**
-- ✅ **Theme system** (Dark/Light, Tailwind + MUI synced)
-- ✅ **Routing with public & protected routes**
-- ✅ **Axios API layer with token refresh**
-- ✅ **TailwindCSS v4 + MUI v7**
-- ✅ Clean, scalable folder structure
-
-Perfect for:
-- 🚀 Hackathons
-- 🧪 MVPs
-- 🏗️ SaaS dashboards
-- 🧠 Learning best practices
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat&logo=react)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-7-646CFF?style=flat&logo=vite)](https://vitejs.dev)
+[![Node.js](https://img.shields.io/badge/Node.js-Express%205-339933?style=flat&logo=node.js)](https://nodejs.org)
+[![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?style=flat&logo=prisma)](https://www.prisma.io)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon%20Ready-336791?style=flat&logo=postgresql)](https://www.postgresql.org)
+[![MUI](https://img.shields.io/badge/MUI-7-007FFF?style=flat&logo=mui)](https://mui.com)
+[![Redux Toolkit](https://img.shields.io/badge/Redux%20Toolkit-2-764ABC?style=flat&logo=redux)](https://redux-toolkit.js.org)
+[![License](https://img.shields.io/badge/License-ISC-yellow?style=flat)](./server/package.json)
 
 ---
 
-## 🧰 Tech Stack
+## What is Heed?
 
-| Category | Technology |
-|--------|------------|
-| Framework | React 19 |
-| Bundler | Vite |
-| Routing | React Router v7 |
-| State | Redux Toolkit |
-| UI | MUI v7 + TailwindCSS v4 |
-| Styling | CSS Variables + Tailwind |
-| Icons | Lucide React |
-| API | Axios |
-| Auth | JWT + Refresh Tokens |
-| Linting | ESLint |
+Heed is a full-stack collaboration platform for teams managing projects, tasks, and delivery workflows.
+
+It combines:
+- a React 19 dashboard frontend,
+- an Express 5 backend API,
+- Prisma + PostgreSQL data access,
+- and secure auth with access tokens + refresh-token cookies.
+
+The result is a practical workspace where members can create teams, run projects, manage tasks, and collaborate through task comments.
 
 ---
 
-## 📦 Installation
+## Core Capabilities
+
+### 🔐 Session-Based Authentication
+- Register, login, logout, refresh, profile bootstrap, forgot/reset password, and authenticated password change.
+- Short-lived access token + HttpOnly refresh cookie flow.
+
+### 👥 Team Collaboration
+- Create teams, update team metadata, join by invite code.
+- Add/remove members with permission checks.
+
+### 📁 Project Operations
+- Team-scoped projects with status/result handling.
+- Member management per project.
+
+### ✅ Task Lifecycle Management
+- Create/update/delete tasks, fetch by project, and fetch single task details.
+- Priority/type/status-driven workflows.
+
+### 💬 Task Comments
+- Load, add, and delete comments per task.
+- Access-controlled by project/team membership.
+
+### 🎨 Production UI Foundations
+- Route guards, app-level ErrorBoundary, global theme support, loading states, and improved null-safe date rendering.
+
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                         CLIENT                              │
+│ React 19 · Vite 7 · Redux Toolkit · RTK Query · MUI ·      │
+│ Tailwind v4 · React Router v7 · Axios + token refresh       │
+└──────────────────────────┬──────────────────────────────────┘
+                           │ REST / JSON + cookies
+┌──────────────────────────▼──────────────────────────────────┐
+│                         SERVER                              │
+│ Express 5 · JWT · bcrypt · cookie-parser · CORS · helmet    │
+│ Rate limiting · Nodemailer · Prisma adapter (pg)            │
+└──────────────────────────┬──────────────────────────────────┘
+                           │ Prisma Client
+┌──────────────────────────▼──────────────────────────────────┐
+│                       DATABASE                              │
+│ PostgreSQL (Neon-ready)                                     │
+│ Teams · Projects · Tasks · Comments · Invites · Notifications│
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Monorepo Structure
+
+```
+Heed/
+├── client/                         # React frontend
+│   ├── src/
+│   │   ├── components/             # Layout, dashboards, project/team/task UI
+│   │   ├── context/                # AuthContext
+│   │   ├── hooks/                  # App initialization + helpers
+│   │   ├── lib/                    # Axios client with auto-refresh
+│   │   ├── pages/                  # Auth + app pages
+│   │   ├── store/                  # Redux slices, selectors, thunks, RTK Query
+│   │   └── theme/                  # Theme tokens/provider
+│   └── package.json
+│
+├── server/                         # Express backend
+│   ├── app.js                      # Middleware + route mounting
+│   ├── index.js                    # Boot + graceful shutdown
+│   ├── prisma.config.ts            # Prisma datasource config
+│   ├── prisma/
+│   │   ├── schema.prisma           # Full data model
+│   │   └── migrations/
+│   ├── src/
+│   │   ├── controllers/            # auth, users, teams, projects, tasks, comments
+│   │   ├── routes/                 # API route definitions
+│   │   ├── middlewares/            # auth middleware
+│   │   ├── prisma/                 # Prisma client singleton
+│   │   └── utils/                  # email service
+│   └── package.json
+│
+└── docs/
+    ├── DATA_FETCHING_API.md
+    └── project-build-flow/
+```
+
+---
+
+## API Overview
+
+Base URL: `http://localhost:5000/api`
+
+| Domain | Method | Endpoint |
+|---|---|---|
+| Health | `GET` | `/health` |
+| Auth | `POST` | `/auth/register` |
+| Auth | `POST` | `/auth/login` |
+| Auth | `POST` | `/auth/logout` |
+| Auth | `POST` | `/auth/refresh` |
+| Auth | `GET` | `/auth/me` |
+| Auth | `POST` | `/auth/forgot-password` |
+| Auth | `POST` | `/auth/reset-password` |
+| Auth | `POST` | `/auth/change-password` |
+| Users | `GET` | `/users/me` |
+| Users | `PATCH` | `/users/me` |
+| Teams | `GET` | `/teams` |
+| Teams | `GET` | `/teams/:teamId` |
+| Teams | `POST` | `/teams` |
+| Teams | `PATCH` | `/teams/:teamId` |
+| Teams | `POST` | `/teams/join` |
+| Teams | `POST` | `/teams/:teamId/members` |
+| Teams | `DELETE` | `/teams/:teamId/members/:userId` |
+| Teams | `DELETE` | `/teams/:teamId` |
+| Projects | `GET` | `/projects` |
+| Projects | `GET` | `/projects/:projectId` |
+| Projects | `POST` | `/projects` |
+| Projects | `PATCH` | `/projects/:projectId` |
+| Projects | `POST` | `/projects/:projectId/members` |
+| Projects | `DELETE` | `/projects/:projectId/members/:userId` |
+| Projects | `DELETE` | `/projects/:projectId` |
+| Tasks | `GET` | `/tasks` |
+| Tasks | `GET` | `/tasks/:taskId` |
+| Tasks | `GET` | `/tasks/project/:projectId` |
+| Tasks | `POST` | `/tasks` |
+| Tasks | `PUT` | `/tasks/:taskId` |
+| Tasks | `DELETE` | `/tasks/:taskId` |
+| Comments | `GET` | `/tasks/:taskId/comments` |
+| Comments | `POST` | `/tasks/:taskId/comments` |
+| Comments | `DELETE` | `/tasks/comments/:commentId` |
+
+---
+
+## Local Setup
+
+### Prerequisites
+
+| Requirement | Version |
+|---|---|
+| Node.js | 18+ |
+| npm | 9+ |
+| PostgreSQL / Neon | Active connection |
+
+### 1) Clone
 
 ```bash
-# Clone the repository
-git clone https://github.com/SamanPandey-in/React-starter-kit.git
+git clone <your-repo-url>
+cd Heed
+```
 
-# Install dependencies
+### 2) Backend Setup
+
+```bash
+cd server
 npm install
-
-# Start development server
+npx prisma generate
 npm run dev
-````
+```
 
----
+Create `server/.env` with values similar to:
 
-## 🔐 Environment Variables
+```env
+# Server
+PORT=5000
+HOST=localhost
+NODE_ENV=development
+CLIENT_ORIGIN=http://localhost:5173
 
-Create a `.env` file in the root:
+# Database
+DATABASE_URL=postgresql://...
+DIRECT_URL=postgresql://...
+
+# Auth
+JWT_ACCESS_SECRET=change_me_access
+JWT_REFRESH_SECRET=change_me_refresh
+
+# Email (optional but recommended for reset flow)
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your_user
+SMTP_PASS=your_pass
+SMTP_FROM=your_from_email
+```
+
+### 3) Frontend Setup
+
+```bash
+cd client
+npm install
+npm run dev
+```
+
+Create `client/.env`:
 
 ```env
 VITE_API_URL=http://localhost:5000/api
+VITE_API_BASE_URL=http://localhost:5000/api
 ```
 
-This URL is used by Axios for all API requests.
+### 4) Optional Prisma Migration Flow
 
----
-
-## 🗂️ Project Structure
-
-```txt
-src/
-├── App.jsx                # App routes & providers
-├── main.jsx               # React entry point
-├── index.css              # Global styles + design tokens
-│
-├── assets/                # Static assets
-│
-├── components/
-│   ├── layout/            # App shell (Header, Sidebar, Layout)
-│   ├── theme/             # Theme provider & toggle
-│   └── Logo.jsx
-│
-├── contexts/
-│   └── AuthContext.jsx    # Authentication logic
-│
-├── pages/
-│   ├── Landing.jsx
-│   ├── Login.jsx
-│   ├── Signup.jsx
-│   ├── Home.jsx
-│   └── index.js
-│
-├── services/
-│   └── api.js             # Axios instance & API modules
-│
-├── store/
-│   ├── slices/            # Redux slices
-│   ├── rtkQuery/          # RTK Query examples
-│   ├── docs/              # Redux configuration documentation
-│   ├── store.js
-│   └── index.js
-│
-├── styles/
-│   └── muiTheme.js        # MUI theme configuration
-```
-
----
-
-## 🧭 Routing Architecture
-
-### Public Routes
-
-* `/` → Landing
-* `/login`
-* `/signup`
-
-### Protected Routes
-
-* `/home`
-* (Add more inside `Layout`)
-
-### Route Guards
-
-* `ProtectedRoute` → requires authentication
-* `PublicRoute` → redirects if already logged in
-
----
-
-## 🔐 Authentication System
-
-### Features
-
-* JWT-based authentication
-* Auto token refresh
-* Persistent login (localStorage)
-* Role-based helpers
-
-### Available Auth Helpers
-
-```js
-const {
-  user,
-  login,
-  signup,
-  logout,
-  isAuthenticated,
-  isAdmin,
-  isManager,
-  isTechnician,
-  isUser
-} = useAuth();
-```
-
----
-
-## 🎨 Theming System (Dark / Light)
-
-### Powered by:
-
-* TailwindCSS variables
-* Redux `themeSlice`
-* MUI ThemeProvider
-* CSS variables
-
-### How it works
-
-* Redux controls theme mode
-* Tailwind dark mode syncs automatically
-* MUI theme updates dynamically
-* Theme preference saved to `localStorage`
-
----
-
-## 🧠 State Management (Redux Toolkit)
-
-### Included:
-
-* Redux Toolkit store
-* UI slice examples
-* Theme slice
-* RTK Query demos
-* Documentation inside `/store/docs`
-
-### Adding a new slice
-
-```js
-createSlice({
-  name: 'feature',
-  initialState,
-  reducers: {}
-})
-```
-
----
-
-## 🌐 API Layer
-
-### Axios Features
-
-* Centralized instance
-* JWT auto-attach
-* Refresh token handling
-* Auto logout on failure
-
-### Example API Modules
-
-* `authAPI`
-* `userAPI`
-* `equipmentAPI`
-* `teamAPI`
-* `requestAPI`
-
-Add new APIs inside `services/api.js`.
-
----
-
-## 🧪 Pages Included
-
-| Page    | Purpose               |
-| ------- | --------------------- |
-| Landing | Public marketing page |
-| Login   | Authentication        |
-| Signup  | Registration          |
-| Home    | Protected dashboard   |
-
----
-
-## 🧱 UI Components
-
-* Responsive layout with Sidebar & Header
-* MUI form components
-* Tailwind utility styling
-* Lucide icons
-
----
-
-## 🛠 Scripts
+If you need to apply migrations on a fresh database:
 
 ```bash
-npm run dev       # Start dev server
-npm run build     # Production build
-npm run preview   # Preview build
-npm run lint      # Run ESLint
+cd server
+npx prisma migrate dev --name init
+npx prisma generate
 ```
 
 ---
 
-## 🚀 How to Use in Hackathons
+## Frontend Highlights
 
-1. Clone
-2. Set API URL
-3. Rename app
-4. Build features
-5. Ship fast ⚡
-
----
-
-## 🧩 Customization Tips
-
-* Replace branding in `Logo.jsx`
-* Update colors in `index.css`
-* Modify layout in `components/layout`
-* Add routes inside `App.jsx`
-* Extend Redux slices as needed
+- Protected and public route guards in `App.jsx`.
+- Global app initialization hook for profile/team/project/task bootstrap.
+- Redux store slices for users, teams, projects, tasks, settings, and theme.
+- RTK Query API slice for normalized network access.
+- Axios interceptor for automatic token refresh and retry.
+- ErrorBoundary wrapping app shell.
 
 ---
 
-## 📄 License
+## Data Model Snapshot
 
-MIT — free to use, modify, and ship.
+Primary relational entities in Prisma:
+- `User`
+- `Team`, `TeamMember`, `TeamInvite`
+- `Project`, `ProjectMember`
+- `Task`, `TaskLabel`, `Label`
+- `Comment` (threaded via parent/replies)
+- `ActivityLog`, `Notification`
 
 ---
 
-## 🧠 Author
+## Scripts
 
-Built with ⚡ by **SAMAN PANDEY**
+### Client
 
-If this starter helped you, ⭐ the repo and build something awesome.
+```bash
+npm run dev
+npm run build
+npm run preview
+npm run lint
+```
+
+### Server
+
+```bash
+npm run dev
+npm start
+```
+
+---
+
+## License
+
+MIT © 2026 Heed

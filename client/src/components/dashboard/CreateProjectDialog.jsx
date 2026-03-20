@@ -1,9 +1,7 @@
-import { useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState } from 'react';
 import {
     Box,
     Button,
-    Chip,
     Dialog,
     DialogActions,
     DialogContent,
@@ -14,119 +12,56 @@ import {
     Typography,
 } from '@mui/material';
 import { XIcon } from 'lucide-react';
-import { dummyUsers } from '../../assets/assets';
-import { createProjectAtomic, selectCurrentTeamId, selectUserTeamObjects } from '../../store';
+import { useDispatch, useSelector } from 'react-redux';
+import { createProject, selectAllTeams, selectProjectsLoading, selectProjectsError } from '../../store';
 
 const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
-
     const dispatch = useDispatch();
-
-    // Get user's teams
-    const userTeams = useSelector(selectUserTeamObjects);
-    const currentTeamId = useSelector(selectCurrentTeamId);
-    const projectsError = useSelector((state) => state.projects.error);
+    const userTeams = useSelector(selectAllTeams);
+    const isSubmitting = useSelector(selectProjectsLoading);
+    const serverError = useSelector(selectProjectsError);
 
     const [formData, setFormData] = useState({
         name: "",
         description: "",
-        teamId: currentTeamId || "",
-        status: "active",
-        priority: "MEDIUM",
-        start_date: "",
-        end_date: "",
-        team_members: [],
-        team_lead: "",
-        progress: 0,
-        result: "",
+        teamId: "",
+        status: "ACTIVE",
     });
 
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitError, setSubmitError] = useState("");
-
-    const selectedTeam = useMemo(
-        () => userTeams.find((team) => team.id === formData.teamId),
-        [formData.teamId, userTeams]
-    );
-
-    const teamUserOptions = useMemo(() => {
-        const teamMemberIds = selectedTeam?.members || [];
-        return teamMemberIds.map((id) => {
-            const profile = dummyUsers.find((user) => user.id === id);
-            return {
-                id,
-                name: profile?.name || id,
-            };
-        });
-    }, [selectedTeam]);
+    const [localError, setLocalError] = useState("");
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setSubmitError("");
+        setLocalError("");
 
         if (userTeams.length === 0) {
-            setSubmitError("You must join a team before creating a project");
+            setLocalError("You must join a team before creating a project");
             return;
         }
 
-        const validTeamIds = userTeams.map((team) => team.id);
-        if (!validTeamIds.includes(formData.teamId)) {
-            setSubmitError("Please select a valid team");
+        if (!formData.teamId) {
+            setLocalError("Please select a valid team");
             return;
         }
 
-        setIsSubmitting(true);
-        const now = new Date().toISOString();
-        const memberIds = [...new Set(
-            formData.team_lead
-                ? [...formData.team_members, formData.team_lead]
-                : formData.team_members
-        )];
-
-        const actionResult = dispatch(
-            createProjectAtomic({
-                id: `project_${Date.now()}`,
+        try {
+            await dispatch(createProject({
                 name: formData.name,
                 description: formData.description,
                 teamId: formData.teamId,
                 status: formData.status,
-                priority: formData.priority,
-                start_date: formData.start_date || null,
-                end_date: formData.end_date || null,
-                team_lead: formData.team_lead || null,
-                memberIds,
-                progress: formData.progress || 0,
-                result: formData.status === "completed" ? (formData.result || null) : null,
-                tasks: [],
-                createdAt: now,
-                updatedAt: now,
-                validTeamIds,
-            })
-        );
+            })).unwrap();
 
-        setIsSubmitting(false);
-        if (!actionResult?.ok) {
-            setSubmitError(actionResult?.error || "Failed to create project");
-            return;
+            setIsDialogOpen(false);
+            setFormData({
+                name: "",
+                description: "",
+                teamId: "",
+                status: "ACTIVE",
+            });
+        } catch (err) {
+            // Error handled by Redux state
         }
-
-        setIsDialogOpen(false);
-        setFormData({
-            name: "",
-            description: "",
-            teamId: currentTeamId || "",
-            status: "active",
-            priority: "MEDIUM",
-            start_date: "",
-            end_date: "",
-            team_members: [],
-            team_lead: "",
-            progress: 0,
-            result: "",
-        });
-    };
-
-    const removeTeamMember = (email) => {
-        setFormData((prev) => ({ ...prev, team_members: prev.team_members.filter(m => m !== email) }));
     };
 
     return (
@@ -188,126 +123,31 @@ const CreateProjectDialog = ({ isDialogOpen, setIsDialogOpen }) => {
                     />
 
                     <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-                        <TextField
-                            select
-                            label="Status"
-                            value={formData.status}
-                            onChange={(e) =>
-                                setFormData((prev) => ({
-                                    ...prev,
-                                    status: e.target.value,
-                                    result: e.target.value === "completed" ? prev.result : "",
-                                }))
-                            }
-                        >
-                            <MenuItem value="active">Active</MenuItem>
-                            <MenuItem value="completed">Completed</MenuItem>
-                            <MenuItem value="deprecated">Deprecated</MenuItem>
-                        </TextField>
-                        <TextField
-                            select
-                            label="Priority"
-                            value={formData.priority}
-                            onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                        >
-                            <MenuItem value="LOW">Low</MenuItem>
-                            <MenuItem value="MEDIUM">Medium</MenuItem>
-                            <MenuItem value="HIGH">High</MenuItem>
-                        </TextField>
-                    </Box>
-
-                    {formData.status === "completed" && (
-                        <TextField
-                            select
-                            label="Result"
-                            value={formData.result}
-                            onChange={(e) => setFormData({ ...formData, result: e.target.value })}
-                        >
-                            <MenuItem value="">Not Set</MenuItem>
-                            <MenuItem value="success">Success</MenuItem>
-                            <MenuItem value="failed">Failed</MenuItem>
-                            <MenuItem value="ongoing">Ongoing</MenuItem>
-                        </TextField>
-                    )}
-
-                    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
-                        <TextField
-                            type="date"
-                            label="Start Date"
-                            value={formData.start_date}
-                            onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                            InputLabelProps={{ shrink: true }}
-                        />
-                        <TextField
-                            type="date"
-                            label="End Date"
-                            value={formData.end_date}
-                            onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                            InputLabelProps={{ shrink: true }}
-                            inputProps={{
-                                min: formData.start_date && new Date(formData.start_date).toISOString().split('T')[0],
-                            }}
-                        />
-                    </Box>
-
-                    <TextField
+<TextField
                         select
-                        label="Project Lead"
-                        value={formData.team_lead}
+                        label="Status"
+                        value={formData.status}
                         onChange={(e) =>
-                            setFormData({
-                                ...formData,
-                                team_lead: e.target.value,
-                                team_members: e.target.value
-                                    ? [...new Set([...formData.team_members, e.target.value])]
-                                    : formData.team_members,
-                            })
+                            setFormData((prev) => ({
+                                ...prev,
+                                status: e.target.value,
+                            }))
                         }
                     >
-                        <MenuItem value="">No lead</MenuItem>
-                        {teamUserOptions.map((user) => (
-                            <MenuItem key={user.id} value={user.id}>
-                                {user.name}
-                            </MenuItem>
-                        ))}
+                        <MenuItem value="ACTIVE">Active</MenuItem>
+                        <MenuItem value="COMPLETED">Completed</MenuItem>
+                        <MenuItem value="DEPRECATED">Deprecated</MenuItem>
                     </TextField>
+                    </Box>
 
-                    <TextField
-                        select
-                        label="Team Members"
-                        value=""
-                        onChange={(e) => {
-                            if (e.target.value && !formData.team_members.includes(e.target.value)) {
-                                setFormData((prev) => ({ ...prev, team_members: [...prev.team_members, e.target.value] }));
-                            }
-                        }}
-                    >
-                        <MenuItem value="">Add team members</MenuItem>
-                        {teamUserOptions
-                            ?.filter((user) => !formData.team_members.includes(user.id))
-                            .map((user) => (
-                                <MenuItem key={user.id} value={user.id}>
-                                    {user.name}
-                                </MenuItem>
-                            ))}
-                    </TextField>
-
-                    {formData.team_members.length > 0 && (
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                            {formData.team_members.map((memberId) => (
-                                <Chip
-                                    key={memberId}
-                                    label={memberId}
-                                    onDelete={() => removeTeamMember(memberId)}
-                                    deleteIcon={<XIcon className="w-3 h-3" />}
-                                />
-                            ))}
-                        </Box>
-                    )}
-
-                    {(submitError || projectsError) && (
+                    {localError && (
                         <Typography variant="body2" color="error">
-                            {submitError || projectsError}
+                            {localError}
+                        </Typography>
+                    )}
+                    {serverError && (
+                        <Typography variant="body2" color="error">
+                            {serverError}
                         </Typography>
                     )}
                     <DialogActions sx={{ px: 0 }}>

@@ -1,11 +1,12 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './store/store';
 
 // NEW: import from context instead of firebase/auth
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { ThemeProvider, Layout } from './components';
+import { ThemeProvider, Layout, ErrorBoundary } from './components';
 import { useInitializeAppData } from './hooks';
+import { AppShellSkeleton, AuthScreenSkeleton } from './components/ui';
 
 import {
   Landing, Login, Signup, ForgotPassword, ResetPassword,
@@ -13,31 +14,40 @@ import {
   Teams, TeamDetails, TaskDetails, Settings, Profile
 } from './pages/index';
 
+const LoadingScreen = () => (
+  <AppShellSkeleton />
+);
+
+const NO_SKELETON_APP_ROUTES = ['/', '/login', '/auth', '/signup'];
+const NO_SKELETON_PUBLIC_ROUTES = ['/login', '/auth', '/signup'];
+
 // ─── Route guards (identical API, no Firebase dependency) ─────────────────
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
-    </div>
-  );
+  if (loading) return <AuthScreenSkeleton />;
   return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
 const PublicRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600" />
-    </div>
-  );
+  const { pathname } = useLocation();
+
+  if (loading && !NO_SKELETON_PUBLIC_ROUTES.includes(pathname)) {
+    return <AuthScreenSkeleton />;
+  }
+
   return !isAuthenticated ? children : <Navigate to="/dashboard" />;
 };
 
 // ─── App Initializer: Fetches all data after authentication ────────────────
 function AppInitializer() {
   // Initialize all app data when user authenticates
-  useInitializeAppData();
+  const isAppLoading = useInitializeAppData();
+  const { pathname } = useLocation();
+
+  if (isAppLoading && !NO_SKELETON_APP_ROUTES.includes(pathname)) {
+    return <LoadingScreen />;
+  }
 
   return <AppRoutes />;
 }
@@ -76,7 +86,9 @@ function App() {
       <Router>
         <AuthProvider>
           <ThemeProvider>
-            <AppInitializer />
+            <ErrorBoundary>
+              <AppInitializer />
+            </ErrorBoundary>
           </ThemeProvider>
         </AuthProvider>
       </Router>

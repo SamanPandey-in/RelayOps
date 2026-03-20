@@ -2,13 +2,22 @@
 
 import axios from 'axios';
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
+// In development Vite proxies /api/* to http://localhost:5000, so we use '/api'
+// as a relative base. In production set VITE_API_BASE_URL to the deployed backend URL.
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const TOKEN_KEY = 'accessToken';
 
 const api = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,   // IMPORTANT: sends HttpOnly refresh token cookie
   headers: { 'Content-Type': 'application/json' },
 });
+
+// Restore token from localStorage on init
+const storedToken = localStorage.getItem(TOKEN_KEY);
+if (storedToken) {
+  api.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+}
 
 // Response interceptor: auto-refresh on 401
 let isRefreshing = false;
@@ -26,9 +35,11 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config || {};
     const requestUrl = String(originalRequest.url || '');
-    const isAuthEndpoint = requestUrl.startsWith('/auth/');
+    // Only skip the refresh loop for the /auth/refresh endpoint itself,
+    // otherwise expired tokens on /auth/me or /auth/change-password would never auto-recover.
+    const isRefreshEndpoint = requestUrl.includes('/auth/refresh');
 
-    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
+    if (error.response?.status === 401 && !originalRequest._retry && !isRefreshEndpoint) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -46,6 +57,7 @@ api.interceptors.response.use(
       try {
         const { data } = await api.post('/auth/refresh');
         const { accessToken } = data;
+        localStorage.setItem(TOKEN_KEY, accessToken);
         api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
         originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
         processQueue(null, accessToken);
@@ -54,6 +66,7 @@ api.interceptors.response.use(
         processQueue(refreshError, null);
         // Refresh failed → user session expired, clear state
         delete api.defaults.headers.common['Authorization'];
+        localStorage.removeItem(TOKEN_KEY);
         window.location.href = '/login';
         return Promise.reject(refreshError);
       } finally {

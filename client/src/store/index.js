@@ -1,29 +1,19 @@
 // Store
 export { default as store } from "./store.js";
 
-// Thunks (for atomic multi-slice operations)
-export {
-  createTeamAtomic,
-  createProjectAtomic,
-  deleteProjectAtomic,
-  deleteTeamAtomic,
-  inviteMemberAtomic,
-  joinTeamAtomic,
-  joinTeamByIdentifierAtomic,
-  updateProjectAtomic,
-} from "./thunks.js";
+// Async Thunks
+export { fetchTeams, createTeam, joinTeamByInviteCode } from "./slices/teamsSlice.js";
+export { fetchProjects, createProject } from "./slices/projectsSlice.js";
+export { fetchTasks, createTask, updateTaskStatus } from "./slices/tasksSlice.js";
 
 // Theme Slice
 export { toggleTheme, setTheme, loadTheme } from "./slices/themeSlice.js";
 export { default as themeReducer } from "./slices/themeSlice.js";
 
-// API Slice
-export { apiSlice } from "./slices/apiSlice.js";
-
 // User Slice
 export {
   setUser,
-  setCurrentTeamId,
+  setCurrentTeamId as setUserCurrentTeamId,
   addTeamToUser,
   removeTeamFromUser,
   setLoading as setUserLoading,
@@ -34,42 +24,49 @@ export { default as userReducer } from "./slices/userSlice.js";
 
 // Projects Slice
 export {
-  setProjects,
   setCurrentProjectId,
-  addProject,
-  updateProject,
-  updateProjectStatus,
-  deleteProject,
-  addTask,
-  updateTask,
-  deleteTask,
+  clearProjectsError,
+  resetProjectsState,
+  selectAllProjects as selectAllProjectsValue,
+  selectProjectById as selectProjectByIdValue,
+  selectProjectIds,
+  selectProjectEntities,
+  selectProjectsLoading,
+  selectProjectsError,
+  selectCurrentProjectId as selectCurrentProjectIdValue,
+  selectCurrentProject,
 } from "./slices/projectsSlice.js";
 export { default as projectsReducer } from "./slices/projectsSlice.js";
 
 // Tasks Slice
 export {
-  setTasks,
-  setTasksLoading,
-  setTasksError,
+  updateTask,
+  deleteTask,
   clearTasksError,
+  resetTasksState,
+  selectAllTasks as selectAllTasksValue,
+  selectTaskById as selectTaskByIdValue,
+  selectTaskIds,
+  selectTaskEntities,
+  selectTasksLoading,
+  selectTasksError,
 } from "./slices/tasksSlice.js";
 export { default as tasksReducer } from "./slices/tasksSlice.js";
 
 // Teams Slice
 export {
-  createTeam,
-  joinTeam,
-  leaveTeam,
-  addTeamMember,
-  removeTeamMember,
-  addTeamProject,
-  removeTeamProject,
-  updateTeam,
-  deleteTeam,
-  setTeams,
-  setLoading as setTeamsLoading,
-  setError as setTeamsError,
-  clearError as clearTeamsError,
+  setCurrentTeamId,
+  clearTeamsError,
+  resetTeamsState,
+  selectAllTeams as selectAllTeamsValue,
+  selectTeamById as selectTeamByIdValue,
+  selectTeamIds,
+  selectTeamEntities,
+  selectTeamTotal,
+  selectTeamsLoading,
+  selectTeamsError as selectTeamsErrorValue,
+  selectCurrentTeamId as selectCurrentTeamIdValue,
+  selectCurrentTeam as selectCurrentTeamValue,
 } from "./slices/teamsSlice.js";
 export { default as teamsReducer } from "./slices/teamsSlice.js";
 
@@ -85,7 +82,7 @@ export {
 } from "./slices/settingsSlice.js";
 export { default as settingsReducer } from "./slices/settingsSlice.js";
 
-// Selectors
+// Derived Selectors
 export {
   selectCurrentUserId,
   selectUserTeams,
