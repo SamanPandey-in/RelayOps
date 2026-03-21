@@ -1,5 +1,8 @@
 // Singleton Prisma client — prevents "too many connections" in dev with HMR
-import { PrismaClient } from '@prisma/client';
+// Use default import and destructuring for @prisma/client to avoid named-export
+// issues across different package/Node ESM configurations.
+import prismaPkg from '@prisma/client';
+const { PrismaClient } = prismaPkg;
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 
