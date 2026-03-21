@@ -26,14 +26,19 @@ const signRefresh = (userId) =>
 const setRefreshCookie = (res, token) =>
   res.cookie(REFRESH_COOKIE, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    secure: true,
+    sameSite: "none",
     maxAge: 7 * 24 * 60 * 60 * 1000,
     path: "/api/auth",
   });
 
 const clearRefreshCookie = (res) =>
-  res.clearCookie(REFRESH_COOKIE, { path: "/api/auth" });
+  res.clearCookie(REFRESH_COOKIE, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    path: "/api/auth",
+  });
 
 // Only expose safe fields to the frontend — no password hash, no tokens
 const safeUser = (u) => ({
@@ -259,7 +264,7 @@ export const forgotPassword = async (req, res, next) => {
       });
 
       // Send password reset email
-      const clientOrigin = process.env.CLIENT_ORIGIN || "http://localhost:5173";
+      const clientOrigin = process.env.CORS_ORIGIN || "http://localhost:5173";
       const emailResult = await sendPasswordResetEmail(email, resetToken, clientOrigin);
       
       if (!emailResult.success) {

@@ -18,19 +18,24 @@ const app = express();
 // Security headers
 app.use(helmet());
 
-// CORS — allow frontend origin and cookies
-const allowedOrigins = (
-  process.env.CLIENT_ORIGIN || "http://localhost:5173"
-).split(",");
+// CORS — safe allowlist-based configuration
+const allowedOrigins = [process.env.CORS_ORIGIN || "http://localhost:5173"];
 app.use(
   cors({
-    origin: (origin, cb) => {
-      if (!origin || allowedOrigins.includes(origin)) cb(null, true);
-      else cb(new Error("Not allowed by CORS"));
+    origin: function (origin, callback) {
+      // allow requests with no origin (like mobile apps, curl)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      } else {
+        return callback(new Error("Not allowed by CORS"));
+      }
     },
-    credentials: true, // required for HttpOnly cookie
+    credentials: true,
   }),
 );
+app.options("*", cors());
 
 // Body parsing and cookie parsing
 app.use(express.json({ limit: "1mb" }));
