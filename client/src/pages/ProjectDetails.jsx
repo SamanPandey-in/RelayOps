@@ -9,7 +9,6 @@ import {
     FileStackIcon,
     PlusIcon,
     SettingsIcon,
-    UsersIcon,
     ZapIcon,
 } from 'lucide-react';
 
@@ -28,7 +27,6 @@ export default function ProjectDetail() {
     const activeTab = searchParams.get('tab') || 'tasks';
 
     const tasks = useSelector((state) => selectTasksByProjectId(state, projectId));
-    const memberCount = project?.memberIds?.length ?? project?.members?.length ?? 0;
 
     if (!project) {
         return (
@@ -104,7 +102,6 @@ export default function ProjectDetail() {
                         value: tasks.filter((t) => t.status === 'TODO').length,
                         color: 'text-slate-700 dark:text-slate-400',
                     },
-                    { label: 'Team Members', value: memberCount, color: 'text-blue-700 dark:text-blue-400' },
                 ].map((card, idx) => (
                     <div
                         key={idx}
@@ -114,11 +111,7 @@ export default function ProjectDetail() {
                             <div className="text-sm text-zinc-600 dark:text-zinc-400">{card.label}</div>
                             <div className={`text-2xl font-bold ${card.color}`}>{card.value}</div>
                         </div>
-                        {card.label === 'Team Members' ? (
-                            <UsersIcon className={`size-4 ${card.color}`} />
-                        ) : (
-                            <ZapIcon className={`size-4 ${card.color}`} />
-                        )}
+                        <ZapIcon className={`size-4 ${card.color}`} />
                     </div>
                 ))}
             </div>
@@ -150,7 +143,7 @@ export default function ProjectDetail() {
                 <div className="mt-6">
                     {activeTab === 'tasks' && (
                         <div className="dark:bg-zinc-900/40 rounded max-w-6xl">
-                            <ProjectTasks tasks={tasks} />
+                            <ProjectTasks tasks={tasks} projectId={projectId} />
                         </div>
                     )}
                     {activeTab === 'analytics' && (

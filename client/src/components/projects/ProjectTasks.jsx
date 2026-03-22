@@ -2,12 +2,16 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import {
-    Avatar,
     Box,
     Button,
     Checkbox,
     Chip,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
     FormControl,
+    InputAdornment,
     MenuItem,
     Select,
     Stack,
@@ -17,6 +21,7 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+    TextField,
     Typography,
 } from '@mui/material';
 import { MediumAvatar } from '../ui/ReusableStyled';
@@ -26,19 +31,19 @@ const MinWidthFormControl = styled(FormControl)({
 });
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
-import { Bug, CalendarIcon, GitCommit, MessageSquare, Square, Trash, XIcon, Zap } from 'lucide-react';
+import { Calendar as CalendarIcon, Pen, Trash, XIcon, Zap } from 'lucide-react';
 
 import { deleteTask as deleteTaskAction, updateTask as updateTaskAction } from '../../store';
-import { useDeleteTaskMutation, useUpdateTaskMutation } from '../../store/slices/apiSlice';
+import { useDeleteTaskMutation, useGetProjectByIdQuery, useGetTeamByIdQuery, useUpdateTaskMutation } from '../../store/slices/apiSlice';
 
-const typeIcons = {
-    BUG: { icon: Bug, color: 'error' },
-    FEATURE: { icon: Zap, color: 'info' },
-    TASK: { icon: Square, color: 'success' },
-    IMPROVEMENT: { icon: GitCommit, color: 'secondary' },
-    EPIC: { icon: MessageSquare, color: 'warning' },
-    STORY: { icon: MessageSquare, color: 'info' },
-    SUB_TASK: { icon: GitCommit, color: 'default' },
+const typeChipColor = {
+    BUG: 'error',
+    FEATURE: 'info',
+    TASK: 'success',
+    IMPROVEMENT: 'secondary',
+    EPIC: 'warning',
+    STORY: 'info',
+    SUB_TASK: 'default',
 };
 
 const statusOptions = [
@@ -77,7 +82,31 @@ const priorityColor = {
     LOW: 'default',
 };
 
-const ProjectTasks = ({ tasks }) => {
+const taskTypeOptions = [
+    { value: "BUG", label: "Bug" },
+    { value: "FEATURE", label: "Feature" },
+    { value: "TASK", label: "Task" },
+    { value: "IMPROVEMENT", label: "Improvement" },
+    { value: "EPIC", label: "Epic" },
+    { value: "STORY", label: "Story" },
+    { value: "SUB_TASK", label: "Sub-task" },
+];
+
+const taskPriorityOptions = [
+    { value: "LOW", label: "Low" },
+    { value: "MEDIUM", label: "Medium" },
+    { value: "HIGH", label: "High" },
+    { value: "URGENT", label: "Urgent" },
+];
+
+const toDateInputValue = (value) => {
+    if (!value) return "";
+    const parsedDate = new Date(value);
+    if (Number.isNaN(parsedDate.getTime())) return "";
+    return format(parsedDate, 'yyyy-MM-dd');
+};
+
+const ProjectTasks = ({ tasks, projectId }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [updateTask] = useUpdateTaskMutation();
@@ -98,6 +127,42 @@ const ProjectTasks = ({ tasks }) => {
     };
 
     const getTaskDueDate = (task) => task?.dueDate || task?.due_date || null;
+    const { data: projectData } = useGetProjectByIdQuery(projectId, { skip: !projectId });
+    const { data: teamData } = useGetTeamByIdQuery(projectData?.project?.teamId, {
+        skip: !projectData?.project?.teamId,
+    });
+
+    const teamMembers = useMemo(() => {
+        const rawMembers = teamData?.team?.members || [];
+        const membersById = new Map();
+
+        rawMembers.forEach((member) => {
+            const memberUser = member?.user || member;
+            const memberId = memberUser?.id || member?.userId || null;
+
+            if (!memberId || membersById.has(memberId)) return;
+            membersById.set(memberId, {
+                id: memberId,
+                label: memberUser.fullName || memberUser.username || memberUser.email || memberId,
+            });
+        });
+
+        return Array.from(membersById.values());
+    }, [teamData]);
+
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+    const [isEditSubmitting, setIsEditSubmitting] = useState(false);
+    const [editError, setEditError] = useState('');
+    const [editFormData, setEditFormData] = useState({
+        id: '',
+        title: '',
+        description: '',
+        type: 'TASK',
+        priority: 'MEDIUM',
+        status: 'BACKLOG',
+        assigneeId: '',
+        due_date: '',
+    });
 
     const assigneeList = useMemo(
         () =>
@@ -143,6 +208,57 @@ const ProjectTasks = ({ tasks }) => {
             if (loadingToast) {
                 toast.dismiss(loadingToast);
             }
+        }
+    };
+
+    const openEditDialog = (task) => {
+        setEditFormData({
+            id: task.id,
+            title: task.title || '',
+            description: task.description || '',
+            type: task.type || 'TASK',
+            priority: task.priority || 'MEDIUM',
+            status: task.status || 'BACKLOG',
+            assigneeId: task.assigneeId || '',
+            due_date: toDateInputValue(getTaskDueDate(task)),
+        });
+        setEditError('');
+        setIsEditDialogOpen(true);
+    };
+
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
+        if (!editFormData.id || !editFormData.title.trim()) return;
+
+        setIsEditSubmitting(true);
+        setEditError('');
+        let loadingToast;
+
+        try {
+            loadingToast = toast.loading('Saving task changes...');
+            const { task: updatedTask } = await updateTask({
+                id: editFormData.id,
+                title: editFormData.title,
+                description: editFormData.description,
+                type: editFormData.type,
+                priority: editFormData.priority,
+                status: editFormData.status,
+                assigneeId: editFormData.assigneeId || null,
+                dueDate: editFormData.due_date || null,
+            }).unwrap();
+
+            dispatch(updateTaskAction(updatedTask));
+            setIsEditDialogOpen(false);
+            toast.success('Task updated successfully');
+        } catch (error) {
+            const message = error?.data?.message || error?.response?.data?.message || error.message || 'Failed to update task';
+            setEditError(message);
+            toast.error(message);
+        } finally {
+            if (loadingToast) {
+                toast.dismiss(loadingToast);
+            }
+            setIsEditSubmitting(false);
         }
     };
 
@@ -258,13 +374,13 @@ const ProjectTasks = ({ tasks }) => {
                                 <TableCell>Status</TableCell>
                                 <TableCell>Assignee</TableCell>
                                 <TableCell>Due Date</TableCell>
+                                <TableCell align="right">Actions</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {filteredTasks.length > 0 ? (
                                 filteredTasks.map((task) => {
-                                    const Icon = typeIcons[task.type]?.icon;
-                                    const chipColor = typeIcons[task.type]?.color || 'default';
+                                    const chipColor = typeChipColor[task.type] || 'default';
 
                                     return (
                                         <TableRow
@@ -281,10 +397,7 @@ const ProjectTasks = ({ tasks }) => {
                                             </TableCell>
                                             <TableCell>{task.title}</TableCell>
                                             <TableCell>
-                                                <Stack direction="row" spacing={1} alignItems="center">
-                                                    {Icon ? <Icon className="size-4" /> : null}
-                                                    <Chip size="small" label={task.type} color={chipColor} />
-                                                </Stack>
+                                                <Chip size="small" label={task.type} color={chipColor} />
                                             </TableCell>
                                             <TableCell>
                                                 <Chip
@@ -310,7 +423,7 @@ const ProjectTasks = ({ tasks }) => {
                                             </TableCell>
                                             <TableCell>
                                                 <Stack direction="row" spacing={1} alignItems="center">
-                                                    <MediumAvatar src={task.assignee?.image} />
+                                                    <MediumAvatar src={task.assignee?.image || task.assignee?.avatarUrl} />
                                                     <Typography variant="body2">{task.assignee?.name || task.assignee?.fullName || task.assignee?.username || '-'}</Typography>
                                                 </Stack>
                                             </TableCell>
@@ -320,12 +433,23 @@ const ProjectTasks = ({ tasks }) => {
                                                     <Typography variant="body2">{getSafeDate(getTaskDueDate(task)) ? format(getSafeDate(getTaskDueDate(task)), 'dd MMMM') : '—'}</Typography>
                                                 </Stack>
                                             </TableCell>
+                                            <TableCell align="right" onClick={(e) => e.stopPropagation()}>
+                                                <Button
+                                                    type="button"
+                                                    size="small"
+                                                    variant="outlined"
+                                                    startIcon={<Pen className="size-3.5" />}
+                                                    onClick={() => openEditDialog(task)}
+                                                >
+                                                    Edit
+                                                </Button>
+                                            </TableCell>
                                         </TableRow>
                                     );
                                 })
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={7}>
+                                    <TableCell colSpan={8}>
                                         <Typography align="center" color="text.secondary" sx={{ py: 2 }}>
                                             No tasks found for the selected filters.
                                         </Typography>
@@ -341,9 +465,6 @@ const ProjectTasks = ({ tasks }) => {
             <div className="sm:hidden space-y-3">
                 {filteredTasks.length > 0 ? (
                     filteredTasks.map((task) => {
-                        const Icon = typeIcons[task.type]?.icon;
-                        const chipColor = typeIcons[task.type]?.color || 'default';
-
                         return (
                             <div
                                 key={task.id}
@@ -353,17 +474,27 @@ const ProjectTasks = ({ tasks }) => {
                                 <div className="flex items-start justify-between">
                                     <div className="space-y-1">
                                         <h3 className="font-medium text-sm">{task.title}</h3>
-                                        <div className="flex items-center gap-2">
-                                            {Icon && <Icon className="size-3.5 text-zinc-500" />}
-                                            <span className="text-xs text-zinc-500">{task.type}</span>
-                                        </div>
+                                        <span className="text-xs text-zinc-500">{task.type}</span>
                                     </div>
-                                    <Checkbox
-                                        size="small"
-                                        checked={selectedTasks.includes(task.id)}
-                                        onChange={() => toggleSelection(task.id)}
-                                        onClick={(e) => e.stopPropagation()}
-                                    />
+                                    <div className="flex items-center gap-1">
+                                        <Button
+                                            type="button"
+                                            size="small"
+                                            variant="outlined"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                openEditDialog(task);
+                                            }}
+                                        >
+                                            Edit
+                                        </Button>
+                                        <Checkbox
+                                            size="small"
+                                            checked={selectedTasks.includes(task.id)}
+                                            onChange={() => toggleSelection(task.id)}
+                                            onClick={(e) => e.stopPropagation()}
+                                        />
+                                    </div>
                                 </div>
                                 
                                 <div className="flex items-center justify-between gap-2">
@@ -393,8 +524,8 @@ const ProjectTasks = ({ tasks }) => {
 
                                 <div className="flex items-center justify-between text-xs text-zinc-500">
                                     <div className="flex items-center gap-1.5">
-                                        <MediumAvatar src={task.assignee?.image} sx={{ width: 18, height: 18 }} />
-                                        <span>{task.assignee?.name || 'Unassigned'}</span>
+                                        <MediumAvatar src={task.assignee?.image || task.assignee?.avatarUrl} sx={{ width: 18, height: 18 }} />
+                                        <span>{task.assignee?.name || task.assignee?.fullName || task.assignee?.username || 'Unassigned'}</span>
                                     </div>
                                     <div className="flex items-center gap-1">
                                         <CalendarIcon className="size-3" />
@@ -410,6 +541,115 @@ const ProjectTasks = ({ tasks }) => {
                     </div>
                 )}
             </div>
+
+            <Dialog open={isEditDialogOpen} onClose={() => setIsEditDialogOpen(false)} fullWidth maxWidth="sm">
+                <DialogTitle>Edit Task</DialogTitle>
+                <DialogContent>
+                    <Box component="form" onSubmit={handleEditSubmit} sx={{ mt: 1, display: 'grid', gap: 2 }}>
+                        <TextField
+                            label="Title"
+                            value={editFormData.title}
+                            onChange={(e) => setEditFormData((prev) => ({ ...prev, title: e.target.value }))}
+                            required
+                        />
+
+                        <TextField
+                            label="Description"
+                            value={editFormData.description}
+                            onChange={(e) => setEditFormData((prev) => ({ ...prev, description: e.target.value }))}
+                            multiline
+                            rows={3}
+                        />
+
+                        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                            <TextField
+                                select
+                                label="Type"
+                                value={editFormData.type}
+                                onChange={(e) => setEditFormData((prev) => ({ ...prev, type: e.target.value }))}
+                            >
+                                {taskTypeOptions.map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+
+                            <TextField
+                                select
+                                label="Priority"
+                                value={editFormData.priority}
+                                onChange={(e) => setEditFormData((prev) => ({ ...prev, priority: e.target.value }))}
+                            >
+                                {taskPriorityOptions.map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                        </Box>
+
+                        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                            <TextField
+                                select
+                                label="Status"
+                                value={editFormData.status}
+                                onChange={(e) => setEditFormData((prev) => ({ ...prev, status: e.target.value }))}
+                            >
+                                {statusOptions.map((option) => (
+                                    <MenuItem key={option.value} value={option.value}>
+                                        {option.label}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+
+                            <TextField
+                                select
+                                label="Assignee"
+                                value={editFormData.assigneeId}
+                                onChange={(e) => setEditFormData((prev) => ({ ...prev, assigneeId: e.target.value }))}
+                            >
+                                <MenuItem value="">Unassigned</MenuItem>
+                                {teamMembers.map((member) => (
+                                    <MenuItem key={member.id} value={member.id}>
+                                        {member.label}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
+                        </Box>
+
+                        <TextField
+                            type="date"
+                            label="Due Date"
+                            value={editFormData.due_date}
+                            onChange={(e) => setEditFormData((prev) => ({ ...prev, due_date: e.target.value }))}
+                            InputLabelProps={{ shrink: true }}
+                            InputProps={{
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <CalendarIcon className="size-5" />
+                                    </InputAdornment>
+                                ),
+                            }}
+                        />
+
+                        {editError && (
+                            <Typography color="error" variant="body2">
+                                {editError}
+                            </Typography>
+                        )}
+
+                        <DialogActions sx={{ px: 0 }}>
+                            <Button type="button" variant="outlined" onClick={() => setIsEditDialogOpen(false)} disabled={isEditSubmitting}>
+                                Cancel
+                            </Button>
+                            <Button type="submit" variant="contained" disabled={isEditSubmitting || !editFormData.title.trim()}>
+                                {isEditSubmitting ? 'Saving...' : 'Save Changes'}
+                            </Button>
+                        </DialogActions>
+                    </Box>
+                </DialogContent>
+            </Dialog>
         </Box>
     );
 };

@@ -196,6 +196,7 @@ export const createTask = async (req, res, next) => {
   try {
     const userId = req.userId;
     const { title, description, projectId, assigneeId, priority = "MEDIUM", type = "TASK", dueDate } = req.body;
+    const normalizedAssigneeId = typeof assigneeId === "string" ? assigneeId.trim() : assigneeId;
 
     if (!title?.trim()) {
       return res.status(400).json({ message: "Task title is required" });
@@ -226,12 +227,27 @@ export const createTask = async (req, res, next) => {
       return res.status(403).json({ message: "Access denied" });
     }
 
+    if (normalizedAssigneeId) {
+      const assigneeMembership = await prisma.teamMember.findUnique({
+        where: {
+          teamId_userId: {
+            teamId: project.teamId,
+            userId: normalizedAssigneeId,
+          },
+        },
+      });
+
+      if (!assigneeMembership) {
+        return res.status(400).json({ message: "Assignee must be a member of the project's team" });
+      }
+    }
+
     const task = await prisma.task.create({
       data: {
         title: title.trim(),
         description: description?.trim() || "",
         projectId,
-        assigneeId,
+        assigneeId: normalizedAssigneeId || null,
         createdBy: userId,
         priority,
         type,
@@ -239,7 +255,14 @@ export const createTask = async (req, res, next) => {
         ...(dueDate && { dueDate: new Date(dueDate) }),
       },
       include: {
-        assignee: true,
+        assignee: {
+          select: {
+            id: true,
+            username: true,
+            fullName: true,
+            avatarUrl: true,
+          },
+        },
         creator: {
           select: {
             id: true,
@@ -261,30 +284,91 @@ export const createTask = async (req, res, next) => {
 
 export const updateTask = async (req, res, next) => {
   try {
+    const userId = req.userId;
     const { taskId } = req.params;
-    const { title, description, status, priority, assigneeId, dueDate } = req.body;
+    const { title, description, status, priority, type, assigneeId, dueDate } = req.body;
+    const normalizedAssigneeId = typeof assigneeId === "string" ? assigneeId.trim() : assigneeId;
 
     const task = await prisma.task.findUnique({
       where: { id: taskId },
+      include: {
+        project: {
+          select: {
+            teamId: true,
+          },
+        },
+      },
     });
 
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
     }
 
+    const userTeam = await prisma.teamMember.findUnique({
+      where: {
+        teamId_userId: {
+          teamId: task.project.teamId,
+          userId,
+        },
+      },
+    });
+
+    if (!userTeam) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    if (Object.prototype.hasOwnProperty.call(req.body, "assigneeId") && normalizedAssigneeId) {
+      const assigneeMembership = await prisma.teamMember.findUnique({
+        where: {
+          teamId_userId: {
+            teamId: task.project.teamId,
+            userId: normalizedAssigneeId,
+          },
+        },
+      });
+
+      if (!assigneeMembership) {
+        return res.status(400).json({ message: "Assignee must be a member of the project's team" });
+      }
+    }
+
+    if (typeof title === "string" && !title.trim()) {
+      return res.status(400).json({ message: "Task title cannot be empty" });
+    }
+
+    const updateData = {
+      ...(typeof title === "string" && { title: title.trim() }),
+      ...(typeof description === "string" && { description: description.trim() }),
+      ...(status && { status }),
+      ...(priority && { priority }),
+      ...(type && { type }),
+      ...(Object.prototype.hasOwnProperty.call(req.body, "assigneeId") && {
+        assigneeId: normalizedAssigneeId || null,
+      }),
+      ...(Object.prototype.hasOwnProperty.call(req.body, "dueDate") && {
+        dueDate: dueDate ? new Date(dueDate) : null,
+      }),
+    };
+
     const updated = await prisma.task.update({
       where: { id: taskId },
-      data: {
-        ...(title && { title }),
-        ...(description && { description }),
-        ...(status && { status }),
-        ...(priority && { priority }),
-        ...(assigneeId && { assigneeId }),
-        ...(dueDate && { dueDate: new Date(dueDate) }),
-      },
+      data: updateData,
       include: {
-        assignee: true,
-        creator: true,
+        assignee: {
+          select: {
+            id: true,
+            username: true,
+            fullName: true,
+            avatarUrl: true,
+          },
+        },
+        creator: {
+          select: {
+            id: true,
+            username: true,
+            fullName: true,
+          },
+        },
       },
     });
 
