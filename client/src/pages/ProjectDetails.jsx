@@ -7,12 +7,13 @@ import {
     BarChart3Icon,
     CalendarIcon,
     FileStackIcon,
+    FileTextIcon,
     PlusIcon,
     SettingsIcon,
     ZapIcon,
 } from 'lucide-react';
 
-import { CreateTaskDialog, ProjectAnalytics, ProjectCalendar, ProjectSettings, ProjectTasks } from '../components';
+import { CreateTaskDialog, ProjectAnalytics, ProjectCalendar, ProjectNotes, ProjectSettings, ProjectTasks } from '../components';
 import { selectProjectById, selectTasksByProjectId, selectTeamById } from '../store';
 
 export default function ProjectDetail() {
@@ -120,6 +121,7 @@ export default function ProjectDetail() {
                 <div className="flex overflow-x-auto no-scrollbar border border-zinc-200 dark:border-zinc-800 rounded divide-x divide-zinc-200 dark:divide-zinc-800">
                     {[
                         { key: 'tasks', label: 'Tasks', short: 'Tasks', icon: FileStackIcon },
+                        { key: 'notes', label: 'Notes', short: 'Notes', icon: FileTextIcon },
                         { key: 'calendar', label: 'Calendar', short: 'Cal', icon: CalendarIcon },
                         { key: 'analytics', label: 'Analytics', short: 'Stats', icon: BarChart3Icon },
                         { key: 'settings', label: 'Settings', short: 'Cfg', icon: SettingsIcon },
@@ -154,6 +156,11 @@ export default function ProjectDetail() {
                     {activeTab === 'calendar' && (
                         <div className="dark:bg-zinc-900/40 rounded max-w-6xl">
                             <ProjectCalendar tasks={tasks} />
+                        </div>
+                    )}
+                    {activeTab === 'notes' && (
+                        <div className="dark:bg-zinc-900/40 rounded max-w-6xl">
+                            <ProjectNotes project={project} />
                         </div>
                     )}
                     {activeTab === 'settings' && (

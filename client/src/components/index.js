@@ -19,6 +19,7 @@ export { default as CreateTaskDialog } from './projects/CreateTaskDialog';
 export { default as ProjectAnalytics } from './projects/ProjectAnalytics';
 export { default as ProjectCalendar } from './projects/ProjectCalendar';
 export { default as ProjectCard } from './projects/ProjectCard';
+export { default as ProjectNotes } from './projects/ProjectNotes';
 export { default as ProjectSettings } from './projects/ProjectSettings';
 export { default as ProjectTasks } from './projects/ProjectTasks';
 
