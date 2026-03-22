@@ -196,6 +196,7 @@ export const createTask = async (req, res, next) => {
   try {
     const userId = req.userId;
     const { title, description, projectId, assigneeId, priority = "MEDIUM", type = "TASK", dueDate } = req.body;
+    const normalizedAssigneeId = typeof assigneeId === "string" ? assigneeId.trim() : assigneeId;
 
     if (!title?.trim()) {
       return res.status(400).json({ message: "Task title is required" });
@@ -226,12 +227,27 @@ export const createTask = async (req, res, next) => {
       return res.status(403).json({ message: "Access denied" });
     }
 
+    if (normalizedAssigneeId) {
+      const assigneeMembership = await prisma.teamMember.findUnique({
+        where: {
+          teamId_userId: {
+            teamId: project.teamId,
+            userId: normalizedAssigneeId,
+          },
+        },
+      });
+
+      if (!assigneeMembership) {
+        return res.status(400).json({ message: "Assignee must be a member of the project's team" });
+      }
+    }
+
     const task = await prisma.task.create({
       data: {
         title: title.trim(),
         description: description?.trim() || "",
         projectId,
-        assigneeId,
+        assigneeId: normalizedAssigneeId || null,
         createdBy: userId,
         priority,
         type,

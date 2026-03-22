@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useSelector } from 'react-redux';
 import {
     Box,
     Button,
@@ -13,12 +14,32 @@ import {
 } from '@mui/material';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
-import { useCreateTaskMutation, useGetProjectByIdQuery } from '../../store/slices/apiSlice';
+import { selectCurrentUserId } from '../../store';
+import { useCreateTaskMutation, useGetProjectByIdQuery, useGetTeamByIdQuery } from '../../store/slices/apiSlice';
 
 export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, projectId }) {
+    const currentUserId = useSelector(selectCurrentUserId);
     const { data } = useGetProjectByIdQuery(projectId, { skip: !projectId });
     const project = data?.project;
-    const teamMembers = project?.members || [];
+    const { data: teamData } = useGetTeamByIdQuery(project?.teamId, { skip: !project?.teamId });
+
+    const teamMembers = useMemo(() => {
+        const rawMembers = teamData?.team?.members || [];
+        const membersById = new Map();
+
+        rawMembers.forEach((member) => {
+            const memberUser = member?.user || member;
+            const memberId = memberUser?.id || member?.userId || null;
+
+            if (!memberId || membersById.has(memberId)) return;
+            membersById.set(memberId, {
+                id: memberId,
+                label: memberUser.fullName || memberUser.username || memberUser.email || memberId,
+            });
+        });
+
+        return Array.from(membersById.values());
+    }, [teamData]);
 
     const [createTask] = useCreateTaskMutation();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -132,7 +153,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
                             <MenuItem value="">Unassigned</MenuItem>
                             {teamMembers.map((member) => (
                                 <MenuItem key={member.id} value={member.id}>
-                                    {member.fullName || member.username || member.email}
+                                    {member.label}{member.id === currentUserId ? " (You)" : ""}
                                 </MenuItem>
                             ))}
                         </TextField>

@@ -21,6 +21,7 @@ const ProgressBarFill = styled('div')(() => ({
 
 const ProjectCard = ({ project }) => {
     const team = useSelector((state) => selectTeamById(state, project.teamId));
+    const teamMemberCount = team?.memberIds?.length ?? team?.members?.length ?? 0;
 
     return (
         <Link to={`/projects/${project.id}?tab=tasks`} className={tokens.cardBgClass}>
@@ -52,9 +53,10 @@ const ProjectCard = ({ project }) => {
                 </p>
             )}
 
-            <p className="text-xs text-gray-500 dark:text-zinc-500 mb-3">
-                Team: {team?.name || "Unknown team"}
-            </p>
+            <div className="text-xs text-gray-500 dark:text-zinc-500 mb-3 flex items-center justify-between gap-2">
+                <span>Team: {team?.name || "Unknown team"}</span>
+                <span>{teamMemberCount} member{teamMemberCount === 1 ? "" : "s"}</span>
+            </div>
 
             {/* Progress */}
             <div className="space-y-2">
