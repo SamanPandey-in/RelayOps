@@ -124,12 +124,12 @@ export default function ProjectDetail() {
             </div>
 
             <div>
-                <div className="inline-flex flex-wrap max-sm:grid grid-cols-3 gap-2 border border-zinc-200 dark:border-zinc-800 rounded overflow-hidden">
+                <div className="flex overflow-x-auto no-scrollbar border border-zinc-200 dark:border-zinc-800 rounded divide-x divide-zinc-200 dark:divide-zinc-800">
                     {[
-                        { key: 'tasks', label: 'Tasks', icon: FileStackIcon },
-                        { key: 'calendar', label: 'Calendar', icon: CalendarIcon },
-                        { key: 'analytics', label: 'Analytics', icon: BarChart3Icon },
-                        { key: 'settings', label: 'Settings', icon: SettingsIcon },
+                        { key: 'tasks', label: 'Tasks', short: 'Tasks', icon: FileStackIcon },
+                        { key: 'calendar', label: 'Calendar', short: 'Cal', icon: CalendarIcon },
+                        { key: 'analytics', label: 'Analytics', short: 'Stats', icon: BarChart3Icon },
+                        { key: 'settings', label: 'Settings', short: 'Cfg', icon: SettingsIcon },
                     ].map((tabItem) => (
                         <Button
                             key={tabItem.key}
@@ -138,10 +138,11 @@ export default function ProjectDetail() {
                             onClick={() => {
                                 setSearchParams({ tab: tabItem.key });
                             }}
-                            className="flex items-center gap-2"
+                            className="flex-1 min-w-[100px] flex items-center justify-center gap-2 rounded-none py-2.5"
                         >
                             <tabItem.icon className="size-3.5" />
-                            {tabItem.label}
+                            <span className="max-sm:hidden">{tabItem.label}</span>
+                            <span className="sm:hidden">{tabItem.short}</span>
                         </Button>
                     ))}
                 </div>

@@ -143,7 +143,7 @@ const TaskDetails = () => {
                 </div>
             </div>
 
-            <div className="w-full lg:w-1/2 flex flex-col gap-6">
+            <div className="w-full lg:w-1/3 flex flex-col gap-6">
                 <div className="p-5 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-800 ">
                     <div className="mb-3">
                         <h1 className="text-lg font-medium text-gray-900 dark:text-zinc-100">{task.title}</h1>

@@ -91,7 +91,7 @@ export default function Signup() {
           )}
 
           <form onSubmit={handleSignupSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <AuthInput
                 label="Full Name"
                 icon={<User size={18} />}

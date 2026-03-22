@@ -185,8 +185,8 @@ const Profile = () => {
       </div>
 
       {/* Profile Avatar & Basic Info */}
-      <div className="bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded p-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+      <div className="bg-white dark:bg-black border border-gray-200 dark:border-white/10 rounded p-4 sm:p-8">
+        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
           <div className="flex-shrink-0">
             {profile.image ? (
               <img
@@ -202,7 +202,7 @@ const Profile = () => {
           </div>
           <div className="flex-1">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{profile.name}</h2>
-            <div className="flex flex-col gap-2 text-sm">
+            <div className="flex flex-col items-center sm:items-start gap-2 text-sm text-center sm:text-left">
               <div className="flex items-center gap-2 text-gray-600 dark:text-gray-300">
                 <Mail className="w-4 h-4" />
                 <span>{profile.email}</span>
@@ -246,7 +246,7 @@ const Profile = () => {
                     className="hidden"
                   />
 
-                  <div className="flex gap-3 flex-wrap">
+                  <div className="flex gap-3 flex-wrap justify-center sm:justify-start">
                     <Button
                       variant='outlined'
                       color='primary'
@@ -358,6 +358,7 @@ const Profile = () => {
             {editingName ? (
               <div className="space-y-3">
                 <TextField
+                  fullWidth
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
@@ -406,6 +407,7 @@ const Profile = () => {
             {editingUsername ? (
               <div className="space-y-3">
                 <TextField
+                  fullWidth
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}

@@ -122,7 +122,7 @@ const TeamDetails = () => {
                 {leaveError && <p className="text-sm text-red-500 mt-2">{leaveError}</p>}
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <section className="rounded-lg border border-zinc-200 dark:border-zinc-800 p-5">
                     <div className="flex items-center gap-2 mb-4">
                         <UsersIcon className="size-4" />
@@ -132,7 +132,7 @@ const TeamDetails = () => {
                     {teamMembers.length === 0 ? (
                         <p className="text-sm text-zinc-500 dark:text-zinc-400">No members found for this team.</p>
                     ) : (
-                        <div className="space-y-2 max-h-80 overflow-y-auto">
+                        <div className="space-y-2 max-h-none md:max-h-80 overflow-y-auto">
                             {teamMembers.map((member) => (
                                 <div key={member.id} className="flex items-center justify-between rounded border border-zinc-200 dark:border-zinc-800 p-2">
                                     <div>
@@ -172,7 +172,7 @@ const TeamDetails = () => {
                             <p className="text-sm text-zinc-500 dark:text-zinc-400">No projects found for this team.</p>
                         </div>
                     ) : (
-                        <div className="space-y-2 max-h-80 overflow-y-auto">
+                        <div className="space-y-2 max-h-none md:max-h-80 overflow-y-auto">
                             {filteredProjects.map((project) => {
                                 const normalizedStatus = normalizeStatus(project.status);
 

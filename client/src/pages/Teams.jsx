@@ -129,7 +129,7 @@ export const Teams = () => {
                     </div>
                 </div>
             ) : (
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {teamsWithProjectCount.map((team) => (
                         <Link
                             key={team.id}
@@ -148,7 +148,7 @@ export const Teams = () => {
                             <div className="mt-4 space-y-1 text-xs text-zinc-600 dark:text-zinc-400">
                                 <p>Members: {team.members?.length || 0}</p>
                                 <p>Projects: {team.projectsCount}</p>
-                                <p>Invite Code: {team.inviteCode || 'N/A'}</p>
+                                <p className="font-mono bg-zinc-100 dark:bg-white/5 px-1.5 py-0.5 rounded select-all">Invite Code: {team.inviteCode || 'N/A'}</p>
                             </div>
                         </Link>
                     ))}

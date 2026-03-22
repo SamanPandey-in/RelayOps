@@ -128,18 +128,19 @@ export default function ProjectSettings({ project }) {
         }));
 
     return (
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className={cardClasses}>
                 <h2 className="text-lg font-medium text-zinc-900 dark:text-zinc-300 mb-4">Project Details</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
                         <label className={labelClasses}>Project Name</label>
-                        <TextField value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
+                        <TextField fullWidth value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} required />
                     </div>
 
                     <div className="space-y-2">
                         <label className={labelClasses}>Description</label>
                         <TextField
+                            fullWidth
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                             multiline
@@ -147,11 +148,12 @@ export default function ProjectSettings({ project }) {
                         />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <label className={labelClasses}>Status</label>
                             <TextField
                                 select
+                                fullWidth
                                 value={formData.status}
                                 onChange={(e) =>
                                     setFormData((prev) => ({
@@ -173,6 +175,7 @@ export default function ProjectSettings({ project }) {
                             <label className={labelClasses}>Result</label>
                             <TextField
                                 select
+                                fullWidth
                                 value={formData.result || ""}
                                 onChange={(e) => setFormData({ ...formData, result: e.target.value })}
                                 disabled={formData.status !== "completed"}
@@ -186,10 +189,10 @@ export default function ProjectSettings({ project }) {
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <label className={labelClasses}>Priority</label>
-                            <TextField select value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: e.target.value })}>
+                            <TextField select fullWidth value={formData.priority} onChange={(e) => setFormData({ ...formData, priority: e.target.value })}>
                                 <MenuItem value="LOW">Low</MenuItem>
                                 <MenuItem value="MEDIUM">Medium</MenuItem>
                                 <MenuItem value="HIGH">High</MenuItem>
@@ -202,26 +205,27 @@ export default function ProjectSettings({ project }) {
                         </div>
                     </div>
 
-                    <div className="space-y-4 grid grid-cols-2 gap-4">
+                    <div className="space-y-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <label className={labelClasses}>Start Date</label>
-                            <TextField type="date" value={formData.start_date} onChange={(e) => setFormData({ ...formData, start_date: e.target.value })} InputLabelProps={{ shrink: true }} />
+                            <TextField fullWidth type="date" value={formData.start_date} onChange={(e) => setFormData({ ...formData, start_date: e.target.value })} InputLabelProps={{ shrink: true }} />
                         </div>
                         <div className="space-y-2">
                             <label className={labelClasses}>End Date</label>
-                            <TextField type="date" value={formData.end_date} onChange={(e) => setFormData({ ...formData, end_date: e.target.value })} InputLabelProps={{ shrink: true }} />
+                            <TextField fullWidth type="date" value={formData.end_date} onChange={(e) => setFormData({ ...formData, end_date: e.target.value })} InputLabelProps={{ shrink: true }} />
                         </div>
                     </div>
 
                     {error && <p className="text-sm text-red-500">{error}</p>}
 
-                    <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                             <Button
                                 type="button"
                                 disabled={isSubmitting || isDeleting}
                                 onClick={handleLeaveProject}
                                 variant="outlined"
+                                className="sm:flex-1"
                             >
                                 Leave Project
                             </Button>
@@ -232,11 +236,12 @@ export default function ProjectSettings({ project }) {
                                 variant="outlined"
                                 color="error"
                                 startIcon={<Trash2 className="size-4" />}
+                                className="sm:flex-1"
                             >
                                 {isDeleting ? "Deleting..." : "Delete Project"}
                             </Button>
                         </div>
-                        <Button type="submit" disabled={isSubmitting || isDeleting} variant="contained" startIcon={<Save className="size-4" />}>
+                        <Button type="submit" disabled={isSubmitting || isDeleting} variant="contained" startIcon={<Save className="size-4" />} className="w-full sm:w-auto">
                             {isSubmitting ? "Saving..." : "Save Changes"}
                         </Button>
                     </div>
