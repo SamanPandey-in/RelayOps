@@ -1,9 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { Button, InputAdornment, TextField } from '@mui/material';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Button, InputAdornment, TextField, Tooltip } from '@mui/material';
 import { createSelector } from '@reduxjs/toolkit';
-import { KeyRound, PlusCircle, UsersIcon } from 'lucide-react';
+import { Check, Copy, KeyRound, PlusCircle, Share2, UsersIcon } from 'lucide-react';
 import tokens from '../theme/tokens';
 import { TeamsPageSkeleton } from '../components/ui';
 import CreateTeamForm from '../components/team/CreateTeamForm';
@@ -19,6 +19,7 @@ import {
 
 export const Teams = () => {
     const dispatch = useDispatch();
+    const [searchParams, setSearchParams] = useSearchParams();
     const currentUserId = useSelector(selectCurrentUserId);
     const userTeams = useSelector(selectAllTeams);
     const teamsLoading = useSelector(selectTeamsLoading);
@@ -42,6 +43,7 @@ export const Teams = () => {
     const [joinIdentifier, setJoinIdentifier] = useState('');
     const [isJoining, setIsJoining] = useState(false);
     const [joinError, setJoinError] = useState('');
+    const [copiedTeamId, setCopiedTeamId] = useState(null);
 
     const teamsWithProjectCount = useMemo(
         () =>
@@ -51,6 +53,15 @@ export const Teams = () => {
             })),
         [userTeams, projectsByTeam]
     );
+
+    // Pre-fill join form if invite code is provided in the URL
+    useEffect(() => {
+        const inviteCode = searchParams.get('invite');
+        if (inviteCode) {
+            setJoinIdentifier(inviteCode);
+            setSearchParams({}, { replace: true });
+        }
+    }, [searchParams, setSearchParams]);
 
     const handleJoinTeam = async (e) => {
         e.preventDefault();
@@ -68,6 +79,40 @@ export const Teams = () => {
             setJoinError(error || 'Failed to join team');
         } finally {
             setIsJoining(false);
+        }
+    };
+
+    const handleCopyInviteCode = async (e, inviteCode) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!inviteCode) return;
+        try {
+            await navigator.clipboard.writeText(inviteCode);
+            setCopiedTeamId(inviteCode);
+            setTimeout(() => setCopiedTeamId(null), 2000);
+        } catch {
+            // clipboard access denied or failed silently
+        }
+    };
+
+    const handleShareInvite = async (e, team) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!team.inviteCode) return;
+        const inviteUrl = `${window.location.origin}/teams?invite=${team.inviteCode}`;
+        const shareMessage = `Join my team "${team.name}" on Heed! Click the link to join: ${inviteUrl}`;
+        if (navigator.share) {
+            try {
+                await navigator.share({ title: `Join ${team.name} on Heed`, text: shareMessage, url: inviteUrl });
+            } catch {
+                // user cancelled or share failed
+            }
+        } else {
+            try {
+                await navigator.clipboard.writeText(shareMessage);
+            } catch {
+                // clipboard access denied or failed silently
+            }
         }
     };
 
@@ -148,7 +193,33 @@ export const Teams = () => {
                             <div className="mt-4 space-y-1 text-xs text-zinc-600 dark:text-zinc-400">
                                 <p>Members: {team.members?.length || 0}</p>
                                 <p>Projects: {team.projectsCount}</p>
-                                <p className="font-mono bg-zinc-100 dark:bg-white/5 px-1.5 py-0.5 rounded select-all">Invite Code: {team.inviteCode || 'N/A'}</p>
+                                <div className="flex items-center gap-2 mt-2">
+                                    <span className="font-mono bg-zinc-100 dark:bg-white/5 px-1.5 py-0.5 rounded select-all flex-1 truncate">
+                                        {team.inviteCode || 'N/A'}
+                                    </span>
+                                    {team.inviteCode && (
+                                        <>
+                                            <Tooltip title={copiedTeamId === team.inviteCode ? 'Copied!' : 'Copy invite code'}>
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => handleCopyInviteCode(e, team.inviteCode)}
+                                                    className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400"
+                                                >
+                                                    {copiedTeamId === team.inviteCode ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+                                                </button>
+                                            </Tooltip>
+                                            <Tooltip title="Share invite link">
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => handleShareInvite(e, team)}
+                                                    className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400"
+                                                >
+                                                    <Share2 className="size-3.5" />
+                                                </button>
+                                            </Tooltip>
+                                        </>
+                                    )}
+                                </div>
                             </div>
                         </Link>
                     ))}

@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { Button, Chip, Skeleton } from '@mui/material';
-import { ArrowLeft, FolderOpen, ShieldAlert, UserPlus, UsersIcon } from 'lucide-react';
+import { Button, Chip, Skeleton, Tooltip } from '@mui/material';
+import { ArrowLeft, Check, Copy, FolderOpen, Share2, ShieldAlert, UserPlus, UsersIcon } from 'lucide-react';
 
 import { InviteMemberDialog } from '../components';
 import { useRemoveTeamMemberMutation } from '../store/slices/apiSlice';
@@ -41,6 +41,7 @@ const TeamDetails = () => {
     const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
     const [isLeaving, setIsLeaving] = useState(false);
     const [leaveError, setLeaveError] = useState('');
+    const [codeCopied, setCodeCopied] = useState(false);
 
     const handleLeaveTeam = async () => {
         if (!teamId || !currentUserId) return;
@@ -58,6 +59,36 @@ const TeamDetails = () => {
             setLeaveError(error?.data?.message || 'Failed to leave team');
         } finally {
             setIsLeaving(false);
+        }
+    };
+
+    const handleCopyInviteCode = async () => {
+        if (!team?.inviteCode) return;
+        try {
+            await navigator.clipboard.writeText(team.inviteCode);
+            setCodeCopied(true);
+            setTimeout(() => setCodeCopied(false), 2000);
+        } catch {
+            // clipboard access denied or failed silently
+        }
+    };
+
+    const handleShareInvite = async () => {
+        if (!team?.inviteCode) return;
+        const inviteUrl = `${window.location.origin}/teams?invite=${team.inviteCode}`;
+        const shareMessage = `Join my team "${team.name}" on Heed! Click the link to join: ${inviteUrl}`;
+        if (navigator.share) {
+            try {
+                await navigator.share({ title: `Join ${team.name} on Heed`, text: shareMessage, url: inviteUrl });
+            } catch {
+                // user cancelled or share failed
+            }
+        } else {
+            try {
+                await navigator.clipboard.writeText(shareMessage);
+            } catch {
+                // clipboard access denied or failed silently
+            }
         }
     };
 
@@ -101,6 +132,34 @@ const TeamDetails = () => {
                 </Link>
                 <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 dark:text-white mt-1">{team.name}</h1>
                 <p className="text-gray-500 dark:text-zinc-400 text-sm">{team.description || 'No description'}</p>
+
+                {team.inviteCode && (
+                    <div className="flex items-center gap-2 mt-3">
+                        <span className="text-xs text-zinc-500 dark:text-zinc-400">Invite Code:</span>
+                        <span className="font-mono text-xs bg-zinc-100 dark:bg-white/5 px-2 py-1 rounded select-all">
+                            {team.inviteCode}
+                        </span>
+                        <Tooltip title={codeCopied ? 'Copied!' : 'Copy invite code'}>
+                            <button
+                                type="button"
+                                onClick={handleCopyInviteCode}
+                                className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400"
+                            >
+                                {codeCopied ? <Check className="size-4" /> : <Copy className="size-4" />}
+                            </button>
+                        </Tooltip>
+                        <Tooltip title="Share invite link">
+                            <button
+                                type="button"
+                                onClick={handleShareInvite}
+                                className="p-1 rounded hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-500 dark:text-zinc-400"
+                            >
+                                <Share2 className="size-4" />
+                            </button>
+                        </Tooltip>
+                    </div>
+                )}
+
                 <Button
                     type="button"
                     onClick={() => setIsInviteDialogOpen(true)}
