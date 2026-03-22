@@ -7,8 +7,7 @@ import { useSelector } from 'react-redux';
 import { useAuth } from '../../context/AuthContext';
 import ThemeToggle from '../theme/ThemeToggle';
 
-const Navbar = ({ setIsSidebarOpen }) => {
-
+const Navbar = ({ onMenuClick }) => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const currentUser = useSelector((state) => {
@@ -47,17 +46,23 @@ const Navbar = ({ setIsSidebarOpen }) => {
   };
 
   return (
-    <div className="glass-nav sticky top-0 w-full z-50 px-6 xl:px-16 py-3 flex-shrink-0">
+    <header className="glass-nav sticky top-0 w-full z-20 px-4 sm:px-6 lg:px-8 py-3 flex-shrink-0">
       <div className="flex items-center justify-between max-w-6xl mx-auto">
-        <div className="flex items-center gap-4 min-w-0 flex-1">
-          <IconButton onClick={() => setIsSidebarOpen((prev) => !prev)} className="sm:hidden">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
+          {/* Hamburger button - always visible on mobile/tablet, hidden on lg+ */}
+          <IconButton
+            onClick={onMenuClick}
+            className="lg:hidden"
+            aria-label="Open menu"
+          >
             <PanelLeft size={20} />
           </IconButton>
 
-          <div className="relative flex-1 max-w-sm">
+          <div className="relative flex-1 max-w-xs sm:max-w-sm">
             <TextField
-              placeholder="Search projects, tasks..."
+              placeholder="Search..."
               size="small"
+              fullWidth
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -65,11 +70,13 @@ const Navbar = ({ setIsSidebarOpen }) => {
                   </InputAdornment>
                 ),
               }}
+              // Hide placeholder on very small screens to save space
+              inputProps={{ 'aria-label': 'search' }}
             />
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 ml-2">
           <ThemeToggle />
 
           <div className="relative" ref={profileMenuRef}>
@@ -77,7 +84,7 @@ const Navbar = ({ setIsSidebarOpen }) => {
               onClick={() => setShowProfileMenu(!showProfileMenu)}
               className="p-1"
             >
-              <Avatar src={avatarSrc} alt="User Avatar" sx={{ width: 28, height: 28 }}>
+              <Avatar src={avatarSrc} alt="User" sx={{ width: 32, height: 32 }}>
                 {avatarInitial}
               </Avatar>
             </IconButton>
@@ -113,8 +120,9 @@ const Navbar = ({ setIsSidebarOpen }) => {
           </div>
         </div>
       </div>
-    </div>
+    </header>
   );
-}
+};
 
-export default Navbar
+export default Navbar;
+
