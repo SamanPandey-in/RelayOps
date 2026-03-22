@@ -210,8 +210,8 @@ export const updateProject = async (req, res, next) => {
         description: description?.trim() || project.description,
         status: status || project.status,
         result: result ?? project.result,
-        ...(notes !== undefined && { notes }),
-        ...(links !== undefined && { links }),
+        notes: notes !== undefined ? notes : project.notes,
+        links: links !== undefined ? links : project.links,
       },
       include: {
         members: {
