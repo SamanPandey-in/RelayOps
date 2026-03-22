@@ -69,7 +69,7 @@ export default function Login() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="relative w-full max-w-md rounded-2xl overflow-hidden bg-white/[0.02] border border-white/10 backdrop-blur-2xl shadow-2xl p-8 md:p-10"
+        className="relative w-full max-w-[400px] rounded-3xl overflow-hidden bg-zinc-950/50 border border-white/10 backdrop-blur-3xl shadow-2xl p-8 sm:p-10"
       >
         {/* Logo */}
         <motion.div
@@ -87,9 +87,9 @@ export default function Login() {
             animate={{ opacity: 1, x: 0 }}
             className="space-y-6"
           >
-            <div className="text-center">
-              <h1 className="text-3xl font-bold text-white tracking-tight">Welcome back</h1>
-              <p className="text-zinc-400 mt-2">Resume your team's relay.</p>
+            <div className="text-center mb-8">
+              <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">Welcome back</h1>
+              <p className="text-zinc-500 mt-2 text-sm sm:text-base">Resume your team's relay.</p>
             </div>
 
             {error && (
@@ -139,9 +139,9 @@ export default function Login() {
               </AuthButton>
             </form>
 
-            <div className="text-center text-sm text-zinc-400">
+            <div className="text-center text-xs sm:text-sm text-zinc-500">
               Don't have an account?{" "}
-              <Link to="/signup" className="text-white hover:underline font-semibold transition-colors">
+              <Link to="/signup" className="text-white hover:text-zinc-300 font-semibold transition-colors">
                 Sign up
               </Link>
             </div>
@@ -218,33 +218,58 @@ const AuthInput = ({ label, icon, type = 'text', ...props }) => {
   const inputType = isPasswordType && isPasswordVisible ? 'text' : type;
 
   return (
-    <div className="space-y-2">
-      <label className="text-xs font-bold text-zinc-500 uppercase tracking-widest ml-1">{label}</label>
-      <div className="relative group">
-        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 group-focus-within:text-white transition-colors">
-          {icon}
-        </div>
-        <TextField
-          {...props}
-          type={inputType}
-          fullWidth
-          variant="outlined"
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              pl: 4,
+    <div className="space-y-1.5">
+      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest ml-1">{label}</label>
+      <TextField
+        {...props}
+        type={inputType}
+        fullWidth
+        variant="outlined"
+        size="small"
+        InputProps={{
+          startAdornment: icon ? (
+            <InputAdornment position="start" sx={{ color: 'rgba(255,255,255,0.4)', mr: 0.5 }}>
+              {icon}
+            </InputAdornment>
+          ) : null,
+          endAdornment: isPasswordType ? (
+            <InputAdornment position="end">
+              <IconButton
+                onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                edge="end"
+                size="small"
+                sx={{ color: 'rgba(255,255,255,0.4)', '&:hover': { color: 'white' } }}
+              >
+                {isPasswordVisible ? <EyeOff size={16} /> : <Eye size={16} />}
+              </IconButton>
+            </InputAdornment>
+          ) : null,
+        }}
+        sx={{
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '12px',
+            backgroundColor: 'rgba(255, 255, 255, 0.03)',
+            transition: 'all 0.2s ease',
+            '& fieldset': {
+              borderColor: 'rgba(255, 255, 255, 0.08)',
             },
-          }}
-        />
-        {isPasswordType && (
-          <IconButton
-            type="button"
-            onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-            className="absolute right-2 top-1/2 -translate-y-1/2"
-          >
-            {isPasswordVisible ? <EyeOff size={18} /> : <Eye size={18} />}
-          </IconButton>
-        )}
-      </div>
+            '&:hover fieldset': {
+              borderColor: 'rgba(255, 255, 255, 0.2)',
+            },
+            '&.Mui-focused': {
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
+              '& fieldset': {
+                borderColor: 'rgba(255, 255, 255, 0.3) !important',
+              },
+            },
+          },
+          '& .MuiInputBase-input': {
+            color: 'white',
+            fontSize: '0.875rem',
+            py: 1.2,
+          },
+        }}
+      />
     </div>
   );
 };
@@ -255,7 +280,17 @@ const AuthButton = ({ children, loading, ...props }) => (
     type="submit"
     fullWidth
     variant="contained"
-    sx={{ py: 1.4 }}
+    sx={{ 
+      py: 1.5, 
+      borderRadius: '12px',
+      textTransform: 'none',
+      fontWeight: 'bold',
+      fontSize: '0.95rem',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+      '&:hover': {
+        boxShadow: '0 6px 25px rgba(0,0,0,0.6)',
+      }
+    }}
   >
     {loading ? <Loader2 className="animate-spin" size={20} /> : children}
   </Button>
