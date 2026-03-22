@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
     Box,
     Button,
@@ -14,10 +14,11 @@ import {
 } from '@mui/material';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
-import { selectCurrentUserId } from '../../store';
+import { fetchTasks, selectCurrentUserId } from '../../store';
 import { useCreateTaskMutation, useGetProjectByIdQuery, useGetTeamByIdQuery } from '../../store/slices/apiSlice';
 
 export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, projectId }) {
+    const dispatch = useDispatch();
     const currentUserId = useSelector(selectCurrentUserId);
     const { data } = useGetProjectByIdQuery(projectId, { skip: !projectId });
     const project = data?.project;
@@ -70,6 +71,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
                 assigneeId: formData.assigneeId || undefined,
                 dueDate: formData.due_date || undefined,
             }).unwrap();
+            await dispatch(fetchTasks());
 
             setIsDialogOpen(false);
             setFormData({
