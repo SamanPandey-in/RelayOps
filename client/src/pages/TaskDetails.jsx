@@ -19,6 +19,7 @@ import { MessageCircle, PenIcon, SquarePen, Trash2 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
 import { CommentsSkeleton, TaskDetailsSkeleton } from '../components/ui';
+import { SubTasksList, TaskTimer } from '../components/tasks';
 import { fetchTasks } from '../store';
 import {
     useCreateCommentMutation,
@@ -69,6 +70,15 @@ const toDateInputValue = (value) => {
 const getPersonLabel = (person, fallback = 'Unknown') =>
     person?.fullName || person?.username || person?.email || fallback;
 
+const formatDuration = (seconds) => {
+    const totalSeconds = Math.max(0, Number(seconds) || 0);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+
+    return [hours, minutes, secs].map((value) => String(value).padStart(2, '0')).join(':');
+};
+
 const TaskDetails = () => {
     const dispatch = useDispatch();
     const [searchParams] = useSearchParams();
@@ -113,6 +123,7 @@ const TaskDetails = () => {
             { label: 'Assignee', value: getPersonLabel(task.assignee, 'Unassigned') },
             { label: 'Created By', value: getPersonLabel(task.creator, '-') },
             { label: 'Due Date', value: toSafeDate(task.dueDate || task.due_date) ? format(toSafeDate(task.dueDate || task.due_date), "dd MMM yyyy") : 'Not set' },
+            { label: 'Total Time', value: formatDuration(task.timeSpent) },
             { label: 'Created At', value: toSafeDate(task.createdAt) ? format(toSafeDate(task.createdAt), "dd MMM yyyy, HH:mm") : '-' },
             { label: 'Updated At', value: toSafeDate(task.updatedAt) ? format(toSafeDate(task.updatedAt), "dd MMM yyyy, HH:mm") : '-' },
         ];
@@ -277,7 +288,10 @@ const TaskDetails = () => {
                         ) : commentsLoading ? (
                             <CommentsSkeleton />
                         ) : (
-                            <p className="text-gray-600 dark:text-zinc-500 mb-4 text-sm">No comments yet. Be the first!</p>
+                            <div className="flex items-start gap-2 text-gray-600 dark:text-zinc-500 mb-4 text-sm">
+                                <div className="text-lg mt-0.5">👇</div>
+                                <p>No comments yet. Be the first to start the discussion!</p>
+                            </div>
                         )}
                     </div>
 
@@ -330,6 +344,16 @@ const TaskDetails = () => {
                             {task.description?.trim() || 'No description provided.'}
                         </p>
                     </div>
+
+                    <div className="mb-4">
+                        <TaskTimer taskId={task.id} initialSeconds={task.timeSpent || 0} onFlushed={() => refetchTask()} />
+                    </div>
+
+                    {task.subTasks && task.subTasks.length > 0 && (
+                        <div className="mb-4">
+                            <SubTasksList subTasks={task.subTasks} />
+                        </div>
+                    )}
 
                     <hr className="border-zinc-200 dark:border-zinc-700 my-3" />
 

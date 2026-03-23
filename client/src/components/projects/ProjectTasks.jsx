@@ -25,6 +25,7 @@ import {
     Typography,
 } from '@mui/material';
 import { MediumAvatar } from '../ui/ReusableStyled';
+import { ConfirmDialog } from '../ui';
 import { styled } from '@mui/material/styles';
 const MinWidthFormControl = styled(FormControl)({
     minWidth: 170,
@@ -155,6 +156,7 @@ const ProjectTasks = ({ tasks, projectId }) => {
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [isEditSubmitting, setIsEditSubmitting] = useState(false);
     const [editError, setEditError] = useState('');
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [editFormData, setEditFormData] = useState({
         id: '',
         title: '',
@@ -196,20 +198,22 @@ const ProjectTasks = ({ tasks, projectId }) => {
     }, [filters, tasks]);
 
     const handleStatusChange = async (taskId, newStatus) => {
-        let loadingToast;
+        // Find the current task to get its original status for rollback
+        const task = tasks.find(t => t.id === taskId);
+        if (!task) return;
+
+        // Optimistic update: dispatch immediately to Redux
+        dispatch(updateTaskAction({ ...task, status: newStatus }));
 
         try {
-            loadingToast = toast.loading('Updating status...');
+            // Fire API in background
             const { task: updatedTask } = await updateTask({ id: taskId, status: newStatus }).unwrap();
+            // Reconcile with server value
             dispatch(updateTaskAction(updatedTask));
-
-            toast.success('Task status updated successfully');
         } catch (error) {
-            toast.error(error?.data?.message || error?.response?.data?.message || error.message);
-        } finally {
-            if (loadingToast) {
-                toast.dismiss(loadingToast);
-            }
+            // Rollback on error
+            dispatch(updateTaskAction({ ...task, status: task.status }));
+            toast.error(error?.data?.message || error?.response?.data?.message || error.message || 'Failed to update status');
         }
     };
 
@@ -264,13 +268,11 @@ const ProjectTasks = ({ tasks, projectId }) => {
         }
     };
 
-    const handleDelete = async () => {
+    const handleDeleteConfirm = async () => {
         let loadingToast;
 
         try {
-            const confirm = window.confirm('Are you sure you want to delete the selected tasks?');
-            if (!confirm) return;
-
+            setDeleteConfirmOpen(false);
             loadingToast = toast.loading('Deleting tasks...');
             await Promise.all(selectedTasks.map((taskId) => deleteTask(taskId).unwrap()));
 
@@ -285,6 +287,10 @@ const ProjectTasks = ({ tasks, projectId }) => {
                 toast.dismiss(loadingToast);
             }
         }
+    };
+
+    const handleDelete = () => {
+        setDeleteConfirmOpen(true);
     };
 
     const toggleSelection = (taskId) => {
@@ -652,6 +658,15 @@ const ProjectTasks = ({ tasks, projectId }) => {
                     </Box>
                 </DialogContent>
             </Dialog>
+
+            <ConfirmDialog
+                open={deleteConfirmOpen}
+                title="Delete Tasks?"
+                message="Are you sure you want to delete the selected tasks? This action cannot be undone."
+                onConfirm={handleDeleteConfirm}
+                onCancel={() => setDeleteConfirmOpen(false)}
+                danger={true}
+            />
         </Box>
     );
 };

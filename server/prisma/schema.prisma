@@ -209,6 +209,7 @@ model Task {
   type        TaskType     @default(TASK)
   issueKey    String?      @map("issue_key") @db.VarChar(20)
   storyPoints Int?         @map("story_points")
+  timeSpent   Int          @default(0) @map("time_spent")
   dueDate     DateTime?    @map("due_date") @db.Timestamptz
   order       Int          @default(0)
   createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz

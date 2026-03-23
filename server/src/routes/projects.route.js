@@ -8,6 +8,7 @@ import {
   addProjectMember,
   removeProjectMember,
   deleteProject,
+  getProjectActivity,
 } from "../controllers/projects.controller.js";
 
 const router = Router();
@@ -16,6 +17,7 @@ router.use(authenticate);
 
 router.get("/", getProjects);
 router.get("/:projectId", getProjectById);
+router.get("/:projectId/activity", getProjectActivity);
 router.post("/", createProject);
 router.patch('/:projectId', updateProject);
 router.post('/:projectId/members', addProjectMember);

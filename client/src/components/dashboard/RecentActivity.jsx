@@ -64,11 +64,12 @@ const RecentActivity = () => {
 
             <div className="p-0">
                 {tasks.length === 0 ? (
-                    <div className="p-12 text-center">
+                    <div className="p-12 text-center space-y-3">
                         <div className="w-16 h-16 mx-auto mb-4 bg-zinc-200 dark:bg-zinc-800 rounded-full flex items-center justify-center">
                             <Clock className="w-8 h-8 text-zinc-600 dark:text-zinc-500" />
                         </div>
-                        <p className="text-zinc-600 dark:text-zinc-400">No recent activity</p>
+                        <p className="text-zinc-600 dark:text-zinc-400 font-medium">No recent activity</p>
+                        <p className="text-zinc-500 dark:text-zinc-500 text-sm">Tasks you create or work on will appear here</p>
                     </div>
                 ) : (
                     <div className="divide-y divide-zinc-200 dark:divide-white/10">

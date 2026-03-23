@@ -16,6 +16,8 @@ export { default as Sidebar } from './layout/Sidebar';
 
 export { default as AddProjectMember } from './projects/AddProjectMember';
 export { default as CreateTaskDialog } from './projects/CreateTaskDialog';
+export { default as KanbanBoard } from './projects/KanbanBoard';
+export { default as ProjectActivity } from './projects/ProjectActivity';
 export { default as ProjectAnalytics } from './projects/ProjectAnalytics';
 export { default as ProjectCalendar } from './projects/ProjectCalendar';
 export { default as ProjectCard } from './projects/ProjectCard';
@@ -29,5 +31,11 @@ export { default as JoinTeamButton } from './team/JoinTeamButton';
 export { default as TeamMembersSection } from './team/TeamMembersSection';
 export { default as ProjectSection } from './team/ProjectSection';
 
+export { default as SubTasksList } from './tasks/SubTasksList';
+export { default as ParentTaskSelector } from './tasks/ParentTaskSelector';
+
 export { default as ThemeProvider } from './theme/ThemeProvider';
 export { default as ThemeToggle } from './theme/ThemeToggle';
+
+export { ConfirmDialog } from './ui/ConfirmDialog';
+export { default as PresenceIndicator } from './ui/PresenceIndicator';

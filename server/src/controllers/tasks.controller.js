@@ -1,5 +1,6 @@
 import { prisma } from "../prisma/client.js";
 import { createNotification } from "../utils/notify.js";
+import { logActivity } from "../services/activityService.js";
 
 export const getTasks = async (req, res, next) => {
   try {
@@ -57,6 +58,7 @@ export const getTasks = async (req, res, next) => {
         createdBy: task.createdBy,
         creator: task.creator,
         dueDate: task.dueDate,
+        timeSpent: task.timeSpent,
         createdAt: task.createdAt,
         updatedAt: task.updatedAt,
       })),
@@ -145,6 +147,22 @@ export const getTaskById = async (req, res, next) => {
             fullName: true,
           },
         },
+        subTasks: {
+          select: {
+            id: true,
+            title: true,
+            status: true,
+            priority: true,
+            timeSpent: true,
+            assignee: {
+              select: {
+                id: true,
+                username: true,
+                fullName: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -184,6 +202,8 @@ export const getTaskById = async (req, res, next) => {
         createdBy: task.createdBy,
         creator: task.creator,
         dueDate: task.dueDate,
+        timeSpent: task.timeSpent,
+        subTasks: task.subTasks,
         createdAt: task.createdAt,
         updatedAt: task.updatedAt,
       },
@@ -285,6 +305,27 @@ export const createTask = async (req, res, next) => {
       });
     }
 
+    // Calculate and persist project progress
+    const allTasks = await prisma.task.count({ where: { projectId: task.projectId } });
+    const doneTasks = await prisma.task.count({
+      where: { projectId: task.projectId, status: "DONE" }
+    });
+    const progress = allTasks > 0 ? Math.round((doneTasks / allTasks) * 100) : 0;
+    await prisma.project.update({
+      where: { id: task.projectId },
+      data: { progress },
+    });
+
+    // Log activity
+    await logActivity({
+      entityType: 'task',
+      entityId: task.id,
+      projectId: task.projectId,
+      userId,
+      action: 'TASK_CREATED',
+      newValue: { title: task.title, status: task.status },
+    });
+
     res.status(201).json({
       message: "Task created successfully",
       task,
@@ -298,7 +339,7 @@ export const updateTask = async (req, res, next) => {
   try {
     const userId = req.userId;
     const { taskId } = req.params;
-    const { title, description, status, priority, type, assigneeId, dueDate } = req.body;
+    const { title, description, status, priority, type, assigneeId, dueDate, timeSpent } = req.body;
     const normalizedAssigneeId = typeof assigneeId === "string" ? assigneeId.trim() : assigneeId;
 
     const task = await prisma.task.findUnique({
@@ -348,6 +389,13 @@ export const updateTask = async (req, res, next) => {
       return res.status(400).json({ message: "Task title cannot be empty" });
     }
 
+    if (Object.prototype.hasOwnProperty.call(req.body, "timeSpent")) {
+      const numericTimeSpent = Number(timeSpent);
+      if (!Number.isInteger(numericTimeSpent) || numericTimeSpent < 0) {
+        return res.status(400).json({ message: "timeSpent must be a non-negative integer" });
+      }
+    }
+
     const updateData = {
       ...(typeof title === "string" && { title: title.trim() }),
       ...(typeof description === "string" && { description: description.trim() }),
@@ -359,6 +407,9 @@ export const updateTask = async (req, res, next) => {
       }),
       ...(Object.prototype.hasOwnProperty.call(req.body, "dueDate") && {
         dueDate: dueDate ? new Date(dueDate) : null,
+      }),
+      ...(Object.prototype.hasOwnProperty.call(req.body, "timeSpent") && {
+        timeSpent: Number(timeSpent),
       }),
     };
 
@@ -411,6 +462,28 @@ export const updateTask = async (req, res, next) => {
       });
     }
 
+    // Calculate and persist project progress
+    const allTasks = await prisma.task.count({ where: { projectId: task.projectId } });
+    const doneTasks = await prisma.task.count({
+      where: { projectId: task.projectId, status: "DONE" }
+    });
+    const progress = allTasks > 0 ? Math.round((doneTasks / allTasks) * 100) : 0;
+    await prisma.project.update({
+      where: { id: task.projectId },
+      data: { progress },
+    });
+
+    // Log activity
+    await logActivity({
+      entityType: 'task',
+      entityId: updated.id,
+      projectId: task.projectId,
+      userId,
+      action: 'TASK_UPDATED',
+      oldValue: status ? { status: task.status } : undefined,
+      newValue: status ? { status: updated.status } : { ...Object.entries(updateData).reduce((acc, [key, val]) => { acc[key] = val; return acc; }, {}) },
+    });
+
     res.json({
       message: "Task updated successfully",
       task: updated,
@@ -437,8 +510,31 @@ export const deleteTask = async (req, res, next) => {
       return res.status(403).json({ message: "Only task creator can delete task" });
     }
 
+    const projectId = task.projectId;
+
     await prisma.task.delete({
       where: { id: taskId },
+    });
+
+    // Calculate and persist project progress after deletion
+    const allTasks = await prisma.task.count({ where: { projectId } });
+    const doneTasks = await prisma.task.count({
+      where: { projectId, status: "DONE" }
+    });
+    const progress = allTasks > 0 ? Math.round((doneTasks / allTasks) * 100) : 0;
+    await prisma.project.update({
+      where: { id: projectId },
+      data: { progress },
+    });
+
+    // Log activity
+    await logActivity({
+      entityType: 'task',
+      entityId: taskId,
+      projectId,
+      userId,
+      action: 'TASK_DELETED',
+      oldValue: { title: task.title, status: task.status },
     });
 
     res.json({ message: "Task deleted successfully" });
