@@ -14,8 +14,9 @@ import {
 } from '@mui/material';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon } from 'lucide-react';
-import { fetchTasks, selectCurrentUserId } from '../../store';
+import { fetchTasks, selectCurrentUserId, selectTasksByProjectId } from '../../store';
 import { useCreateTaskMutation, useGetProjectByIdQuery, useGetTeamByIdQuery } from '../../store/slices/apiSlice';
+import { ParentTaskSelector } from '../tasks';
 
 export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, projectId }) {
     const dispatch = useDispatch();
@@ -23,6 +24,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
     const { data } = useGetProjectByIdQuery(projectId, { skip: !projectId });
     const project = data?.project;
     const { data: teamData } = useGetTeamByIdQuery(project?.teamId, { skip: !project?.teamId });
+    const tasks = useSelector((state) => selectTasksByProjectId(state, projectId));
 
     const teamMembers = useMemo(() => {
         const rawMembers = teamData?.team?.members || [];
@@ -52,6 +54,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
         priority: "MEDIUM",
         assigneeId: "",
         due_date: "",
+        parentId: "",
     });
 
     const handleSubmit = async (e) => {
@@ -70,6 +73,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
                 priority: formData.priority,
                 assigneeId: formData.assigneeId || undefined,
                 dueDate: formData.due_date || undefined,
+                parentId: formData.parentId || undefined,
             }).unwrap();
             await dispatch(fetchTasks());
 
@@ -81,6 +85,7 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
                 priority: "MEDIUM",
                 assigneeId: "",
                 due_date: "",
+                parentId: "",
             });
         } catch (err) {
             setError(err?.data?.message || 'Failed to create task');
@@ -115,6 +120,13 @@ export default function CreateTaskDialog({ showCreateTask, setShowCreateTask, pr
                         placeholder="Describe the task"
                         multiline
                         rows={3}
+                    />
+
+                    <ParentTaskSelector
+                        tasks={tasks}
+                        projectId={projectId}
+                        value={formData.parentId}
+                        onChange={(id) => setFormData({ ...formData, parentId: id })}
                     />
 
                     <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>

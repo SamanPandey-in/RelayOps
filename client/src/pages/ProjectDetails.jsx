@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Button, Chip, IconButton } from '@mui/material';
 import {
+    ActivityIcon,
     ArrowLeftIcon,
     BarChart3Icon,
     CalendarIcon,
@@ -13,8 +14,8 @@ import {
     ZapIcon,
 } from 'lucide-react';
 
-import { KanbanBoard } from '../components';
-import { CreateTaskDialog, ProjectAnalytics, ProjectCalendar, ProjectNotes, ProjectSettings, ProjectTasks } from '../components';
+import { KanbanBoard, PresenceIndicator } from '../components';
+import { CreateTaskDialog, ProjectActivity, ProjectAnalytics, ProjectCalendar, ProjectNotes, ProjectSettings, ProjectTasks } from '../components';
 import { selectProjectById, selectTasksByProjectId, selectTeamById } from '../store';
 
 export default function ProjectDetail() {
@@ -74,6 +75,7 @@ export default function ProjectDetail() {
                         >
                             Team: {team?.name || 'Unknown team'}
                         </Link>
+                        <PresenceIndicator projectId={projectId} />
                     </div>
                 </div>
                 <Button
@@ -125,8 +127,9 @@ export default function ProjectDetail() {
                         { key: 'notes', label: 'Notes', short: 'Notes', icon: FileTextIcon },
                         { key: 'calendar', label: 'Calendar', short: 'Cal', icon: CalendarIcon },
                         { key: 'analytics', label: 'Analytics', short: 'Stats', icon: BarChart3Icon },
+                        { key: 'activity', label: 'Activity', short: 'Act', icon: ActivityIcon },
                         { key: 'settings', label: 'Settings', short: 'Cfg', icon: SettingsIcon },
-                        { key: 'kanban', label: 'Kanban', short: 'Kanban', icon: KanbanIcon },
+                        { key: 'kanban', label: 'Kanban', short: 'Kanban', icon: FileStackIcon },
                     ].map((tabItem) => (
                         <Button
                             key={tabItem.key}
@@ -163,6 +166,11 @@ export default function ProjectDetail() {
                     {activeTab === 'notes' && (
                         <div className="dark:bg-zinc-900/40 rounded max-w-6xl">
                             <ProjectNotes project={project} />
+                        </div>
+                    )}
+                    {activeTab === 'activity' && (
+                        <div className="dark:bg-zinc-900/40 rounded max-w-6xl">
+                            <ProjectActivity projectId={projectId} />
                         </div>
                     )}
                     {activeTab === 'settings' && (

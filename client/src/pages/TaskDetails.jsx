@@ -19,6 +19,7 @@ import { MessageCircle, PenIcon, SquarePen, Trash2 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
 import { CommentsSkeleton, TaskDetailsSkeleton } from '../components/ui';
+import { SubTasksList } from '../components/tasks';
 import { fetchTasks } from '../store';
 import {
     useCreateCommentMutation,
@@ -333,6 +334,12 @@ const TaskDetails = () => {
                             {task.description?.trim() || 'No description provided.'}
                         </p>
                     </div>
+
+                    {task.subTasks && task.subTasks.length > 0 && (
+                        <div className="mb-4">
+                            <SubTasksList subTasks={task.subTasks} />
+                        </div>
+                    )}
 
                     <hr className="border-zinc-200 dark:border-zinc-700 my-3" />
 
