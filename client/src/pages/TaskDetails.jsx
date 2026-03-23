@@ -277,7 +277,10 @@ const TaskDetails = () => {
                         ) : commentsLoading ? (
                             <CommentsSkeleton />
                         ) : (
-                            <p className="text-gray-600 dark:text-zinc-500 mb-4 text-sm">No comments yet. Be the first!</p>
+                            <div className="flex items-start gap-2 text-gray-600 dark:text-zinc-500 mb-4 text-sm">
+                                <div className="text-lg mt-0.5">👇</div>
+                                <p>No comments yet. Be the first to start the discussion!</p>
+                            </div>
                         )}
                     </div>
 

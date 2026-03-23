@@ -166,11 +166,22 @@ export const Teams = () => {
             </div>
 
             {teamsWithProjectCount.length === 0 ? (
-                <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 p-12 text-center space-y-3">
-                    <UsersIcon className="size-10 mx-auto text-zinc-400 mb-3" />
-                    <p className="text-zinc-600 dark:text-zinc-400">You are not part of any team yet.</p>
-                    <div className="flex justify-center">
+                <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 p-12 text-center space-y-6">
+                    <div>
+                        <UsersIcon className="size-12 mx-auto text-zinc-400 mb-4" />
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">No teams yet</h3>
+                        <p className="text-zinc-600 dark:text-zinc-400 text-sm mb-6">Teams help organize projects and collaborate with team members</p>
+                    </div>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                         <CreateTeamForm onTeamCreated={handleRefresh} />
+                        <div className="text-zinc-400 text-sm font-medium hidden sm:block">or</div>
+                        <Button
+                            variant="outlined"
+                            onClick={() => document.querySelector('input[placeholder="Enter team ID or invite code"]')?.focus()}
+                            startIcon={<KeyRound className="size-4" />}
+                        >
+                            Join with Code
+                        </Button>
                     </div>
                 </div>
             ) : (

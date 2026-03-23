@@ -62,18 +62,18 @@ export default function Projects() {
                         <div className="w-24 h-24 mx-auto mb-6 bg-gray-200 dark:bg-zinc-800 rounded-full flex items-center justify-center">
                             <FolderOpen className="w-12 h-12 text-gray-400 dark:text-zinc-500" />
                         </div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                            No projects found
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                            No projects yet
                         </h3>
-                        <p className="text-gray-500 dark:text-zinc-400 mb-6 text-sm">
-                            Create your first project to get started
+                        <p className="text-gray-500 dark:text-zinc-400 mb-6 text-sm max-w-md mx-auto">
+                            Projects organize your work and help teams collaborate. Create your first project to get started.
                         </p>
                         <Button
                             variant="contained"
                             onClick={() => setIsDialogOpen(true)}
                             startIcon={<Plus className="size-4" />}
                         >
-                            Create Project
+                            Create Your First Project
                         </Button>
                     </div>
                 ) : (
