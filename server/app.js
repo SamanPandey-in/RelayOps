@@ -11,6 +11,7 @@ import projectRoutes from "./src/routes/projects.route.js";
 import taskRoutes from "./src/routes/tasks.route.js";
 import commentRoutes from "./src/routes/comments.route.js";
 import notificationRoutes from "./src/routes/notifications.route.js";
+import searchRoutes from "./src/routes/search.route.js";
 
 const app = express();
 
@@ -54,6 +55,7 @@ app.use("/api/projects", projectRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/tasks", commentRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/search", searchRoutes);
 
 app.get("/api/health", (_, res) =>
   res.json({ status: "ok", ts: new Date().toISOString() }),
