@@ -58,6 +58,7 @@ export const getTasks = async (req, res, next) => {
         createdBy: task.createdBy,
         creator: task.creator,
         dueDate: task.dueDate,
+        timeSpent: task.timeSpent,
         createdAt: task.createdAt,
         updatedAt: task.updatedAt,
       })),
@@ -152,6 +153,7 @@ export const getTaskById = async (req, res, next) => {
             title: true,
             status: true,
             priority: true,
+            timeSpent: true,
             assignee: {
               select: {
                 id: true,
@@ -200,6 +202,8 @@ export const getTaskById = async (req, res, next) => {
         createdBy: task.createdBy,
         creator: task.creator,
         dueDate: task.dueDate,
+        timeSpent: task.timeSpent,
+        subTasks: task.subTasks,
         createdAt: task.createdAt,
         updatedAt: task.updatedAt,
       },
@@ -335,7 +339,7 @@ export const updateTask = async (req, res, next) => {
   try {
     const userId = req.userId;
     const { taskId } = req.params;
-    const { title, description, status, priority, type, assigneeId, dueDate } = req.body;
+    const { title, description, status, priority, type, assigneeId, dueDate, timeSpent } = req.body;
     const normalizedAssigneeId = typeof assigneeId === "string" ? assigneeId.trim() : assigneeId;
 
     const task = await prisma.task.findUnique({
@@ -385,6 +389,13 @@ export const updateTask = async (req, res, next) => {
       return res.status(400).json({ message: "Task title cannot be empty" });
     }
 
+    if (Object.prototype.hasOwnProperty.call(req.body, "timeSpent")) {
+      const numericTimeSpent = Number(timeSpent);
+      if (!Number.isInteger(numericTimeSpent) || numericTimeSpent < 0) {
+        return res.status(400).json({ message: "timeSpent must be a non-negative integer" });
+      }
+    }
+
     const updateData = {
       ...(typeof title === "string" && { title: title.trim() }),
       ...(typeof description === "string" && { description: description.trim() }),
@@ -396,6 +407,9 @@ export const updateTask = async (req, res, next) => {
       }),
       ...(Object.prototype.hasOwnProperty.call(req.body, "dueDate") && {
         dueDate: dueDate ? new Date(dueDate) : null,
+      }),
+      ...(Object.prototype.hasOwnProperty.call(req.body, "timeSpent") && {
+        timeSpent: Number(timeSpent),
       }),
     };
 

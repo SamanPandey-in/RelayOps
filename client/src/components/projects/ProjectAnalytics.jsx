@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import { CheckCircle, Clock, AlertTriangle, Users, ArrowRightIcon } from 'lucide-react';
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
@@ -9,8 +9,17 @@ const PRIORITY_COLORS = {
     HIGH: "text-emerald-600 bg-emerald-200 dark:text-emerald-500 dark:bg-emerald-600",
 };
 
+const formatDuration = (seconds) => {
+    const totalSeconds = Math.max(0, Number(seconds) || 0);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+
+    return [hours, minutes, secs].map((value) => String(value).padStart(2, '0')).join(':');
+};
+
 const ProjectAnalytics = ({ project, tasks }) => {
-    const { stats, statusData, typeData, priorityData } = useMemo(() => {
+    const { stats, statusData, typeData, priorityData, timeLoggedData, totalTimeSpent } = useMemo(() => {
         const now = new Date();
         const total = tasks.length;
 
@@ -32,11 +41,13 @@ const ProjectAnalytics = ({ project, tasks }) => {
         const statusMap = { TODO: 0, IN_PROGRESS: 0, DONE: 0 };
         const typeMap = { TASK: 0, BUG: 0, FEATURE: 0, IMPROVEMENT: 0, OTHER: 0 };
         const priorityMap = { LOW: 0, MEDIUM: 0, HIGH: 0 };
+        let totalTimeSpent = 0;
 
         tasks.forEach((t) => {
             if (t.status === "DONE") stats.completed++;
             if (t.status === "IN_PROGRESS") stats.inProgress++;
             if (t.status === "TODO") stats.todo++;
+            totalTimeSpent += Number(t.timeSpent) || 0;
             const dueDate = getTaskDueDate(t);
             if (dueDate && dueDate < now && t.status !== "DONE") stats.overdue++;
 
@@ -47,6 +58,7 @@ const ProjectAnalytics = ({ project, tasks }) => {
 
         return {
             stats,
+            totalTimeSpent,
             statusData: Object.entries(statusMap).map(([k, v]) => ({ name: k.replace("_", " "), value: v })),
             typeData: Object.entries(typeMap).filter(([_, v]) => v > 0).map(([k, v]) => ({ name: k, value: v })),
             priorityData: Object.entries(priorityMap).map(([k, v]) => ({
@@ -54,6 +66,15 @@ const ProjectAnalytics = ({ project, tasks }) => {
                 value: v,
                 percentage: total > 0 ? Math.round((v / total) * 100) : 0,
             })),
+            timeLoggedData: tasks
+                .filter((task) => Number(task.timeSpent) > 0)
+                .sort((a, b) => (Number(b.timeSpent) || 0) - (Number(a.timeSpent) || 0))
+                .slice(0, 8)
+                .map((task) => ({
+                    name: task.title?.length > 18 ? `${task.title.slice(0, 18)}…` : task.title,
+                    seconds: Number(task.timeSpent) || 0,
+                    formatted: formatDuration(task.timeSpent),
+                })),
         };
     }, [tasks]);
 
@@ -88,11 +109,18 @@ const ProjectAnalytics = ({ project, tasks }) => {
             icon: <Users className="size-5 text-purple-600 dark:text-purple-400" />,
             bg: "bg-purple-200 dark:bg-purple-500/10",
         },
+        {
+            label: "Time Logged",
+            value: formatDuration(totalTimeSpent),
+            color: "text-amber-600 dark:text-amber-400",
+            icon: <Clock className="size-5 text-amber-600 dark:text-amber-400" />,
+            bg: "bg-amber-200 dark:bg-amber-500/10",
+        },
     ];
 
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                 {metrics.map((m, i) => (
                     <div
                         key={i}
@@ -148,6 +176,23 @@ const ProjectAnalytics = ({ project, tasks }) => {
                             </Pie>
                         </PieChart>
                     </ResponsiveContainer>
+                </div>
+
+                {/* Time Logged by Task */}
+                <div className="not-dark:bg-white dark:bg-linear-to-br dark:from-zinc-800/70 dark:to-zinc-900/50 border border-zinc-300 dark:border-zinc-800 rounded-lg p-6 lg:col-span-2">
+                    <h2 className="text-zinc-900 dark:text-white mb-4 font-medium">Time Logged</h2>
+                    {timeLoggedData.length === 0 ? (
+                        <p className="text-sm text-zinc-500 dark:text-zinc-400">No time logged yet.</p>
+                    ) : (
+                        <ResponsiveContainer width="100%" height={300}>
+                            <BarChart data={timeLoggedData}>
+                                <XAxis dataKey="name" tick={{ fill: "#52525b", fontSize: 12 }} axisLine={{ stroke: "#d4d4d8" }} />
+                                <YAxis tick={{ fill: "#52525b", fontSize: 12 }} axisLine={{ stroke: "#d4d4d8" }} />
+                                <Tooltip formatter={(value) => formatDuration(value)} />
+                                <Bar dataKey="seconds" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    )}
                 </div>
             </div>
 
