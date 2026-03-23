@@ -110,4 +110,5 @@ export {
   selectProjectsByTeamAndStatus,
   selectProjectsForUserTeams,
   selectProjectsForCurrentTeam,
+  selectSearchableItems,
 } from "./selectors.js";

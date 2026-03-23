@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Avatar, Button, IconButton, InputAdornment, TextField } from '@mui/material';
+import { Avatar, Button, IconButton } from '@mui/material';
 import { SearchIcon, PanelLeft, LogOut, User } from 'lucide-react';
 import { useSelector } from 'react-redux';
 
 import { useAuth } from '../../context/AuthContext';
 import ThemeToggle from '../theme/ThemeToggle';
 import NotificationBell from './NotificationBell';
+import SearchPanel from './SearchPanel';
 
 const Navbar = ({ onMenuClick }) => {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ const Navbar = ({ onMenuClick }) => {
     .toUpperCase();
 
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const profileMenuRef = useRef(null);
 
   useEffect(() => {
@@ -33,6 +35,17 @@ const Navbar = ({ onMenuClick }) => {
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
   }, []);
 
   const handleProfileClick = () => {
@@ -60,20 +73,14 @@ const Navbar = ({ onMenuClick }) => {
           </IconButton>
 
           <div className="relative flex-1 max-w-xs sm:max-w-sm">
-            <TextField
-              placeholder="Search coming soon..."
-              size="small"
-              fullWidth
-              disabled
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon className="size-3.5" />
-                  </InputAdornment>
-                ),
-              }}
-              inputProps={{ 'aria-label': 'search' }}
-            />
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-zinc-800 text-sm text-gray-500 dark:text-zinc-400 w-full"
+            >
+              <SearchIcon size={14} />
+              <span className="flex-1 text-left">Search...</span>
+              <kbd className="hidden sm:inline text-xs bg-gray-200 dark:bg-zinc-700 rounded px-1">⌘ K</kbd>
+            </button>
           </div>
         </div>
 
@@ -122,6 +129,11 @@ const Navbar = ({ onMenuClick }) => {
           </div>
         </div>
       </div>
+
+      <SearchPanel
+        isOpen={isSearchOpen}
+        onClose={() => setIsSearchOpen(false)}
+      />
     </header>
   );
 };

@@ -16,7 +16,7 @@ export const apiSlice = createApi({
       return headers;
     },
   }),
-  tagTypes: ['Team', 'Project', 'Task', 'User', 'Comment', 'Notification'],
+  tagTypes: ['Team', 'Project', 'Task', 'User', 'Comment', 'Notification', 'Search'],
   endpoints: (builder) => ({
     getTeams: builder.query({
       query: () => '/teams',
@@ -324,6 +324,12 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ['Notification'],
     }),
+
+    // SEARCH ENDPOINTS
+    searchAll: builder.query({
+      query: (q) => `/search?q=${encodeURIComponent(q)}`,
+      transformResponse: (res) => res,
+    }),
   }),
 });
 
@@ -369,4 +375,7 @@ export const {
   useMarkNotificationReadMutation,
   useMarkAllNotificationsReadMutation,
   useClearAllNotificationsMutation,
+
+  // Search
+  useSearchAllQuery,
 } = apiSlice;

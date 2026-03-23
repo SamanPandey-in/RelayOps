@@ -502,3 +502,32 @@ export const selectDashboardStats = createSelector(
     };
   }
 );
+
+// ── SEARCH ──────────────────────────────────────────────────────────────
+
+export const selectSearchableItems = createSelector(
+  [selectAllTeams, selectAllProjects, selectAllTasks],
+  (teams, projects, tasks) => [
+    ...teams.map(t => ({
+      type:     "team",
+      id:       t.id,
+      label:    t.name,
+      subLabel: `Team · ${t.members?.length || 0} members`,
+      href:     `/teams/${t.id}`,
+    })),
+    ...projects.map(p => ({
+      type:     "project",
+      id:       p.id,
+      label:    p.name,
+      subLabel: `Project · ${(p.status || "active").toLowerCase()}`,
+      href:     `/projects/${p.id}`,
+    })),
+    ...tasks.map(t => ({
+      type:     "task",
+      id:       t.id,
+      label:    t.title,
+      subLabel: `Task · ${(t.status || "").replace("_", " ").toLowerCase()} · ${t.priority?.toLowerCase() || ""}`,
+      href:     `/taskDetails?taskId=${t.id}&projectId=${t.projectId}`,
+    })),
+  ]
+);
