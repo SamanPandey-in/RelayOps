@@ -330,6 +330,13 @@ export const apiSlice = createApi({
       query: (q) => `/search?q=${encodeURIComponent(q)}`,
       transformResponse: (res) => res,
     }),
+
+    // ACTIVITY ENDPOINTS
+    getProjectActivity: builder.query({
+      query: (projectId) => `/projects/${projectId}/activity`,
+      transformResponse: (res) => res,
+      providesTags: ['Activity'],
+    }),
   }),
 });
 
@@ -378,4 +385,7 @@ export const {
 
   // Search
   useSearchAllQuery,
+
+  // Activity
+  useGetProjectActivityQuery,
 } = apiSlice;

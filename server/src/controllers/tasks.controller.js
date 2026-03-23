@@ -1,5 +1,6 @@
 import { prisma } from "../prisma/client.js";
 import { createNotification } from "../utils/notify.js";
+import { logActivity } from "../services/activityService.js";
 
 export const getTasks = async (req, res, next) => {
   try {
@@ -143,6 +144,21 @@ export const getTaskById = async (req, res, next) => {
             id: true,
             username: true,
             fullName: true,
+          },
+        },
+        subTasks: {
+          select: {
+            id: true,
+            title: true,
+            status: true,
+            priority: true,
+            assignee: {
+              select: {
+                id: true,
+                username: true,
+                fullName: true,
+              },
+            },
           },
         },
       },
@@ -296,6 +312,16 @@ export const createTask = async (req, res, next) => {
       data: { progress },
     });
 
+    // Log activity
+    await logActivity({
+      entityType: 'task',
+      entityId: task.id,
+      projectId: task.projectId,
+      userId,
+      action: 'TASK_CREATED',
+      newValue: { title: task.title, status: task.status },
+    });
+
     res.status(201).json({
       message: "Task created successfully",
       task,
@@ -433,6 +459,17 @@ export const updateTask = async (req, res, next) => {
       data: { progress },
     });
 
+    // Log activity
+    await logActivity({
+      entityType: 'task',
+      entityId: updated.id,
+      projectId: task.projectId,
+      userId,
+      action: 'TASK_UPDATED',
+      oldValue: status ? { status: task.status } : undefined,
+      newValue: status ? { status: updated.status } : { ...Object.entries(updateData).reduce((acc, [key, val]) => { acc[key] = val; return acc; }, {}) },
+    });
+
     res.json({
       message: "Task updated successfully",
       task: updated,
@@ -474,6 +511,16 @@ export const deleteTask = async (req, res, next) => {
     await prisma.project.update({
       where: { id: projectId },
       data: { progress },
+    });
+
+    // Log activity
+    await logActivity({
+      entityType: 'task',
+      entityId: taskId,
+      projectId,
+      userId,
+      action: 'TASK_DELETED',
+      oldValue: { title: task.title, status: task.status },
     });
 
     res.json({ message: "Task deleted successfully" });

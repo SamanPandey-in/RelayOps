@@ -440,3 +440,62 @@ export const deleteProject = async (req, res, next) => {
     next(err);
   }
 };
+
+export const getProjectActivity = async (req, res, next) => {
+  try {
+    const { projectId } = req.params;
+    const userId = req.userId;
+    const { limit = 50, skip = 0 } = req.query;
+
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+    });
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    const userTeam = await prisma.teamMember.findUnique({
+      where: {
+        teamId_userId: {
+          teamId: project.teamId,
+          userId,
+        },
+      },
+    });
+
+    if (!userTeam) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const activityLogs = await prisma.activityLog.findMany({
+      where: { projectId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            fullName: true,
+            avatarUrl: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: parseInt(limit),
+      skip: parseInt(skip),
+    });
+
+    const total = await prisma.activityLog.count({
+      where: { projectId },
+    });
+
+    res.json({
+      activityLogs,
+      total,
+      limit: parseInt(limit),
+      skip: parseInt(skip),
+    });
+  } catch (err) {
+    next(err);
+  }
+};
