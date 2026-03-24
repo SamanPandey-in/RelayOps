@@ -2,12 +2,32 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/logo.png" />
+    <link id="app-favicon" rel="icon" type="image/svg+xml" href="/LightModeLogo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (() => {
+        const setFavicon = () => {
+          const favicon = document.getElementById('app-favicon');
+          if (!favicon) return;
+
+          const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          favicon.setAttribute('href', isDarkMode ? '/DarkModeLogo.svg' : '/LightModeLogo.svg');
+        };
+
+        const colorScheme = window.matchMedia('(prefers-color-scheme: dark)');
+        setFavicon();
+
+        if (typeof colorScheme.addEventListener === 'function') {
+          colorScheme.addEventListener('change', setFavicon);
+        } else if (typeof colorScheme.addListener === 'function') {
+          colorScheme.addListener(setFavicon);
+        }
+      })();
+    </script>
     <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
     rel="stylesheet">
-    <title>Heed - Team, Project and Task Management</title>
+    <title>Heed - Work, Organized</title>
   </head>
   <body>
     <div id="root"></div>
