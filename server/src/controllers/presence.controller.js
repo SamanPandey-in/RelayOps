@@ -39,6 +39,20 @@ export const getProjectPresence = async (req, res, next) => {
       return res.status(403).json({ message: 'Access denied' });
     }
 
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        username: true,
+        fullName: true,
+        avatarUrl: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
     // Setup SSE headers
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
@@ -46,7 +60,7 @@ export const getProjectPresence = async (req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
 
     // Connect user to presence
-    joinPresence(projectId, userId);
+    joinPresence(projectId, user);
     subscribeToPresence(projectId, res);
 
     // Broadcast initial count

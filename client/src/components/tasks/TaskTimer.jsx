@@ -79,8 +79,8 @@ export default function TaskTimer({ taskId, initialSeconds = 0, onFlushed }) {
 
   return (
     <div className="rounded-md border border-zinc-200 dark:border-zinc-700 p-3">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="flex items-center gap-2 min-w-0">
           <Clock3 className="size-4 text-zinc-500" />
           <div>
             <p className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Timer</p>
@@ -88,7 +88,7 @@ export default function TaskTimer({ taskId, initialSeconds = 0, onFlushed }) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
           <Button size="small" variant="outlined" onClick={handleStart} disabled={isRunning || isFlushing} startIcon={<Play className="size-3.5" />}>
             Start
           </Button>

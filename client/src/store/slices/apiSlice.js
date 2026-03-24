@@ -1,5 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
+import { acquireChatSocket, releaseChatSocket } from '../../lib/chatSocket';
+
 // In dev, Vite proxies /api/* to http://localhost:5000. In prod set VITE_API_BASE_URL.
 const API_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -203,6 +205,37 @@ export const apiSlice = createApi({
         { type: 'ProjectNoteMessage', id: `project-${projectId}` },
       ],
       transformResponse: (response) => response,
+      async onCacheEntryAdded(projectId, { cacheDataLoaded, cacheEntryRemoved, updateCachedData }) {
+        if (!projectId) return;
+
+        await cacheDataLoaded;
+
+        const socket = acquireChatSocket();
+
+        const handleMessageCreated = (payload) => {
+          if (payload?.projectId !== projectId || !payload?.noteMessage) return;
+
+          updateCachedData((draft) => {
+            if (!Array.isArray(draft.messages)) {
+              draft.messages = [];
+            }
+
+            const alreadyExists = draft.messages.some((item) => item.id === payload.noteMessage.id);
+            if (!alreadyExists) {
+              draft.messages.push(payload.noteMessage);
+            }
+          });
+        };
+
+        socket.on('projectNotes:message:created', handleMessageCreated);
+        socket.emit('projectNotes:join', { projectId });
+
+        await cacheEntryRemoved;
+
+        socket.off('projectNotes:message:created', handleMessageCreated);
+        socket.emit('projectNotes:leave', { projectId });
+        releaseChatSocket();
+      },
     }),
 
     createProjectNotesMessage: builder.mutation({
@@ -291,6 +324,52 @@ export const apiSlice = createApi({
         { type: 'Comment', id: `task-${taskId}` },
       ],
       transformResponse: (response) => response,
+      async onCacheEntryAdded(taskId, { cacheDataLoaded, cacheEntryRemoved, updateCachedData }) {
+        if (!taskId) return;
+
+        await cacheDataLoaded;
+
+        const socket = acquireChatSocket();
+
+        const handleCommentCreated = (payload) => {
+          if (payload?.taskId !== taskId || !payload?.comment) return;
+
+          updateCachedData((draft) => {
+            if (!Array.isArray(draft.comments)) {
+              draft.comments = [];
+            }
+
+            const alreadyExists = draft.comments.some((item) => item.id === payload.comment.id);
+            if (!alreadyExists) {
+              draft.comments.push(payload.comment);
+            }
+          });
+        };
+
+        const handleCommentDeleted = (payload) => {
+          if (payload?.taskId !== taskId || !payload?.commentId) return;
+
+          updateCachedData((draft) => {
+            if (!Array.isArray(draft.comments)) {
+              draft.comments = [];
+              return;
+            }
+
+            draft.comments = draft.comments.filter((item) => item.id !== payload.commentId);
+          });
+        };
+
+        socket.on('task:comment:created', handleCommentCreated);
+        socket.on('task:comment:deleted', handleCommentDeleted);
+        socket.emit('task:join', { taskId });
+
+        await cacheEntryRemoved;
+
+        socket.off('task:comment:created', handleCommentCreated);
+        socket.off('task:comment:deleted', handleCommentDeleted);
+        socket.emit('task:leave', { taskId });
+        releaseChatSocket();
+      },
     }),
 
     createComment: builder.mutation({

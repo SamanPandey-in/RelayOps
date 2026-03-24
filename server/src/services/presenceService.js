@@ -1,11 +1,19 @@
-// In-memory presence store: Map<projectId, Set<userId>>
+// In-memory presence store: Map<projectId, Map<userId, userMeta>>
 const presence = new Map();
 
-export const joinPresence = (projectId, userId) => {
+export const joinPresence = (projectId, user) => {
+  const userId = user?.id;
+  if (!userId) return;
+
   if (!presence.has(projectId)) {
-    presence.set(projectId, new Set());
+    presence.set(projectId, new Map());
   }
-  presence.get(projectId).add(userId);
+  presence.get(projectId).set(userId, {
+    id: userId,
+    fullName: user.fullName || null,
+    username: user.username || null,
+    avatarUrl: user.avatarUrl || null,
+  });
 };
 
 export const leavePresence = (projectId, userId) => {
@@ -22,7 +30,7 @@ export const getPresenceCount = (projectId) => {
 };
 
 export const getPresenceUsers = (projectId) => {
-  return presence.has(projectId) ? Array.from(presence.get(projectId)) : [];
+  return presence.has(projectId) ? Array.from(presence.get(projectId).values()) : [];
 };
 
 // Broadcast to all connected clients for a project

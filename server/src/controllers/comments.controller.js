@@ -1,5 +1,6 @@
 import { prisma } from "../prisma/client.js";
 import { createNotifications, extractMentions } from "../utils/notify.js";
+import { emitTaskCommentCreated, emitTaskCommentDeleted } from "../lib/socket.js";
 
 export const getComments = async (req, res, next) => {
   try {
@@ -146,6 +147,8 @@ export const createComment = async (req, res, next) => {
       });
     }
 
+    emitTaskCommentCreated({ taskId, comment });
+
     res.status(201).json({
       message: "Comment created successfully",
       comment,
@@ -178,6 +181,11 @@ export const deleteComment = async (req, res, next) => {
 
     await prisma.comment.delete({
       where: { id: commentId },
+    });
+
+    emitTaskCommentDeleted({
+      taskId: comment.taskId,
+      commentId,
     });
 
     res.json({ message: "Comment deleted successfully" });

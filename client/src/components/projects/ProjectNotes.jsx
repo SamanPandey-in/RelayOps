@@ -69,6 +69,15 @@ export default function ProjectNotes({ project }) {
         }
     };
 
+    const handleMessageKeyDown = (event) => {
+        if (event.ctrlKey && event.key === 'Enter') {
+            event.preventDefault();
+            if (!isSendingMessage && messageInput.trim()) {
+                handleSendMessage();
+            }
+        }
+    };
+
     const sanitizeUrl = (url) => {
         let trimmed = url.trim();
         if (!trimmed) return '';
@@ -178,6 +187,7 @@ export default function ProjectNotes({ project }) {
                         maxRows={6}
                         value={messageInput}
                         onChange={(e) => setMessageInput(e.target.value)}
+                        onKeyDown={handleMessageKeyDown}
                         placeholder="Write a message..."
                     />
                     <Button

@@ -1,5 +1,6 @@
 import { prisma } from "../prisma/client.js";
 import { createNotification, createNotifications } from "../utils/notify.js";
+import { emitProjectNoteMessageCreated } from "../lib/socket.js";
 
 export const getProjects = async (req, res, next) => {
   try {
@@ -604,6 +605,11 @@ export const createProjectNoteMessage = async (req, res, next) => {
           },
         },
       },
+    });
+
+    emitProjectNoteMessageCreated({
+      projectId,
+      noteMessage: message,
     });
 
     res.status(201).json({

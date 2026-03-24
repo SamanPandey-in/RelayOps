@@ -1,6 +1,21 @@
 import { Box, AvatarGroup, Avatar, Tooltip, Typography } from '@mui/material';
 import { useProjectPresence } from '../../hooks/useProjectPresence';
 
+const getDisplayName = (user) => {
+  if (typeof user === 'string') return user;
+  return user?.fullName || user?.username || user?.id || 'Unknown';
+};
+
+const getInitial = (user) => {
+  const displayName = getDisplayName(user).trim();
+  return displayName ? displayName.charAt(0).toUpperCase() : '?';
+};
+
+const getPresenceKey = (user) => {
+  if (typeof user === 'string') return user;
+  return user?.id || user?.username || user?.fullName || 'presence-user';
+};
+
 export default function PresenceIndicator({ projectId }) {
   const { count, users } = useProjectPresence(projectId);
 
@@ -14,10 +29,10 @@ export default function PresenceIndicator({ projectId }) {
         {count} viewing
       </Typography>
       <AvatarGroup max={3} sx={{ '& .MuiAvatar-root': { width: 24, height: 24, fontSize: '0.75rem' } }}>
-        {users.map((userId) => (
-          <Tooltip key={userId} title={userId}>
+        {users.map((user, index) => (
+          <Tooltip key={`${getPresenceKey(user)}-${index}`} title={getDisplayName(user)}>
             <Avatar sx={{ width: 24, height: 24, fontSize: '0.75rem', backgroundColor: '#64748b' }}>
-              {userId[0].toUpperCase()}
+              {getInitial(user)}
             </Avatar>
           </Tooltip>
         ))}

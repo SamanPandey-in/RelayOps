@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
     Box,
     Button,
@@ -15,7 +15,7 @@ import {
 } from '@mui/material';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
-import { MessageCircle, PenIcon, SquarePen, Trash2 } from 'lucide-react';
+import { ArrowLeft, MessageCircle, PenIcon, SquarePen, Trash2 } from 'lucide-react';
 
 import { useAuth } from '../context/AuthContext';
 import { CommentsSkeleton, TaskDetailsSkeleton } from '../components/ui';
@@ -81,6 +81,7 @@ const formatDuration = (seconds) => {
 
 const TaskDetails = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const projectId = searchParams.get("projectId");
     const taskId = searchParams.get("taskId");
@@ -92,6 +93,8 @@ const TaskDetails = () => {
     const task = taskData?.task;
     const project = projectData?.project;
     const comments = commentsData?.comments || [];
+    const resolvedProjectId = projectId || task?.projectId || task?.project?.id;
+    const resolvedProjectName = project?.name || task?.project?.name || 'Back to project';
 
     const resolvedTeamId = project?.teamId || task?.project?.teamId;
     const { data: teamData } = useGetTeamByIdQuery(resolvedTeamId, { skip: !resolvedTeamId });
@@ -189,6 +192,15 @@ const TaskDetails = () => {
         }
     };
 
+    const handleCommentKeyDown = (event) => {
+        if (event.ctrlKey && event.key === 'Enter') {
+            event.preventDefault();
+            if (!isPostingComment && newComment.trim()) {
+                handleAddComment();
+            }
+        }
+    };
+
     const openTaskEditDialog = () => {
         if (!task) return;
 
@@ -248,7 +260,19 @@ const TaskDetails = () => {
     if (!task) return <Typography color="error" sx={{ px: 2, py: 3 }}>Task not found.</Typography>;
 
     return (
-        <div className="flex flex-col-reverse lg:flex-row gap-6 sm:p-4 text-gray-900 dark:text-zinc-100 max-w-6xl mx-auto">
+        <div className="sm:p-4 text-gray-900 dark:text-zinc-100 max-w-6xl mx-auto">
+            {resolvedProjectId && (
+                <Button
+                    variant="text"
+                    startIcon={<ArrowLeft className="size-4" />}
+                    onClick={() => navigate(`/projects/${resolvedProjectId}?tab=tasks`)}
+                    sx={{ mb: 2, px: 0.5, textTransform: 'none', justifyContent: 'flex-start' }}
+                >
+                    {resolvedProjectName}
+                </Button>
+            )}
+
+            <div className="flex flex-col-reverse lg:flex-row gap-6">
             <div className="w-full lg:w-2/3">
                 <div className="p-5 rounded-md bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-800 flex flex-col lg:h-[80vh]">
                     <h2 className="text-base font-semibold flex items-center gap-2 mb-4 text-gray-900 dark:text-white">
@@ -299,6 +323,7 @@ const TaskDetails = () => {
                         <TextField
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
+                            onKeyDown={handleCommentKeyDown}
                             placeholder="Write a comment..."
                             className="w-full"
                             multiline
@@ -380,6 +405,8 @@ const TaskDetails = () => {
                         </div>
                     </div>
                 )}
+            </div>
+
             </div>
 
             <Dialog open={isEditDialogOpen} onClose={() => setIsEditDialogOpen(false)} fullWidth maxWidth="sm">
