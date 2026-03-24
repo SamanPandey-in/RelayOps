@@ -17,7 +17,7 @@ CREATE TYPE "TaskType" AS ENUM ('TASK', 'BUG', 'FEATURE', 'IMPROVEMENT', 'EPIC',
 CREATE TYPE "InviteStatus" AS ENUM ('PENDING', 'ACCEPTED', 'DECLINED', 'EXPIRED');
 
 -- CreateEnum
-CREATE TYPE "NotifType" AS ENUM ('TASK_ASSIGNED', 'TASK_UPDATED', 'COMMENT_ADDED', 'MENTION', 'INVITE', 'PROJECT_UPDATED');
+CREATE TYPE "NotifType" AS ENUM ('TASK_ASSIGNED', 'TASK_UPDATED', 'COMMENT_ADDED', 'MENTION', 'INVITE', 'PROJECT_UPDATED', 'TEAM_MEMBER_ADDED', 'PROJECT_MEMBER_ADDED');
 
 -- CreateTable
 CREATE TABLE "users" (
@@ -32,6 +32,8 @@ CREATE TABLE "users" (
     "refresh_token" TEXT,
     "reset_token" TEXT,
     "reset_token_exp" TIMESTAMPTZ,
+    "verification_token" TEXT,
+    "verification_token_exp" TIMESTAMPTZ,
     "last_login_at" TIMESTAMPTZ,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
@@ -77,10 +79,24 @@ CREATE TABLE "projects" (
     "start_date" DATE,
     "end_date" DATE,
     "key" VARCHAR(10) NOT NULL,
+    "notes" TEXT DEFAULT '',
+    "links" JSONB DEFAULT '[]',
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL,
 
     CONSTRAINT "projects_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "project_note_messages" (
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
+    "project_id" UUID NOT NULL,
+    "user_id" UUID NOT NULL,
+    "content" TEXT NOT NULL,
+    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL,
+
+    CONSTRAINT "project_note_messages_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -107,6 +123,7 @@ CREATE TABLE "tasks" (
     "type" "TaskType" NOT NULL DEFAULT 'TASK',
     "issue_key" VARCHAR(20),
     "story_points" INTEGER,
+    "time_spent" INTEGER NOT NULL DEFAULT 0,
     "due_date" TIMESTAMPTZ,
     "order" INTEGER NOT NULL DEFAULT 0,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -234,6 +251,12 @@ CREATE INDEX "projects_status_idx" ON "projects"("status");
 CREATE UNIQUE INDEX "projects_team_id_key_key" ON "projects"("team_id", "key");
 
 -- CreateIndex
+CREATE INDEX "project_note_messages_project_id_created_at_idx" ON "project_note_messages"("project_id", "created_at");
+
+-- CreateIndex
+CREATE INDEX "project_note_messages_user_id_idx" ON "project_note_messages"("user_id");
+
+-- CreateIndex
 CREATE INDEX "project_members_project_id_idx" ON "project_members"("project_id");
 
 -- CreateIndex
@@ -307,6 +330,12 @@ ALTER TABLE "projects" ADD CONSTRAINT "projects_team_id_fkey" FOREIGN KEY ("team
 
 -- AddForeignKey
 ALTER TABLE "projects" ADD CONSTRAINT "projects_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "project_note_messages" ADD CONSTRAINT "project_note_messages_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "project_note_messages" ADD CONSTRAINT "project_note_messages_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "project_members" ADD CONSTRAINT "project_members_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "projects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
