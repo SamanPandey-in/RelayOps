@@ -3,6 +3,7 @@ import { createServer } from "http";
 import app from "./app.js";
 import { prisma } from "./src/prisma/client.js";
 import { initializeSocket } from "./src/lib/socket.js";
+import { validateEmailConfiguration } from "./src/utils/emailService.js";
 
 const PORT = process.env.PORT || 5000;
 
@@ -10,6 +11,8 @@ let server;
 
 async function startServer() {
   try {
+    validateEmailConfiguration();
+
     await prisma.$queryRaw`SELECT 1`;
     console.log("✓ Database connection established");
 

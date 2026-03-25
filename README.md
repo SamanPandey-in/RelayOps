@@ -66,7 +66,7 @@ The result is a practical workspace where members can create teams, run projects
 ┌──────────────────────────▼──────────────────────────────────┐
 │                         SERVER                              │
 │ Express 5 · JWT · bcrypt · cookie-parser · CORS · helmet    │
-│ Rate limiting · Nodemailer · Prisma adapter (pg)            │
+│ Rate limiting · Brevo Transactional Email · Prisma adapter (pg) │
 └──────────────────────────┬──────────────────────────────────┘
                            │ Prisma Client
 ┌──────────────────────────▼──────────────────────────────────┐
@@ -202,14 +202,16 @@ DIRECT_URL=postgresql://...
 JWT_ACCESS_SECRET=change_me_access
 JWT_REFRESH_SECRET=change_me_refresh
 
-# Email (optional but recommended for reset flow)
-SMTP_HOST=smtp.gmail.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=your_user
-SMTP_PASS=your_pass
-SMTP_FROM=your_from_email
+# Email (required for verification + reset flows)
+BREVO_API_KEY=your_brevo_api_key
+BREVO_SENDER_EMAIL=your-verified-sender@example.com
+BREVO_SENDER_NAME=Heed
 ```
+
+Production notes:
+- Use a Brevo sender email/domain that is verified in your Brevo account.
+- Keep `BREVO_API_KEY` in secret manager / environment settings (never commit it).
+- On server boot, the backend logs whether Brevo config is complete.
 
 ### 3) Frontend Setup
 
