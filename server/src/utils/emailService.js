@@ -1,31 +1,105 @@
-import nodemailer from 'nodemailer';
+import Brevo from '@getbrevo/brevo';
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: process.env.SMTP_SECURE === 'true',
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+const API_KEY = process.env.BREVO_API_KEY || '';
+const SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL || process.env.SMTP_FROM || process.env.SMTP_USER || '';
+const SENDER_NAME = process.env.BREVO_SENDER_NAME || 'Heed';
 
-transporter.verify((err, success) => {
-  if (err) {
-    console.warn('[Email] SMTP not configured or connection failed:', err.message);
-  } else if (success) {
-    console.log('[Email] SMTP configured and ready');
+let transactionalApi = null;
+
+const getTransactionalApi = () => {
+  if (!API_KEY) {
+    console.warn('[Email] BREVO_API_KEY is missing. Transactional emails are disabled.');
+    return null;
   }
-});
+
+  if (!transactionalApi) {
+    const instance = new Brevo.TransactionalEmailsApi();
+    const apiKey = instance.authentications?.apiKey;
+
+    if (!apiKey) {
+      console.error('[Email] Brevo SDK initialization failed: apiKey authentication not available.');
+      return null;
+    }
+
+    apiKey.apiKey = API_KEY;
+    transactionalApi = instance;
+    console.log('[Email] Brevo transactional email client configured.');
+  }
+
+  return transactionalApi;
+};
+
+const getErrorMessage = (error) => {
+  const brevoBody = error?.response?.body;
+
+  if (typeof brevoBody === 'string' && brevoBody) {
+    return brevoBody;
+  }
+
+  if (brevoBody?.message) {
+    return brevoBody.message;
+  }
+
+  return error?.message || 'Unknown email error';
+};
+
+const sendEmail = async ({ toEmail, subject, html }) => {
+  const api = getTransactionalApi();
+
+  if (!api) {
+    return { success: false, error: 'Email service is not configured' };
+  }
+
+  if (!SENDER_EMAIL) {
+    console.warn('[Email] BREVO_SENDER_EMAIL is missing. Transactional emails are disabled.');
+    return { success: false, error: 'Email sender is not configured' };
+  }
+
+  try {
+    const payload = new Brevo.SendSmtpEmail();
+    payload.subject = subject;
+    payload.htmlContent = html;
+    payload.sender = { email: SENDER_EMAIL, name: SENDER_NAME };
+    payload.to = [{ email: toEmail }];
+
+    const response = await api.sendTransacEmail(payload);
+    const messageId = response?.body?.messageId || null;
+
+    return { success: true, messageId };
+  } catch (error) {
+    const message = getErrorMessage(error);
+    console.error('[Email] Failed to send transactional email:', message);
+    return { success: false, error: message };
+  }
+};
+
+export const validateEmailConfiguration = () => {
+  const missing = [];
+
+  if (!process.env.BREVO_API_KEY) {
+    missing.push('BREVO_API_KEY');
+  }
+
+  if (!process.env.BREVO_SENDER_EMAIL && !process.env.SMTP_FROM && !process.env.SMTP_USER) {
+    missing.push('BREVO_SENDER_EMAIL');
+  }
+
+  if (missing.length > 0) {
+    console.warn(
+      `[Email] Brevo configuration incomplete. Missing: ${missing.join(', ')}. Email sending is disabled until configured.`,
+    );
+    return { configured: false, missing };
+  }
+
+  console.log('[Email] Brevo configuration validated. Transactional email is enabled.');
+  return { configured: true, missing: [] };
+};
 
 export const sendPasswordResetEmail = async (toEmail, resetToken, clientOrigin) => {
   const resetLink = `${clientOrigin}/reset-password?token=${resetToken}`;
 
-  const mailOptions = {
-    from: process.env.SMTP_FROM || process.env.SMTP_USER,
-    to: toEmail,
-    subject: 'Password Reset Request - Heed',
-    html: `
+  const subject = 'Password Reset Request - Heed';
+  const html = `
       <!DOCTYPE html>
       <html>
         <head>
@@ -73,25 +147,20 @@ export const sendPasswordResetEmail = async (toEmail, resetToken, clientOrigin) 
           </div>
         </body>
       </html>
-    `,
-  };
+    `;
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('[Email] Password reset email sent:', info.messageId);
-    return { success: true, messageId: info.messageId };
-  } catch (err) {
-    console.error('[Email] Failed to send password reset email:', err);
-    return { success: false, error: err.message };
+  const result = await sendEmail({ toEmail, subject, html });
+
+  if (result.success) {
+    console.log('[Email] Password reset email sent:', result.messageId);
   }
+
+  return result;
 };
 
 export const sendWelcomeEmail = async (toEmail, fullName, clientOrigin) => {
-  const mailOptions = {
-    from: process.env.SMTP_FROM || process.env.SMTP_USER,
-    to: toEmail,
-    subject: 'Welcome to Heed!',
-    html: `
+  const subject = 'Welcome to Heed!';
+  const html = `
       <!DOCTYPE html>
       <html>
         <head>
@@ -124,27 +193,22 @@ export const sendWelcomeEmail = async (toEmail, fullName, clientOrigin) => {
           </div>
         </body>
       </html>
-    `,
-  };
+    `;
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('[Email] Welcome email sent:', info.messageId);
-    return { success: true, messageId: info.messageId };
-  } catch (err) {
-    console.error('[Email] Failed to send welcome email:', err);
-    return { success: false, error: err.message };
+  const result = await sendEmail({ toEmail, subject, html });
+
+  if (result.success) {
+    console.log('[Email] Welcome email sent:', result.messageId);
   }
+
+  return result;
 };
 
 export const sendVerificationEmail = async (toEmail, fullName, verificationToken, clientOrigin) => {
   const verifyLink = `${clientOrigin}/verify-email?token=${verificationToken}`;
 
-  const mailOptions = {
-    from: process.env.SMTP_FROM || process.env.SMTP_USER,
-    to: toEmail,
-    subject: 'Verify your Heed account',
-    html: `
+  const subject = 'Verify your Heed account';
+  const html = `
       <!DOCTYPE html>
       <html>
         <head>
@@ -194,15 +258,13 @@ export const sendVerificationEmail = async (toEmail, fullName, verificationToken
           </div>
         </body>
       </html>
-    `,
-  };
+    `;
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log('[Email] Verification email sent:', info.messageId);
-    return { success: true, messageId: info.messageId };
-  } catch (err) {
-    console.error('[Email] Failed to send verification email:', err);
-    return { success: false, error: err.message };
+  const result = await sendEmail({ toEmail, subject, html });
+
+  if (result.success) {
+    console.log('[Email] Verification email sent:', result.messageId);
   }
+
+  return result;
 };
