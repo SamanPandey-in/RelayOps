@@ -179,22 +179,45 @@ export const updateTeam = async (req, res, next) => {
 
     const team = await prisma.team.findUnique({
       where: { id: teamId },
+      include: {
+        members: {
+          select: {
+            userId: true,
+          },
+        },
+      },
     });
 
     if (!team) {
       return res.status(404).json({ message: "Team not found" });
     }
 
-    if (team.ownerId !== userId) {
-      return res.status(403).json({ message: "Only team owner can update team" });
+    const isOwner = team.ownerId === userId;
+    const isMember = team.members.some((member) => member.userId === userId);
+
+    if (!isOwner && !isMember) {
+      return res.status(403).json({ message: "Only team members can update team" });
     }
+
+    const hasNameUpdate = typeof name === "string";
+    const hasDescriptionUpdate = typeof description === "string";
+
+    if (!hasNameUpdate && !hasDescriptionUpdate) {
+      return res.status(400).json({ message: "No valid fields provided for update" });
+    }
+
+    if (hasNameUpdate && !name.trim()) {
+      return res.status(400).json({ message: "Team name is required" });
+    }
+
+    const updateData = {
+      ...(hasNameUpdate ? { name: name.trim() } : {}),
+      ...(hasDescriptionUpdate ? { description: description.trim() } : {}),
+    };
 
     const updated = await prisma.team.update({
       where: { id: teamId },
-      data: {
-        name: name?.trim() || team.name,
-        description: description?.trim() || team.description,
-      },
+      data: updateData,
       include: {
         members: {
           include: {
