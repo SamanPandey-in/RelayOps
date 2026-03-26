@@ -9,7 +9,7 @@ const SESSION_TOKEN_TTL = "7d";
 const SESSION_COOKIE = "sessionToken";
 
 const resolveJwtSecret = () =>
-  process.env.JWT_SECRET || process.env.JWT_ACCESS_SECRET || process.env.JWT_REFRESH_SECRET;
+  process.env.JWT_SECRET || process.env.JWT_ACCESS_SECRET;
 
 const signSessionToken = (userId) => {
   const secret = resolveJwtSecret();
@@ -24,11 +24,16 @@ const signSessionToken = (userId) => {
 
 const getCookieOptions = () => {
   const isProd = process.env.NODE_ENV === "production";
-  const secure = process.env.COOKIE_SECURE
+  let secure = process.env.COOKIE_SECURE
     ? process.env.COOKIE_SECURE === "true"
     : isProd;
 
-  const sameSite = process.env.COOKIE_SAME_SITE || (secure ? "none" : "lax");
+  let sameSite = process.env.COOKIE_SAME_SITE || (secure ? "none" : "lax");
+
+  // Normalize invalid combinations: SameSite=None requires Secure=true in modern browsers
+  if (typeof sameSite === "string" && sameSite.toLowerCase() === "none" && !secure) {
+    secure = true;
+  }
 
   return {
     httpOnly: true,
@@ -422,7 +427,11 @@ export const verifyEmail = async (req, res, next) => {
     }
 
     if (user.isEmailVerified) {
-      return res.json({ message: "Email already verified. You can log in.", code: "ALREADY_VERIFIED" });
+      return res.json({
+        message: "Email already verified. You can log in.",
+        code: "ALREADY_VERIFIED",
+        email: user.email,
+      });
     }
 
     await prisma.user.update({
@@ -434,7 +443,11 @@ export const verifyEmail = async (req, res, next) => {
       },
     });
 
-    return res.json({ message: "Email verified successfully. You can now log in.", code: "VERIFIED" });
+    return res.json({
+      message: "Email verified successfully. You can now log in.",
+      code: "VERIFIED",
+      email: user.email,
+    });
   } catch (err) {
     next(err);
   }

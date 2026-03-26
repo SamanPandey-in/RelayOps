@@ -174,7 +174,7 @@ export const AuthProvider = ({ children }) => {
   const verifyEmail = async (token) => {
     try {
       const { data } = await api.get(`/auth/verify-email?token=${token}`);
-      return { success: true, code: data.code, message: data.message };
+      return { success: true, code: data.code, message: data.message, email: data.email || null };
     } catch (err) {
       return {
         success: false,
