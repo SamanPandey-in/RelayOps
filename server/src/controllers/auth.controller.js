@@ -427,7 +427,11 @@ export const verifyEmail = async (req, res, next) => {
     }
 
     if (user.isEmailVerified) {
-      return res.json({ message: "Email already verified. You can log in.", code: "ALREADY_VERIFIED" });
+      return res.json({
+        message: "Email already verified. You can log in.",
+        code: "ALREADY_VERIFIED",
+        email: user.email,
+      });
     }
 
     await prisma.user.update({
@@ -439,7 +443,11 @@ export const verifyEmail = async (req, res, next) => {
       },
     });
 
-    return res.json({ message: "Email verified successfully. You can now log in.", code: "VERIFIED" });
+    return res.json({
+      message: "Email verified successfully. You can now log in.",
+      code: "VERIFIED",
+      email: user.email,
+    });
   } catch (err) {
     next(err);
   }
